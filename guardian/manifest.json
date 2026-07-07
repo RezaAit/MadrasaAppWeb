@@ -1,0 +1,26 @@
+{
+  "name": "মাদরাসাতুল হুদা — অভিভাবক",
+  "short_name": "হুদা গার্ডিয়ান",
+  "description": "মাদরাসাতুল হুদা আল-ইসলামিয়া অভিভাবক পোর্টাল",
+  "start_url": "/guardian/",
+  "scope": "/guardian/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "lang": "bn",
+  "icons": [
+    {
+      "src": "../images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

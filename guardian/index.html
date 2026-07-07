@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="bn" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="হুদা গার্ডিয়ান">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="../images/logo.png">
+  <title>মাদরাসাতুল হুদা আল-ইসলামিয়া — অভিভাবক পোর্টাল</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../shared/css/common.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- ═══════════════════════════════════════════════════════ LOGIN SCREEN -->
+  <div id="screen-login" class="screen active">
+    <div class="ls-root">
+
+      <!-- hero -->
+      <div class="ls-hero">
+        <div class="ls-bubble ls-b1"></div>
+        <div class="ls-bubble ls-b2"></div>
+        <div class="ls-bubble ls-b3"></div>
+        <div class="ls-bubble ls-b4"></div>
+        <div class="ls-logo-wrap">
+          <img src="../images/logo.png" alt="logo" width="64" height="64">
+        </div>
+        <h1 class="ls-hero-name">মাদরাসাতুল হুদা আল-ইসলামিয়া আস-সালাফিয়া</h1>
+        <p class="ls-hero-sub">Guardian Portal · অভিভাবক পোর্টাল</p>
+      </div>
+
+      <!-- wave + card -->
+      <div class="ls-card-wrap">
+        <div class="ls-wave">
+          <svg viewBox="0 0 480 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,56 L0,18 C80,48 160,4 240,22 C320,40 400,8 480,20 L480,56 Z" fill="#ffffff"/>
+          </svg>
+        </div>
+        <div class="ls-card-body">
+          <div class="ls-card">
+
+            <!-- Step 1: Phone -->
+            <div id="phone-step" class="ls-step">
+              <p class="ls-card-title">লগইন করুন</p>
+              <p class="ls-card-sub">রেজিস্টার্ড মোবাইল নম্বর দিন</p>
+              <div class="lss-phone-row">
+                <div class="lss-flag">+880</div>
+                <input type="tel" id="phone-input" inputmode="numeric" placeholder="1XXXXXXXXX" maxlength="10" class="lss-phone-input">
+              </div>
+              <button class="lss-btn" id="send-otp-btn" disabled>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                OTP পাঠান
+              </button>
+            </div>
+
+            <!-- Step 2: OTP -->
+            <div id="otp-step" class="ls-step" style="display:none;">
+              <div class="lss-otp-header">
+                <p class="ls-card-title">যাচাই কোড (OTP)</p>
+                <button id="change-number" class="lss-change">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                  পরিবর্তন
+                </button>
+              </div>
+              <p class="ls-card-sub"><span id="display-number" class="lss-otp-num"></span> নম্বরে পাঠানো ৬ সংখ্যার কোড</p>
+              <div class="otp-input-row">
+                <input type="tel" class="otp-box" inputmode="numeric" maxlength="1">
+                <input type="tel" class="otp-box" inputmode="numeric" maxlength="1">
+                <input type="tel" class="otp-box" inputmode="numeric" maxlength="1">
+                <input type="tel" class="otp-box" inputmode="numeric" maxlength="1">
+                <input type="tel" class="otp-box" inputmode="numeric" maxlength="1">
+                <input type="tel" class="otp-box" inputmode="numeric" maxlength="1">
+              </div>
+              <button class="lss-btn" id="verify-otp-btn">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                লগইন করুন
+              </button>
+              <p class="lss-hint">SMS না আসলে কিছুক্ষণ অপেক্ষা করুন</p>
+            </div>
+
+            <!-- footer -->
+            <div class="lss-footer">
+              <span>Powered by</span>
+              <strong>HELIX</strong>
+              <span class="lss-dot"></span>
+              <span>sbook.com.bd</span>
+            </div>
+
+          </div><!-- /.ls-card -->
+        </div><!-- /.ls-card-body -->
+      </div><!-- /.ls-card-wrap -->
+      <div class="ls-white-space"></div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ DASHBOARD SCREEN -->
+  <div id="screen-dashboard" class="screen">
+    <div class="app-header">
+      <svg viewBox="0 0 32 32" width="28" height="28" fill="none">
+        <circle cx="16" cy="16" r="14" fill="rgba(255,255,255,0.2)"/>
+        <text x="16" y="21" text-anchor="middle" font-size="14" fill="white" font-family="serif" font-weight="bold">م</text>
+      </svg>
+      <h1>মাদরাসাতুল হুদা আল-ইসলামিয়া আস-সালাফিয়া</h1>
+      <button class="header-action" id="logout-btn" title="লগআউট">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+
+    <div class="scroll-content p-16">
+      <div style="margin-bottom:20px;">
+        <p style="font-size:.8rem;color:var(--text-muted);">স্বাগতম,</p>
+        <h2 style="font-size:1.1rem;font-weight:700;" id="hdr-guardian-name">অভিভাবক</h2>
+      </div>
+      <div class="section-header">
+        <span class="section-title">আপনার সন্তানগণ</span>
+      </div>
+      <div id="children-grid" style="display:flex;flex-direction:column;gap:14px;" class="stagger-in">
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ PROFILE SCREEN -->
+  <div id="screen-profile" class="screen">
+    <div class="app-header" style="flex-shrink:0;">
+      <button class="back-btn" id="profile-back-btn">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <h1>শিক্ষার্থীর তথ্য</h1>
+      <button class="header-action" id="logout-btn-2" title="লগআউট">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+
+    <div class="profile-scroll">
+
+    <!-- Hero: avatar + name + chips -->
+    <div class="profile-hero">
+      <div class="hero-blob hero-blob-1"></div>
+      <div class="hero-blob hero-blob-2"></div>
+
+      <!-- avatar + name horizontal -->
+      <div class="hero-body">
+        <div class="hero-avatar-wrap">
+          <div id="profile-avatar" class="hero-avatar">আ</div>
+          <div class="hero-avatar-ring"></div>
+        </div>
+        <div class="hero-info">
+          <h2 id="profile-name" class="hero-name">—</h2>
+          <p id="profile-name-bn" class="hero-name-bn"></p>
+        </div>
+      </div>
+
+      <!-- chips row -->
+      <div id="profile-chips" class="hero-chips-card"></div>
+
+      <!-- Navigation Tabs — inside hero -->
+      <nav class="profile-nav">
+        <button class="profile-nav-btn active" data-section="attendance">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          উপস্থিতি
+        </button>
+        <button class="profile-nav-btn" data-section="leave">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+          ছুটি
+        </button>
+        <button class="profile-nav-btn" data-section="homework">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          হোমওয়ার্ক
+        </button>
+        <button class="profile-nav-btn" data-section="fees">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          ফি
+        </button>
+        <button class="profile-nav-btn" data-section="exam">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          পরীক্ষা
+        </button>
+        <button class="profile-nav-btn" data-section="notice">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          নোটিশ
+        </button>
+      </nav>
+    </div>
+
+    <!-- White body -->
+    <div class="profile-body">
+
+      <!-- Stats row -->
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-icon hero-stat-icon--green">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg>
+          </div>
+          <div class="hero-stat-val" id="qs-attendance">—</div>
+          <div class="hero-stat-lbl">উপস্থিতি</div>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <div class="hero-stat-icon hero-stat-icon--blue">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <div class="hero-stat-val" id="qs-homework">—</div>
+          <div class="hero-stat-lbl">হোমওয়ার্ক</div>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <div class="hero-stat-icon hero-stat-icon--amber">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          </div>
+          <div class="hero-stat-val" id="qs-fees">—</div>
+          <div class="hero-stat-lbl">বকেয়া</div>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <div class="hero-stat-icon hero-stat-icon--red">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </div>
+          <div class="hero-stat-val" id="qs-notice">—</div>
+          <div class="hero-stat-lbl">নোটিশ</div>
+        </div>
+      </div>
+
+      <!-- Dynamic section content -->
+      <div id="profile-content" class="stagger-in">
+        <div class="p-16">
+          <div class="skeleton skeleton-card"></div>
+          <div class="skeleton skeleton-card"></div>
+          <div class="skeleton skeleton-card"></div>
+        </div>
+      </div>
+
+    </div><!-- .profile-body -->
+    </div><!-- .profile-scroll -->
+  </div>
+
+</div><!-- .app-shell -->
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var inp = document.getElementById('phone-input');
+    var btn = document.getElementById('send-otp-btn');
+    if (!inp) return;
+    inp.addEventListener('input', function () {
+      this.value = this.value.replace(/\D/g, '').slice(0, 10);
+      btn.disabled = this.value.length !== 10;
+    });
+  });
+</script>
+<script type="module">
+  import { init } from './js/dashboard.js';
+  import { logout } from './js/auth.js';
+  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('click', e => {
+    if (e.target.closest('#logout-btn-2')) logout();
+  });
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/guardian/sw.js', { scope: '/guardian/' })
+        .catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>

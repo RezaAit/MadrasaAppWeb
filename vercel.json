@@ -1,0 +1,31 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/guardian/sw.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+        { "key": "Service-Worker-Allowed", "value": "/" }
+      ]
+    },
+    {
+      "source": "/teacher/sw.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+        { "key": "Service-Worker-Allowed", "value": "/" }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/guardian", "destination": "/guardian/index.html" },
+    { "source": "/teacher", "destination": "/teacher/index.html" }
+  ]
+}

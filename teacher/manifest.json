@@ -1,0 +1,26 @@
+{
+  "name": "মাদরাসাতুল হুদা — শিক্ষক",
+  "short_name": "হুদা শিক্ষক",
+  "description": "মাদরাসাতুল হুদা আল-ইসলামিয়া শিক্ষক পোর্টাল",
+  "start_url": "/teacher/",
+  "scope": "/teacher/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+  "lang": "bn",
+  "icons": [
+    {
+      "src": "../images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

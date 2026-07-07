@@ -1,0 +1,556 @@
+import { getHomeworkList, createHomework, updateHomework, publishHomework, deleteHomework, uploadHomeworkAttachments, uploadHomeworkMultiAttachments, deleteHomeworkAttachment, reviewHomework, submitReaction, getMySections } from './api.js';
+import { showToast } from './dashboard.js';
+import { initAnnotation, buildToolbar, getAnnotatedBlob, openLightbox } from '../../shared/js/annotation.js';
+import { compressImage } from '../../shared/js/compress-image.js';
+import { initVoiceRecorder, fetchAudioAsBlob } from '../../shared/js/voice-recorder.js';
+import { createBottomSheet } from '../../shared/js/bottom-sheet.js';
+import { BASE_URL } from '../../shared/js/api-config.js';
+import { createMultiAttachManager } from './hw-multi-attach.js';
+
+export async function loadHomeworkModule(container, teacher) {
+  const res = await getHomeworkList();
+  const homeworks = res.results || [];
+
+  container.innerHTML = `
+    <div class="p-16">
+      <div class="hw-create-card" id="create-hw-btn">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:.95rem;font-weight:700;letter-spacing:.01em;">হোমওয়ার্ক তৈরি করুন</div>
+          <div style="font-size:.74rem;opacity:.82;margin-top:1px;">ছবি, ভয়েস, PDF সহ নির্দেশনা দিন</div>
+        </div>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <div class="section-header"><span class="section-title">হোমওয়ার্ক তালিকা</span></div>
+      <div id="hw-list" class="stagger-in"></div>
+    </div>
+  `;
+
+  _renderHwList(homeworks, container);
+
+  document.getElementById('create-hw-btn').addEventListener('click', () => {
+    _openCreateForm(container, teacher);
+  });
+}
+
+async function _reloadList(container) {
+  const res = await getHomeworkList();
+  const homeworks = res.results || [];
+  _renderHwList(homeworks, container);
+}
+
+const BN_MONTHS = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+
+function _hwGroupKey(hw, mode) {
+  const d = new Date(hw.addDate ?? hw.AddDate);
+  if (mode === 'year')  return String(d.getFullYear());
+  if (mode === 'month') return `${d.getFullYear()} — ${BN_MONTHS[d.getMonth()]}`;
+  // week: show week-of-year label
+  const startOfYear = new Date(d.getFullYear(), 0, 1);
+  const week = Math.ceil(((d - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
+  return `${d.getFullYear()} — সপ্তাহ ${week}`;
+}
+
+function _renderHwCard(hw) {
+  const subCount    = hw.SubmissionCount ?? hw.submissionCount ?? 0;
+  const totalCount  = hw.TotalStudents   ?? hw.totalStudents   ?? 0;
+  const pendingCount = totalCount - subCount;
+  const sessionName = hw.SessionName ?? hw.sessionName ?? '';
+  const className   = hw.ClassName   ?? hw.className   ?? '';
+  const groupName   = hw.GroupName   ?? hw.groupName   ?? '';
+  const sectionName = hw.SectionName ?? hw.sectionName ?? '';
+  const subjectName = hw.subjectName ?? hw.SubjectName ?? '';
+  const metaParts   = [sessionName, className, groupName, sectionName].filter(Boolean);
+  return `
+  <div class="list-item hw-review-item ${hw.status === 'Published' ? 'has-pending' : ''}" data-hw-id="${hw.id}" style="cursor:pointer;">
+    <div style="flex:1;min-width:0;">
+      <div class="list-item-title" style="font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:3px;">${hw.title}</div>
+      ${subjectName ? `<div style="font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:3px;">${subjectName}</div>` : ''}
+      ${metaParts.length ? `<div style="font-size:.78rem;font-weight:600;color:#334155;margin-bottom:4px;">${metaParts.join(' · ')}</div>` : ''}
+      <div style="font-size:.75rem;color:#64748b;font-weight:500;margin-bottom:5px;">
+        তৈরি: ${_fmt(hw.addDate ?? hw.AddDate)} &nbsp;|&nbsp; সীমা: ${_fmt(hw.dueDate ?? hw.DueDate)}
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap;">
+        <span class="badge ${hw.status === 'Published' ? 'badge-submitted' : 'badge-pending'}">${hw.status === 'Published' ? '✓ প্রকাশিত' : '📝 খসড়া'}</span>
+        ${hw.status === 'Published' && totalCount > 0 ? `
+          <span style="font-size:.75rem;background:#dcfce7;color:#15803d;padding:3px 9px;border-radius:10px;font-weight:700;">✓ ${subCount} জমা</span>
+          <span style="font-size:.75rem;background:#fee2e2;color:#b91c1c;padding:3px 9px;border-radius:10px;font-weight:700;">✗ ${pendingCount} বাকি</span>
+          <span style="font-size:.75rem;color:#475569;font-weight:600;">মোট ${totalCount}</span>` : ''}
+        ${hw.status !== 'Published' ? `<button type="button" class="btn-hw-publish" data-pub-id="${hw.id}">▶ প্রকাশ করুন</button>` : ''}
+        ${subCount === 0 ? `<button type="button" class="btn-hw-delete" data-del-id="${hw.id}">🗑 মুছুন</button>` : ''}
+      </div>
+    </div>
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-light);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+  </div>`;
+}
+
+function _renderHwList(homeworks, container) {
+  const list = document.getElementById('hw-list');
+  if (!list) return;
+  if (!homeworks.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-title">কোনো হোমওয়ার্ক নেই</div><div class="empty-sub">নতুন হোমওয়ার্ক তৈরি করুন</div></div>`;
+    return;
+  }
+
+  // grouping toggle buttons
+  const groupMode = list.dataset.groupMode || 'month';
+  list.innerHTML = `
+    <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+      ${['year','month','week'].map(m => `
+        <button type="button" class="btn-hw-group ${groupMode===m?'btn-hw-group-active':''}" data-mode="${m}">
+          ${m==='year'?'বছর':m==='month'?'মাস':'সপ্তাহ'}
+        </button>`).join('')}
+    </div>
+    <div id="hw-list-inner"></div>`;
+
+  list.querySelectorAll('.btn-hw-group').forEach(btn => {
+    btn.addEventListener('click', () => {
+      list.dataset.groupMode = btn.dataset.mode;
+      _renderHwList(homeworks, container);
+    });
+  });
+
+  // group homeworks
+  const groups = {};
+  homeworks.forEach(hw => {
+    const key = _hwGroupKey(hw, groupMode);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(hw);
+  });
+
+  const inner = document.getElementById('hw-list-inner');
+  inner.innerHTML = Object.entries(groups).map(([label, items]) => `
+    <div class="hw-group-section">
+      <div class="hw-group-label">${label} <span style="font-size:.7rem;color:#94a3b8;">(${items.length}টি)</span></div>
+      ${items.map(_renderHwCard).join('')}
+    </div>`).join('');
+
+  inner.querySelectorAll('[data-hw-id]').forEach(item => {
+    item.addEventListener('click', e => {
+      if (e.target.closest('.btn-hw-publish, .btn-hw-delete')) return;
+      const hw = homeworks.find(h => String(h.id) === item.dataset.hwId);
+      if (hw) _openReviewScreen(container, hw);
+    });
+  });
+
+  inner.querySelectorAll('.btn-hw-publish').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      if (!confirm('এই হোমওয়ার্ক প্রকাশ করবেন?')) return;
+      btn.disabled = true; btn.textContent = '...';
+      const res = await publishHomework(Number(btn.dataset.pubId));
+      if (res.HasError) { showToast(res.message || 'প্রকাশ ব্যর্থ হয়েছে', 'error'); btn.disabled = false; btn.textContent = '▶ প্রকাশ করুন'; }
+      else { showToast('প্রকাশিত হয়েছে ✓', 'success'); _reloadList(container); }
+    });
+  });
+
+  inner.querySelectorAll('.btn-hw-delete').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      if (!confirm('এই হোমওয়ার্ক মুছে ফেলবেন? এটি আর ফেরানো যাবে না।')) return;
+      btn.disabled = true; btn.textContent = '...';
+      const res = await deleteHomework(Number(btn.dataset.delId));
+      if (res.HasError) { showToast(res.message || 'মুছতে ব্যর্থ হয়েছে', 'error'); btn.disabled = false; btn.textContent = '🗑 মুছুন'; }
+      else { showToast('মুছে ফেলা হয়েছে', 'success'); _reloadList(container); }
+    });
+  });
+}
+
+function _openCreateForm(container, teacher) {
+  const formHtml = `
+    <div class="hwc-form">
+      <div class="form-group mb-12">
+        <label class="form-label">ক্লাস, সেকশন ও বিষয় *</label>
+        <select class="form-select" id="hw-section">
+          <option value="">লোড হচ্ছে...</option>
+        </select>
+      </div>
+      <div class="form-group mb-12">
+        <label class="form-label">শিরোনাম *</label>
+        <input type="text" class="form-input" id="hw-title" placeholder="হোমওয়ার্কের শিরোনাম">
+      </div>
+      <div class="form-group mb-12">
+        <label class="form-label">শেষ তারিখ *</label>
+        <input type="date" class="form-input" id="hw-due">
+      </div>
+      <div class="form-group mb-12">
+        <label class="form-label">বিবরণ</label>
+        <div id="quill-editor" style="min-height:120px;"></div>
+      </div>
+
+      <!-- ── Multiple attachments (images, voice, video, YouTube, PDF) ── -->
+      <div id="hwc-multi-attach-wrap" class="mb-12"></div>
+
+      <button class="btn btn-primary btn-full btn-lg" id="submit-hw-btn">হোমওয়ার্ক প্রকাশ করুন</button>
+    </div>
+  `;
+
+  const { body: sheetBody, close, open } = createBottomSheet({
+    id: 'hw-create-sheet',
+    title: 'নতুন হোমওয়ার্ক',
+    content: formHtml,
+    fullHeight: true,
+  });
+  open();
+
+  sheetBody.querySelector('#hw-due').value = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+
+  // Section + subject picker (from teacher's real assignments)
+  const sectionSelect = sheetBody.querySelector('#hw-section');
+  let sectionData = [];
+  getMySections().then(res => {
+    sectionData = (res.results?.subjectSections || []).filter(s => s.subjectId);
+    sectionSelect.innerHTML = sectionData.length
+      ? `<option value="">বেছে নিন</option>` + sectionData.map((s, i) =>
+          `<option value="${i}">${s.className} - ${s.sectionName} (${s.subjectName})</option>`).join('')
+      : `<option value="">কোনো বিষয় বরাদ্দ নেই</option>`;
+  });
+
+  // Quill init
+  let quill = null;
+  if (window.Quill) {
+    quill = new Quill(sheetBody.querySelector('#quill-editor'), {
+      theme: 'snow',
+      placeholder: 'হোমওয়ার্কের বিস্তারিত বিবরণ লিখুন...',
+      modules: { toolbar: [['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], [{ color: [] }, { size: ['small', false, 'large', 'huge'] }], ['clean']] }
+    });
+  } else {
+    sheetBody.querySelector('#quill-editor').innerHTML = `<textarea class="form-textarea" id="hw-desc-fallback" style="min-height:120px;" placeholder="হোমওয়ার্কের বিস্তারিত বিবরণ লিখুন..."></textarea>`;
+  }
+
+  // ── Multi-attachment manager (images, voice, video, YouTube, PDF) ──
+  const multiAttachWrap = sheetBody.querySelector('#hwc-multi-attach-wrap');
+  const multiMgr = createMultiAttachManager(multiAttachWrap);
+
+  // Submit: create -> upload attachments -> publish
+  sheetBody.querySelector('#submit-hw-btn')?.addEventListener('click', async () => {
+    const title   = sheetBody.querySelector('#hw-title').value.trim();
+    const dueDate = sheetBody.querySelector('#hw-due').value;
+    const sectionIdx = sectionSelect.value;
+
+    if (!sectionIdx && sectionIdx !== '0') { showToast('ক্লাস ও বিষয় বেছে নিন', 'error'); return; }
+    if (!title)   { showToast('শিরোনাম দিন', 'error'); return; }
+    if (!dueDate) { showToast('শেষ তারিখ দিন', 'error'); return; }
+
+    const sec = sectionData[Number(sectionIdx)];
+    const description = quill
+      ? quill.root.innerHTML
+      : (sheetBody.querySelector('#hw-desc-fallback')?.value || '');
+
+    const btn = sheetBody.querySelector('#submit-hw-btn');
+    btn.disabled = true; btn.textContent = 'তৈরি হচ্ছে...';
+
+    const createRes = await createHomework({
+      VersionId: sec.versionId, SessionId: sec.sessionId, BranchId: sec.branchId, ShiftId: sec.shiftId,
+      ClassId: sec.classId, GroupId: sec.groupId, SectionId: sec.sectionId, SubjectId: sec.subjectId,
+      Title: title, Description: description, DueDate: dueDate,
+    });
+
+    if (createRes.HasError || !createRes.results?.id) {
+      showToast(createRes.message || 'হোমওয়ার্ক তৈরি ব্যর্থ হয়েছে', 'error');
+      btn.disabled = false; btn.textContent = 'হোমওয়ার্ক প্রকাশ করুন';
+      return;
+    }
+
+    const hwId = createRes.results.id;
+    const { images, annotated, voices, videos, youtubeUrls, pdfs } = multiMgr.getPayload();
+
+    // Upload all attachments (images, voice, video, YouTube, PDF)
+    if (images.length || voices.length || videos.length || youtubeUrls.length || pdfs.length) {
+      btn.textContent = 'সংযুক্তি আপলোড হচ্ছে...';
+      const upRes = await uploadHomeworkMultiAttachments(hwId, { images, annotated, voices, videos, youtubeUrls, pdfs });
+      if (upRes?.HasError) {
+        showToast(upRes.message || 'সংযুক্তি আপলোড ব্যর্থ হয়েছে', 'error');
+        btn.disabled = false; btn.textContent = 'হোমওয়ার্ক প্রকাশ করুন';
+        return;
+      }
+    }
+
+    btn.textContent = 'প্রকাশ হচ্ছে...';
+    const pubRes = await publishHomework(hwId);
+
+    if (!pubRes.HasError) {
+      showToast('হোমওয়ার্ক প্রকাশিত হয়েছে ✓', 'success');
+      close();
+      _reloadList(container);
+    } else {
+      showToast(pubRes.message || 'প্রকাশ করতে ত্রুটি হয়েছে (খসড়া হিসেবে সংরক্ষিত আছে)', 'error');
+      btn.disabled = false; btn.textContent = 'হোমওয়ার্ক প্রকাশ করুন';
+    }
+  });
+}
+
+function _full(url) {
+  if (!url) return url;
+  return url.startsWith('http') ? url : `${BASE_URL}${url}`;
+}
+
+function _openLightbox(src) {
+  const ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;';
+  ov.innerHTML = `
+    <img src="${src}" style="max-width:94vw;max-height:90vh;object-fit:contain;border-radius:8px;">
+    <button style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,.15);border:none;color:#fff;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>`;
+  ov.addEventListener('click', e => { if (e.target === ov || e.target.closest('button')) ov.remove(); });
+  document.body.appendChild(ov);
+}
+
+async function _openReviewScreen(container, hw) {
+  const skeletonHtml = `<div class="p-16"><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div></div>`;
+
+  const { body: sheetBody, close, open } = createBottomSheet({
+    id: 'hw-review-sheet',
+    title: hw.title,
+    content: skeletonHtml,
+    fullHeight: true,
+  });
+  open();
+
+  const res = await reviewHomework(hw.id);
+  const submissions = res.results || [];
+
+  const content = sheetBody.querySelector('.p-16');
+  content.innerHTML = '';
+  content.className = 'p-16 stagger-in';
+
+  const submitted = submissions.filter(s => s.status === 'Submitted' || s.status === 'Reviewed');
+  const pending   = submissions.filter(s => s.status === 'Pending');
+  const canEdit   = submitted.length === 0;
+
+  content.innerHTML = `
+    <div class="stat-grid mb-16">
+      <div class="stat-card"><div class="stat-label">জমা দিয়েছে</div><div class="stat-value text-success">${submitted.length}</div></div>
+      <div class="stat-card"><div class="stat-label">জমা দেয়নি</div><div class="stat-value text-danger">${pending.length}</div></div>
+    </div>
+
+    ${canEdit ? `<button class="btn btn-secondary btn-full mb-16" id="hw-edit-btn" style="display:flex;align-items:center;justify-content:center;gap:6px;">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      হোমওয়ার্ক সম্পাদনা করুন
+    </button>` : ''}
+
+    <div class="tabs mb-16">
+      <button class="tab-btn active" data-tab="submitted">জমা দিয়েছে (${submitted.length})</button>
+      <button class="tab-btn" data-tab="pending">জমা দেয়নি (${pending.length})</button>
+    </div>
+    <div id="sub-list"></div>
+  `;
+
+  content.querySelector('#hw-edit-btn')?.addEventListener('click', () => {
+    close();
+    _openEditForm(container, hw);
+  });
+
+  function renderSubList(tab) {
+    const list = tab === 'submitted' ? submitted : pending;
+    const el = document.getElementById('sub-list');
+    el.innerHTML = '';
+    if (!list.length) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-title">কেউ নেই</div></div>`;
+      return;
+    }
+    list.forEach(sub => {
+      const card = document.createElement('div');
+      card.className = 'card mb-10 fade-in';
+      const isSubmitted = sub.status === 'Submitted' || sub.status === 'Reviewed';
+      card.innerHTML = `
+        <div class="flex-between mb-10">
+          <div>
+            <div class="fw-700" style="font-size:.93rem;">${sub.studentName || '—'}</div>
+            <div style="font-size:.78rem;color:var(--text-muted);">রোল ${sub.rollNo ?? '—'}</div>
+          </div>
+          <span class="badge badge-${isSubmitted ? 'submitted' : 'pending'}">${isSubmitted ? '✓ জমা' : '⏳ বাকি'}</span>
+        </div>
+        ${isSubmitted ? `
+          ${sub.textRemarks ? `
+            <div class="sub-remarks">"${sub.textRemarks}"</div>` : ''}
+          ${(sub.primaryImageUrl || sub.annotatedPhotoUrl || (sub.images && sub.images.length)) ? `
+            <div class="sub-img-grid">
+              ${(sub.annotatedPhotoUrl || sub.primaryImageUrl) ? `<img src="${_full(sub.annotatedPhotoUrl || sub.primaryImageUrl)}" data-zoom class="sub-img">` : ''}
+              ${(sub.images || []).map(u => `<img src="${_full(u)}" data-zoom class="sub-img">`).join('')}
+            </div>` : ''}
+          ${sub.voiceNoteUrl ? `<audio controls class="sub-audio" src="${_full(sub.voiceNoteUrl)}"></audio>` : ''}
+          <div class="sub-section-label">প্রতিক্রিয়া</div>
+          <div class="sub-reaction-grid">
+            ${['Excellent','Good','NeedsImprovement','Incomplete','StarWork'].map(r => `
+              <button class="sub-reaction-btn ${sub.teacherReaction === r ? 'active' : ''}" data-reaction="${r}" data-detail-id="${sub.id}">
+                <span class="sub-reaction-emoji">${_reactionEmoji(r)}</span>
+                <span class="sub-reaction-label">${_reactionLabel(r)}</span>
+              </button>`).join('')}
+          </div>
+          <div class="sub-section-label">নোট</div>
+          <textarea class="form-textarea sub-note" data-note-id="${sub.id}" placeholder="শিক্ষকের মন্তব্য...">${sub.teacherNote || ''}</textarea>
+          <button class="btn btn-primary btn-sm sub-save-btn save-reaction-btn" data-detail-id="${sub.id}">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            সংরক্ষণ
+          </button>
+        ` : ''}
+      `;
+      el.appendChild(card);
+    });
+
+    // Image zoom
+    el.querySelectorAll('img[data-zoom]').forEach(img => {
+      img.addEventListener('click', () => _openLightbox(img.src));
+    });
+
+    // Reaction & save handlers
+    el.querySelectorAll('.reaction-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const detailId = btn.dataset.detailId;
+        el.querySelectorAll(`.reaction-btn[data-detail-id="${detailId}"]`).forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const sub = submissions.find(s => String(s.id) === detailId);
+        if (sub) sub.teacherReaction = btn.dataset.reaction;
+      });
+    });
+
+    el.querySelectorAll('.save-reaction-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const detailId = btn.dataset.detailId;
+        const sub = submissions.find(s => String(s.id) === detailId);
+        const note = el.querySelector(`[data-note-id="${detailId}"]`)?.value || '';
+        btn.disabled = true;
+        const res = await submitReaction(detailId, sub?.teacherReaction, note);
+        showToast(res.HasError ? (res.message || 'ত্রুটি হয়েছে') : '✓ সংরক্ষিত হয়েছে', res.HasError ? 'error' : 'success');
+        btn.disabled = false;
+      });
+    });
+  }
+
+  renderSubList('submitted');
+  content.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      content.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderSubList(btn.dataset.tab);
+    });
+  });
+}
+
+function _openEditForm(container, hw) {
+  const hasPdf = !!hw.pdfAttachmentUrl;
+
+  // Build existing attachment arrays for the multi-manager
+  const existingImages  = (hw.instructionImages  || []).map(i => ({ id: i.Id ?? i.id, photoUrl: _full(i.PhotoUrl ?? i.photoUrl), annotatedPhotoUrl: (i.AnnotatedPhotoUrl ?? i.annotatedPhotoUrl) ? _full(i.AnnotatedPhotoUrl ?? i.annotatedPhotoUrl) : null }));
+  const existingVoices  = (hw.instructionVoices  || []).map(v => ({ id: v.Id ?? v.id, voiceUrl: _full(v.VoiceUrl ?? v.voiceUrl) }));
+  const existingVideos  = (hw.instructionVideos  || []).map(v => ({ id: v.Id ?? v.id, videoUrl: _full(v.VideoUrl ?? v.videoUrl) }));
+  const existingYoutube = (hw.youtubeLinks       || []).map(y => ({ id: y.Id ?? y.id, youtubeUrl: y.YoutubeUrl ?? y.youtubeUrl }));
+  const existingPdfs    = (hw.instructionPdfs    || []).map(p => ({ id: p.Id ?? p.id, pdfUrl: _full(p.PdfUrl ?? p.pdfUrl) }));
+
+  // Legacy single-attachment fallback (migrate to list display)
+  if (!existingImages.length && hw.instructionPhotoUrl)
+    existingImages.push({ id: null, photoUrl: _full(hw.instructionPhotoUrl), annotatedPhotoUrl: hw.instructionAnnotatedPhotoUrl ? _full(hw.instructionAnnotatedPhotoUrl) : null });
+  if (!existingVoices.length && hw.instructionVoiceNoteUrl)
+    existingVoices.push({ id: null, voiceUrl: _full(hw.instructionVoiceNoteUrl) });
+  if (!existingVideos.length && hw.instructionVideoUrl)
+    existingVideos.push({ id: null, videoUrl: _full(hw.instructionVideoUrl) });
+  // Legacy single PDF fallback
+  if (!existingPdfs.length && hw.pdfAttachmentUrl)
+    existingPdfs.push({ id: null, pdfUrl: _full(hw.pdfAttachmentUrl) });
+
+  const attachmentHtml = `
+    <!-- multi-attach manager renders here -->
+    <div id="hwe-multi-attach-wrap" class="mb-12"></div>
+  `;
+
+  const formHtml = `
+    <div class="hwc-form">
+      <div class="form-group mb-12">
+        <label class="form-label">শিরোনাম *</label>
+        <input type="text" class="form-input" id="hwe-title" value="${(hw.title || '').replace(/"/g, '&quot;')}">
+      </div>
+      <div class="form-group mb-12">
+        <label class="form-label">শেষ তারিখ *</label>
+        <input type="date" class="form-input" id="hwe-due" value="${hw.dueDate ? hw.dueDate.slice(0, 10) : ''}">
+      </div>
+      <div class="form-group mb-12">
+        <label class="form-label">বিবরণ</label>
+        <div id="hwe-quill-editor" style="min-height:120px;"></div>
+      </div>
+      ${attachmentHtml}
+      <div style="font-size:.8rem;color:#f59e0b;background:#fef3c7;border-radius:8px;padding:10px 12px;margin-bottom:16px;">
+        ⚠ শুধু শিরোনাম, তারিখ ও বিবরণ পরিবর্তন করা যাবে। কোনো শিক্ষার্থী জমা দেওয়ার পরে সম্পাদনা বন্ধ হয়ে যাবে।
+      </div>
+      <button class="btn btn-primary btn-full btn-lg" id="hwe-save-btn">পরিবর্তন সংরক্ষণ করুন</button>
+    </div>
+  `;
+
+  const { body: sheetBody, close, open } = createBottomSheet({
+    id: 'hw-edit-sheet',
+    title: 'হোমওয়ার্ক সম্পাদনা',
+    content: formHtml,
+    fullHeight: true,
+  });
+  open();
+
+  // ── Multi-attachment manager ──
+  const editMultiWrap = sheetBody.querySelector('#hwe-multi-attach-wrap');
+  const editMultiMgr = createMultiAttachManager(editMultiWrap, {
+    existingImages,
+    existingVoices,
+    existingVideos,
+    existingYoutube,
+    existingPdfs,
+    onDelete: async (type, id) => {
+      if (id === null) return; // legacy item, no server delete
+      await deleteHomeworkAttachment(type, id);
+    },
+  });
+
+  let quill = null;
+  if (window.Quill) {
+    quill = new Quill(sheetBody.querySelector('#hwe-quill-editor'), {
+      theme: 'snow',
+      modules: { toolbar: [['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], [{ color: [] }, { size: ['small', false, 'large', 'huge'] }], ['clean']] }
+    });
+    if (hw.description) quill.root.innerHTML = hw.description;
+  } else {
+    sheetBody.querySelector('#hwe-quill-editor').innerHTML =
+      `<textarea class="form-textarea" id="hwe-desc-fallback" style="min-height:120px;">${hw.description || ''}</textarea>`;
+  }
+
+  sheetBody.querySelector('#hwe-save-btn')?.addEventListener('click', async () => {
+    const title   = sheetBody.querySelector('#hwe-title').value.trim();
+    const dueDate = sheetBody.querySelector('#hwe-due').value;
+    if (!title)   { showToast('শিরোনাম দিন', 'error'); return; }
+    if (!dueDate) { showToast('শেষ তারিখ দিন', 'error'); return; }
+
+    const description = quill
+      ? quill.root.innerHTML
+      : (sheetBody.querySelector('#hwe-desc-fallback')?.value || '');
+
+    const btn = sheetBody.querySelector('#hwe-save-btn');
+    btn.disabled = true; btn.textContent = 'সংরক্ষণ হচ্ছে...';
+
+    const res = await updateHomework(hw.id, { Title: title, Description: description, DueDate: dueDate });
+    if (res.HasError) {
+      showToast(res.message || 'আপডেট ব্যর্থ হয়েছে', 'error');
+      btn.disabled = false; btn.textContent = 'পরিবর্তন সংরক্ষণ করুন';
+      return;
+    }
+
+    const { images, annotated, voices, videos, youtubeUrls, pdfs } = editMultiMgr.getPayload();
+    if (images.length || voices.length || videos.length || youtubeUrls.length || pdfs.length) {
+      btn.textContent = 'সংযুক্তি আপলোড হচ্ছে...';
+      const upRes = await uploadHomeworkMultiAttachments(hw.id, { images, annotated, voices, videos, youtubeUrls, pdfs });
+      if (upRes?.HasError) {
+        showToast(upRes.message || 'সংযুক্তি আপলোড ব্যর্থ হয়েছে', 'error');
+        btn.disabled = false; btn.textContent = 'পরিবর্তন সংরক্ষণ করুন';
+        return;
+      }
+    }
+
+    showToast('হোমওয়ার্ক আপডেট হয়েছে ✓', 'success');
+    close();
+    _reloadList(container);
+  });
+}
+
+function _fmt(d) { return d ? new Date(d).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short' }) : '—'; }
+function _reactionEmoji(r) { return { Excellent: '🌟', Good: '✅', NeedsImprovement: '📈', Incomplete: '❌', StarWork: '⭐' }[r] || '📝'; }
+function _reactionLabel(r) { return { Excellent: 'অসাধারণ', Good: 'ভালো', NeedsImprovement: 'উন্নতি দরকার', Incomplete: 'অসম্পূর্ণ', StarWork: 'তারকা' }[r] || r; }
