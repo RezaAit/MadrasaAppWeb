@@ -22,13 +22,15 @@ html, body {
 
 /* ─── Login Screen — same as teacher portal ───────────────────────────────── */
 .ls-root {
+  width: 100%;
   max-width: 480px;
   margin: 0 auto;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
   background: #fff;
-  overflow-x: hidden;
+  overflow: hidden;
+  box-sizing: border-box;
   padding-top: env(safe-area-inset-top);
 }
 
