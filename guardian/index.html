@@ -273,6 +273,17 @@
         .catch(() => {});
     });
   }
+  let _deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    _deferredPrompt = e;
+    setTimeout(() => {
+      if (_deferredPrompt) {
+        _deferredPrompt.prompt();
+        _deferredPrompt.userChoice.then(() => { _deferredPrompt = null; });
+      }
+    }, 3000);
+  });
 </script>
 </body>
 </html>
