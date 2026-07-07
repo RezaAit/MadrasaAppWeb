@@ -15,6 +15,11 @@
   --text-light:    #9CA3AF;
 }
 
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
 /* ─── Login Screen — same as teacher portal ───────────────────────────────── */
 .ls-root {
   max-width: 480px;
