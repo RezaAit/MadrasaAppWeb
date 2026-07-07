@@ -1,4 +1,5 @@
 import { getDashboardSummary } from './api.js';
+import { BASE_URL } from '../../shared/js/api-config.js';
 import { initLogin, checkAuth, logout } from './auth.js';
 import { attachRippleAll } from '../../shared/js/ripple.js';
 import { initTabIndicator } from '../../shared/js/tab-indicator.js';
@@ -115,7 +116,7 @@ function renderShell() {
   if (t?.userId) {
     const token = localStorage.getItem('teacher_token');
     const img = document.createElement('img');
-    img.src = `http://localhost:805/api/Teacher/photo/${t.userId}`;
+    img.src = `${BASE_URL}/api/Teacher/photo/${t.userId}`;
     img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:inherit;';
     img.onerror = () => { avatarEl.textContent = initials; };
     img.onload = () => { avatarEl.innerHTML = ''; avatarEl.appendChild(img); };
