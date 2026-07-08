@@ -92,6 +92,25 @@ export async function init() {
   initLogin();
 }
 
+async function clearAllCache() {
+  try {
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+    showToast('ক্যাশ পরিষ্কার হয়েছে, রিলোড হচ্ছে…', 'success');
+    setTimeout(() => location.reload(true), 800);
+  } catch {
+    location.reload(true);
+  }
+}
+
+document.addEventListener('click', e => {
+  if (e.target.closest('#clear-cache-btn') || e.target.closest('#clear-cache-btn-2')) {
+    clearAllCache();
+  }
+});
+
 async function loadDashboard() {
   if (!state.guardian) {
     const res = await getUserDetails('');
