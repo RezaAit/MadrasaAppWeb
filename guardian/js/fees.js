@@ -49,15 +49,15 @@ export async function loadFees(container, child) {
     <div class="p-16">
       <div class="card mb-16" style="padding:0;border:1px solid var(--border);overflow:hidden;">
         <div style="display:grid;grid-template-columns:1fr 1fr;">
-          <div style="padding:18px 16px;text-align:center;border-right:1px solid var(--border);">
+          <div id="fees-paid-stat" style="padding:18px 16px;text-align:center;border-right:1px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s;">
             <div style="font-size:.72rem;color:var(--text-muted);font-weight:600;margin-bottom:4px;">মোট পরিশোধিত</div>
             <div style="font-size:1.55rem;font-weight:800;color:#1E3A5F;">৳${totalPaid.toLocaleString()}</div>
             <div style="font-size:.72rem;color:var(--text-muted);margin-top:3px;">${history.length}টি পেমেন্ট</div>
           </div>
-          <div style="padding:18px 16px;text-align:center;background:${dueAmount > 0 ? '#fff5f5' : '#f0fdf4'};">
+          <div id="fees-due-stat" style="padding:18px 16px;text-align:center;background:${dueAmount > 0 ? '#fff5f5' : '#f0fdf4'};cursor:${dueAmount > 0 ? 'pointer' : 'default'};-webkit-tap-highlight-color:transparent;transition:background .15s;">
             <div style="font-size:.72rem;color:${dueAmount > 0 ? '#dc2626' : '#16a34a'};font-weight:600;margin-bottom:4px;">বকেয়া</div>
             <div style="font-size:1.55rem;font-weight:800;color:${dueAmount > 0 ? '#dc2626' : '#16a34a'};">৳${dueAmount.toLocaleString()}</div>
-            <div style="font-size:.72rem;color:${dueAmount > 0 ? '#dc2626' : '#16a34a'};margin-top:3px;opacity:.7;">${dueAmount > 0 ? 'অপরিশোধিত' : 'বকেয়া নেই'}</div>
+            <div style="font-size:.72rem;color:${dueAmount > 0 ? '#dc2626' : '#16a34a'};margin-top:3px;opacity:.8;">${dueAmount > 0 ? '👆 পরিশোধ করুন' : '✓ পরিশোধিত'}</div>
           </div>
         </div>
       </div>
@@ -73,7 +73,7 @@ export async function loadFees(container, child) {
         -webkit-tap-highlight-color:transparent;
       ">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-        bKash এ পরিশোধ করুন &nbsp;·&nbsp; ৳${dueAmount.toLocaleString()}
+        bKash এ পরিশোধ করুন
       </button>` : ''}
 
       <div class="section-header"><span class="section-title">পরিশোধের ইতিহাস</span></div>
@@ -111,6 +111,14 @@ export async function loadFees(container, child) {
       }
     </div>
   `;
+
+  // Stats card clicks
+  container.querySelector('#fees-paid-stat')?.addEventListener('click', () => {
+    container.querySelector('.fees-year-group')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  container.querySelector('#fees-due-stat')?.addEventListener('click', () => {
+    if (dueAmount > 0) _openBkashOverlay(child.studentInsID, dueAmount);
+  });
 
   // bKash button click — in-app iframe overlay
   const bkashBtn = container.querySelector('#bkash-pay-btn');
@@ -335,7 +343,6 @@ function _openBkashOverlay(studentInsID, dueAmount) {
     <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;background:#E2136E;color:#fff;flex-shrink:0;">
       <button id="bkash-close" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;">✕</button>
       <div style="font-size:.95rem;font-weight:700;">bKash পেমেন্ট</div>
-      <div style="margin-left:auto;font-size:.85rem;opacity:.85;">৳${Number(dueAmount).toLocaleString()}</div>
     </div>
     <iframe
       id="bkash-iframe"
