@@ -339,7 +339,7 @@ function _openBkashOverlay(studentInsID, dueAmount) {
     </div>
     <iframe
       id="bkash-iframe"
-      src="https://a.madrasatulhuda.com/Sbook/bkashapppayment.html?StudentInsID=${encodeURIComponent(studentInsID)}&DueFees=${encodeURIComponent(dueAmount)}&redirect=APPPOSTMESSAGE"
+      src="https://a.madrasatulhuda.com/Sbook/bkashapppayment.html?StudentInsID=${encodeURIComponent(studentInsID)}&DueFees=${encodeURIComponent(dueAmount)}&redirect=APPPOSTMESSAGE&v=${Date.now()}"
       style="flex:1;border:none;width:100%;"
       allow="payment"
     ></iframe>
