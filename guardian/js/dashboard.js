@@ -285,6 +285,15 @@ function initProfileNav() {
   document.getElementById('profile-back-btn')?.addEventListener('click', () => {
     if (state.children.length > 1) navigateTo('screen-dashboard', { back: true });
   });
+
+  // Hero stats → navigate to section
+  document.querySelectorAll('.hero-stat[data-nav-section]').forEach(card => {
+    card.addEventListener('click', () => {
+      const section = card.dataset.navSection;
+      const btn = document.querySelector(`.profile-nav-btn[data-section="${section}"]`);
+      if (btn) btn.click();
+    });
+  });
 }
 
 function loadSection(section) {
