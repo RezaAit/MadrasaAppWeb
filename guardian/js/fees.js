@@ -1,4 +1,4 @@
-import { getFeesInfo, getReceiptDetails, getStudentDue } from './api.js';
+﻿import { getFeesInfo, getReceiptDetails, getStudentDue } from './api.js';
 import { showToast } from './dashboard.js';
 import { attachRippleAll, attachRipple } from '../../shared/js/ripple.js';
 
@@ -54,10 +54,10 @@ export async function loadFees(container, child) {
             <div style="font-size:1.55rem;font-weight:800;color:#1E3A5F;">৳${totalPaid.toLocaleString()}</div>
             <div style="font-size:.72rem;color:var(--text-muted);margin-top:3px;">${history.length}টি পেমেন্ট</div>
           </div>
-          <div id="fees-due-stat" style="padding:18px 16px;text-align:center;background:${dueAmount > 0 ? '#fff5f5' : '#f0fdf4'};cursor:${dueAmount > 0 ? 'pointer' : 'default'};-webkit-tap-highlight-color:transparent;transition:background .15s;">
-            <div style="font-size:.72rem;color:${dueAmount > 0 ? '#dc2626' : '#16a34a'};font-weight:600;margin-bottom:4px;">বকেয়া</div>
-            <div style="font-size:1.55rem;font-weight:800;color:${dueAmount > 0 ? '#dc2626' : '#16a34a'};">৳${dueAmount.toLocaleString()}</div>
-            <div style="font-size:.72rem;color:${dueAmount > 0 ? '#dc2626' : '#16a34a'};margin-top:3px;opacity:.8;">${dueAmount > 0 ? '👆 পরিশোধ করুন' : '✓ পরিশোধিত'}</div>
+          <div id="fees-due-stat" style="padding:18px 16px;text-align:center;background:${dueAmount > 0 ? 'rgba(226,19,110,0.07)' : '#f0fdf4'};cursor:${dueAmount > 0 ? 'pointer' : 'default'};-webkit-tap-highlight-color:transparent;transition:background .15s;">
+            <div style="font-size:.72rem;color:${dueAmount > 0 ? '#E2136E' : '#16a34a'};font-weight:600;margin-bottom:4px;">বকেয়া</div>
+            <div style="font-size:1.55rem;font-weight:800;color:${dueAmount > 0 ? '#E2136E' : '#16a34a'};">৳${dueAmount.toLocaleString()}</div>
+            <div style="font-size:.72rem;color:${dueAmount > 0 ? '#E2136E' : '#16a34a'};margin-top:3px;opacity:.8;">${dueAmount > 0 ? '👆 পরিশোধ করুন' : '✓ পরিশোধিত'}</div>
           </div>
         </div>
       </div>
@@ -69,17 +69,16 @@ export async function loadFees(container, child) {
         : years.map(yr => {
             const items = byYear[yr];
             const yrTotal = items.reduce((s, h) => s + (h.ReceivedAmount || 0), 0);
-            const isOpen = yr === currentYear || years[0] === yr;
             return `
-              <div class="fees-year-group mb-12 ${isOpen ? 'expanded' : ''}" data-year="${yr}">
-                <button class="fees-year-toggle ${isOpen ? 'open' : ''}">
+              <div class="fees-year-group mb-12" data-year="${yr}">
+                <button class="fees-year-toggle">
                   <span style="font-weight:700;">${yr} সাল</span>
                   <span style="display:flex;align-items:center;gap:8px;">
                     <span style="font-size:.82rem;color:#1E3A5F;font-weight:600;">৳${yrTotal.toLocaleString()}</span>
                     <svg class="fees-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
                   </span>
                 </button>
-                <div class="fees-year-items card" style="padding:0;overflow:hidden;${isOpen ? '' : 'display:none;'}">
+                <div class="fees-year-items card" style="padding:0;overflow:hidden;display:none;">
                   ${items.map(h => `
                     <div class="fee-receipt-row" data-master-id="${h.Id}" style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;">
                       <div>
@@ -101,7 +100,17 @@ export async function loadFees(container, child) {
 
   // Stats card clicks
   container.querySelector('#fees-paid-stat')?.addEventListener('click', () => {
-    container.querySelector('.fees-year-group')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const currentYrGroup = container.querySelector(`.fees-year-group[data-year="${currentYear}"]`)
+      || container.querySelector('.fees-year-group');
+    if (!currentYrGroup) return;
+    const items = currentYrGroup.querySelector('.fees-year-items');
+    const btn = currentYrGroup.querySelector('.fees-year-toggle');
+    if (items && items.style.display === 'none') {
+      items.style.display = '';
+      currentYrGroup.classList.add('expanded');
+      btn?.classList.add('open');
+    }
+    currentYrGroup.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
   container.querySelector('#fees-due-stat')?.addEventListener('click', () => {
     if (dueAmount > 0) _openBkashOverlay(child.studentInsID, dueAmount);
@@ -353,3 +362,5 @@ function _openBkashOverlay(studentInsID, dueAmount) {
   }
   window.addEventListener('message', onMessage);
 }
+
+
