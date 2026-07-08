@@ -62,19 +62,6 @@ export async function loadFees(container, child) {
         </div>
       </div>
 
-      ${dueAmount > 0 ? `
-      <button id="bkash-pay-btn" style="
-        display:flex;align-items:center;justify-content:center;gap:10px;
-        width:100%;padding:14px;margin-bottom:16px;
-        background:#E2136E;color:#fff;
-        border:none;border-radius:14px;cursor:pointer;
-        font-size:1rem;font-weight:700;
-        box-shadow:0 4px 14px rgba(226,19,110,.35);
-        -webkit-tap-highlight-color:transparent;
-      ">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-        bKash এ পরিশোধ করুন
-      </button>` : ''}
 
       <div class="section-header"><span class="section-title">পরিশোধের ইতিহাস</span></div>
       ${history.length === 0
@@ -119,14 +106,6 @@ export async function loadFees(container, child) {
   container.querySelector('#fees-due-stat')?.addEventListener('click', () => {
     if (dueAmount > 0) _openBkashOverlay(child.studentInsID, dueAmount);
   });
-
-  // bKash button click — in-app iframe overlay
-  const bkashBtn = container.querySelector('#bkash-pay-btn');
-  if (bkashBtn) {
-    bkashBtn.addEventListener('click', () => {
-      _openBkashOverlay(child.studentInsID, dueAmount);
-    });
-  }
 
   // Accordion toggles
   attachRippleAll('.fees-year-toggle', container);
