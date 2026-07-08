@@ -291,7 +291,10 @@ function initProfileNav() {
     card.addEventListener('click', () => {
       const section = card.dataset.navSection;
       const btn = document.querySelector(`.profile-nav-btn[data-section="${section}"]`);
-      if (btn) btn.click();
+      if (!btn) return;
+      // Scroll nav bar so the target tab is visible first, then click
+      btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      setTimeout(() => btn.click(), 150);
     });
   });
 }
