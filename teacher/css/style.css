@@ -1043,7 +1043,7 @@ p, li { color: #334155; font-size: .95rem; line-height: 1.7; }
 .fu-root { display: flex; flex-direction: column; gap: 8px; }
 .fu-label { font-size:.72rem; font-weight:700; color:#94a3b8; letter-spacing:.4px; text-transform:uppercase; }
 
-/* Drop zone */
+/* Drop zone (kept for legacy; new UI uses fu-pick-row) */
 .fu-dropzone {
   display: flex; flex-direction: column; align-items: center;
   justify-content: center; gap: 8px;
@@ -1058,6 +1058,14 @@ p, li { color: #334155; font-size: .95rem; line-height: 1.7; }
 .fu-drop-icon { opacity: .8; }
 .fu-drop-text { font-size: .88rem; font-weight: 600; color: #2563eb; }
 .fu-drop-hint { font-size: .72rem; color: #94a3b8; }
+.fu-pick-row { display: flex; gap: 10px; }
+.fu-pick-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 12px 10px; border-radius: 12px; border: 2px dashed #bfdbfe;
+  background: #f8fafc; font-size: .88rem; font-weight: 600; color: #2563eb;
+  cursor: pointer; transition: all 150ms;
+}
+.fu-pick-btn:active { background: #eff6ff; border-color: #2563eb; }
 
 /* Image thumb */
 .fu-img-thumb {

@@ -79,16 +79,22 @@ export function createFileUpload(container, {
       html += `</div>`;
     }
 
-    // Drop zone (always visible so more files can be added)
+    // Pick buttons — camera and gallery separately to avoid page reload on Android
+    const hasAny = newFiles.length || visibleExist.length;
     html += `
-      <label class="fu-dropzone" id="fu-dropzone" for="fu-input">
-        <input type="file" id="fu-input" accept="${accept}" ${multiple ? 'multiple' : ''} style="display:none;">
-        <div class="fu-drop-icon">
-          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#2563eb" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        </div>
-        <div class="fu-drop-text">${newFiles.length || visibleExist.length ? 'আরও ফাইল যোগ করুন' : 'ফাইল বেছে নিন বা এখানে ছেড়ে দিন'}</div>
-        <div class="fu-drop-hint">PNG, JPG, PDF • প্রতিটি সর্বোচ্চ 5MB</div>
-      </label>
+      <input type="file" id="fu-input-cam" accept="image/*" capture="environment" style="display:none;">
+      <input type="file" id="fu-input-gallery" accept="${accept}" ${multiple ? 'multiple' : ''} style="display:none;">
+      <div class="fu-pick-row">
+        <button type="button" class="fu-pick-btn fu-pick-camera" id="fu-btn-camera">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          ক্যামেরা
+        </button>
+        <button type="button" class="fu-pick-btn fu-pick-gallery" id="fu-btn-gallery">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          ${hasAny ? 'আরও যোগ করুন' : 'গ্যালারি / ফাইল'}
+        </button>
+      </div>
+      <div class="fu-drop-hint" style="text-align:center;margin-top:4px;">PNG, JPG, PDF • সর্বোচ্চ 5MB</div>
     </div>`;
 
     container.innerHTML = html;
@@ -104,8 +110,10 @@ export function createFileUpload(container, {
   }
 
   function _wire() {
-    const input    = container.querySelector('#fu-input');
-    const dropzone = container.querySelector('#fu-dropzone');
+    const camInput     = container.querySelector('#fu-input-cam');
+    const galleryInput = container.querySelector('#fu-input-gallery');
+    const camBtn       = container.querySelector('#fu-btn-camera');
+    const galleryBtn   = container.querySelector('#fu-btn-gallery');
 
     // Lightbox
     container.querySelectorAll('[data-lightbox]').forEach(el => {
@@ -113,19 +121,14 @@ export function createFileUpload(container, {
       el.addEventListener('click', () => openLightbox(el.dataset.lightbox));
     });
 
-    if (input) {
-      input.addEventListener('change', e => {
-        _addFiles(e.target.files);
-      });
+    if (camBtn && camInput) {
+      camBtn.addEventListener('click', () => camInput.click());
+      camInput.addEventListener('change', e => { _addFiles(e.target.files); e.target.value = ''; });
     }
 
-    if (dropzone) {
-      dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('fu-drag-over'); });
-      dropzone.addEventListener('dragleave', () => dropzone.classList.remove('fu-drag-over'));
-      dropzone.addEventListener('drop', e => {
-        e.preventDefault(); dropzone.classList.remove('fu-drag-over');
-        _addFiles(e.dataTransfer.files);
-      });
+    if (galleryBtn && galleryInput) {
+      galleryBtn.addEventListener('click', () => galleryInput.click());
+      galleryInput.addEventListener('change', e => { _addFiles(e.target.files); e.target.value = ''; });
     }
 
     container.querySelectorAll('.fu-remove-exist').forEach(btn => {
