@@ -21,9 +21,12 @@ export async function loadAttendance(container, child) {
   const now = new Date();
   const todayDay = now.getDate();
   const todayEntry = days.find(d => d.day === todayDay);
-  const todayStatus = todayEntry
-    ? (todayEntry.dayType !== 'R' ? 'Holiday' : todayEntry.isPresent ? 'Present' : todayEntry.isLeave ? 'Leave' : 'Absent')
-    : (days.length > 0 ? 'Absent' : 'Unknown');
+  const todayStatus = !todayEntry
+    ? (days.length > 0 ? 'Holiday' : 'Unknown')
+    : todayEntry.dayType !== 'R' ? 'Holiday'
+    : todayEntry.isLeave ? 'Leave'
+    : todayEntry.isPresent ? 'Present'
+    : 'Absent';
 
   const monthNames = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
   const monthLabel = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
@@ -35,6 +38,15 @@ export async function loadAttendance(container, child) {
 
   container.innerHTML = `
     <div class="p-16">
+
+      <!-- Today card -->
+      <div class="card mb-16 text-center" style="padding:20px 24px;">
+        <div class="stat-label mb-8">আজকের উপস্থিতি</div>
+        <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:10px;">${now.toLocaleDateString('bn-BD',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
+        <span class="badge badge-${todayStatus === 'Present' ? 'present' : todayStatus === 'Absent' ? 'absent' : todayStatus === 'Leave' ? 'leave' : 'unknown'}" style="font-size:.95rem;padding:7px 20px;">
+          ${todayStatus === 'Present' ? '✓ উপস্থিত' : todayStatus === 'Absent' ? '✗ অনুপস্থিত' : todayStatus === 'Leave' ? '📋 ছুটিতে আছে' : todayStatus === 'Holiday' ? '🏖 ছুটির দিন' : '—'}
+        </span>
+      </div>
 
       <!-- Summary stats -->
       <div class="stat-grid mb-16 stagger-in">
