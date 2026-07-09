@@ -267,10 +267,11 @@ html, body {
   background: #FAFAFA;
   border-radius: 0;
   margin-top: -45px;
-  border-radius: 40px;
+  border-radius: 33px;
   position: relative;
   padding-top: 3px;
   z-index: 2;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
 
 /* Row 1: avatar + name */
