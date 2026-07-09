@@ -75,6 +75,25 @@ export async function loadHomework(container, child) {
     });
   });
 
+  // Year/month accordion toggles for submitted tab
+  container.querySelectorAll('.hw-year-toggle').forEach(hdr => {
+    hdr.addEventListener('click', () => {
+      const body = hdr.nextElementSibling;
+      const open = body.style.display !== 'none';
+      body.style.display = open ? 'none' : '';
+      hdr.querySelector('.gh-year-chevron').classList.toggle('open', !open);
+      hdr.classList.toggle('gh-closed', open);
+    });
+  });
+  container.querySelectorAll('.hw-month-toggle').forEach(hdr => {
+    hdr.addEventListener('click', () => {
+      const body = hdr.nextElementSibling;
+      const open = body.classList.contains('open');
+      body.classList.toggle('open', !open);
+      hdr.querySelector('.gh-month-chevron').classList.toggle('open', !open);
+    });
+  });
+
   container.querySelectorAll('.hw-card[data-hw-id]').forEach(card => {
     card.addEventListener('click', () => {
       const hw = all.find(h => String(h.id) === String(card.dataset.hwId));
@@ -140,6 +159,29 @@ function _renderPending(list) {
   }).join('');
 }
 
+function _hwCard(h) {
+  const style = _subjectStyle(h.subject);
+  const fb = h.teacherFeedback;
+  const reactionConfig = fb ? _reactionConfig(fb.reaction) : null;
+  return `
+    <div class="hw-card hw-card--submitted ${fb ? 'hw-card--reviewed' : ''}" data-hw-id="${h.id}" style="--hw-accent:${style.accent};--hw-bg:${style.bg};margin-bottom:8px;">
+      <div class="hw-card-stripe"></div>
+      <div class="hw-card-inner">
+        <div class="hw-card-top">
+          <div class="hw-subject-chip"><span class="hw-subject-icon">${style.icon}</span><span>${h.subject}</span></div>
+          ${fb ? `<div class="hw-reaction-badge" style="background:${reactionConfig.bg};color:${reactionConfig.color};">${reactionConfig.emoji} ${reactionConfig.label}</div>`
+               : `<div class="hw-submitted-badge">✓ জমা</div>`}
+        </div>
+        <div class="hw-card-title">${h.title}</div>
+        <div class="hw-card-bottom">
+          <div class="hw-teacher"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${h.teacherName ?? '—'}</div>
+          <div class="hw-due"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>জমা: ${_fmt(h.submittedAt)}</div>
+        </div>
+        ${fb ? `<div class="hw-card-cta hw-card-cta--review"><span>মতামত দেখুন</span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>` : ''}
+      </div>
+    </div>`;
+}
+
 function _renderSubmitted(list) {
   if (!list.length) return `
     <div class="hw-empty">
@@ -148,36 +190,54 @@ function _renderSubmitted(list) {
       <div class="hw-empty-sub">হোমওয়ার্ক জমা দিলে এখানে দেখাবে</div>
     </div>`;
 
-  return list.map(h => {
-    const style = _subjectStyle(h.subject);
-    const fb = h.teacherFeedback;
-    const reactionConfig = fb ? _reactionConfig(fb.reaction) : null;
+  const tree = new Map();
+  list.forEach(h => {
+    const d = new Date(h.submittedAt || h.dueDate);
+    const yr = d.getFullYear();
+    const mKey = `${yr}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const mLabel = d.toLocaleDateString('bn-BD', { month: 'long' });
+    if (!tree.has(yr)) tree.set(yr, new Map());
+    const months = tree.get(yr);
+    if (!months.has(mKey)) months.set(mKey, { label: mLabel, items: [] });
+    months.get(mKey).items.push(h);
+  });
+
+  const sortedYears = [...tree.entries()].sort((a,b) => b[0]-a[0]);
+  const latestYear  = sortedYears[0]?.[0];
+  const latestMonth = latestYear ? [...tree.get(latestYear).keys()].sort().pop() : null;
+
+  return sortedYears.map(([yr, months]) => {
+    const isLatestYr = yr === latestYear;
+    const totalYr = [...months.values()].reduce((s,m) => s+m.items.length, 0);
+    const sortedMonths = [...months.entries()].sort((a,b) => b[0].localeCompare(a[0]));
+
+    const monthRows = sortedMonths.map(([mKey, group]) => {
+      const isLatestMon = mKey === latestMonth;
+      return `
+        <div>
+          <div class="gh-month-header hw-month-toggle">
+            <div class="gh-month-left" style="flex-direction:row;align-items:center;gap:6px;">
+              <span class="gh-month-name">${group.label}</span>
+              <span class="gh-month-sub" style="margin-top:0;">${group.items.length}টি</span>
+            </div>
+            <svg class="gh-month-chevron${isLatestMon ? ' open' : ''}" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="gh-month-body${isLatestMon ? ' open' : ''}">
+            <div style="padding:8px 12px;">${group.items.map(h => _hwCard(h)).join('')}</div>
+          </div>
+        </div>`;
+    }).join('');
 
     return `
-      <div class="hw-card hw-card--submitted ${fb ? 'hw-card--reviewed' : ''}" data-hw-id="${h.id}" style="--hw-accent:${style.accent};--hw-bg:${style.bg}">
-        <div class="hw-card-stripe"></div>
-        <div class="hw-card-inner">
-          <div class="hw-card-top">
-            <div class="hw-subject-chip">
-              <span class="hw-subject-icon">${style.icon}</span>
-              <span>${h.subject}</span>
-            </div>
-            ${fb ? `<div class="hw-reaction-badge" style="background:${reactionConfig.bg};color:${reactionConfig.color};">${reactionConfig.emoji} ${reactionConfig.label}</div>`
-                 : `<div class="hw-submitted-badge">✓ জমা</div>`}
+      <div class="gh-year-group">
+        <div class="gh-year-header hw-year-toggle${isLatestYr ? '' : ' gh-closed'}">
+          <span class="gh-year-title">${yr} সাল</span>
+          <div class="gh-year-right">
+            <span class="gh-year-meta">${totalYr}টি</span>
+            <svg class="gh-year-chevron${isLatestYr ? ' open' : ''}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
-          <div class="hw-card-title">${h.title}</div>
-          <div class="hw-card-bottom">
-            <div class="hw-teacher">
-              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              ${h.teacherName ?? '—'}
-            </div>
-            <div class="hw-due">
-              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              জমা: ${_fmt(h.submittedAt)}
-            </div>
-          </div>
-          ${fb ? `<div class="hw-card-cta hw-card-cta--review"><span>মতামত দেখুন</span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>` : ''}
         </div>
+        <div class="gh-year-body"${isLatestYr ? '' : ' style="display:none;"'}>${monthRows}</div>
       </div>`;
   }).join('');
 }

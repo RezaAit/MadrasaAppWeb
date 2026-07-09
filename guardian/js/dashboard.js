@@ -368,16 +368,19 @@ function initProfileNav(openSection = null) {
     attachRipple(backBtn);
   }
 
-  // Hero stats → navigate to section
+  // Hero stats → navigate to section (rebind every time so moveTo is current)
   document.querySelectorAll('.hero-stat[data-nav-section]').forEach(card => {
-    if (card.dataset.bound) return;
-    card.dataset.bound = '1';
-    card.addEventListener('click', () => {
-      const section = card.dataset.navSection;
+    const fresh = card.cloneNode(true);
+    card.replaceWith(fresh);
+    fresh.addEventListener('click', () => {
+      const section = fresh.dataset.navSection;
       const btn = document.querySelector(`.profile-nav-btn[data-section="${section}"]`);
       if (!btn) return;
+      freshBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
       btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-      setTimeout(() => btn.click(), 150);
+      requestAnimationFrame(() => moveTo(btn));
+      loadSection(section);
     });
   });
 }

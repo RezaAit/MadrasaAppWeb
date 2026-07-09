@@ -58,13 +58,11 @@ export async function loadNotices(container, child) {
       monthsHtml += `
         <div class="nh-month-block">
           <div class="gh-month-header nh-month-header">
-            <div class="gh-month-left">
+            <div class="gh-month-left" style="flex-direction:row;align-items:center;gap:6px;">
               <span class="gh-month-name">${MONTHS_BN[mo]}</span>
+              <span class="gh-month-sub" style="margin-top:0;">${items.length}টি</span>
             </div>
-            <div class="gh-month-right">
-              <span class="gh-month-count">${items.length}টি</span>
-              <svg class="gh-month-chevron${isCurrentMonth ? ' open' : ''}" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-            </div>
+            <svg class="gh-month-chevron${isCurrentMonth ? ' open' : ''}" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
           <div class="gh-month-body nh-month-body${isCurrentMonth ? ' open' : ''}">${items.map(_noticeCardHtml).join('')}</div>
         </div>`;
@@ -128,22 +126,22 @@ function _noticeCardHtml(n) {
   const color  = CAT_COLOR[cat] || '#2563eb';
   const bg     = CAT_BG[cat]   || '#eff6ff';
   const unread = !n.isRead;
-  const preview = _truncate(n.content, 120);
+  const preview = _truncate(n.content, 80);
   const hasAttach = !!(n.attachmentUrl);
   return `
-  <div class="gn-notice-card${unread ? ' gn-unread' : ''} fade-in" data-notice-id="${id}" style="margin:6px 12px 6px 20px;cursor:pointer;">
-    <div style="display:flex;align-items:stretch;">
-      <div style="width:4px;background:${color};flex-shrink:0;border-radius:12px 0 0 12px;"></div>
-      <div style="flex:1;padding:12px 14px 10px;">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-          <span style="font-size:.68rem;font-weight:800;padding:2px 9px;border-radius:999px;background:${bg};color:${color};letter-spacing:.2px;">${CAT_LABEL[cat] || cat}</span>
-          ${unread ? '<span style="font-size:.63rem;font-weight:700;background:#ef4444;color:#fff;padding:2px 7px;border-radius:999px;">নতুন</span>' : ''}
-          <span style="margin-left:auto;font-size:.68rem;color:#94a3b8;">${_fmt(n.publishDate)}</span>
-        </div>
-        <div style="font-size:.92rem;font-weight:700;color:#0f172a;line-height:1.35;margin-bottom:4px;">${n.title ?? ''}</div>
-        ${preview ? `<div style="font-size:.78rem;color:#64748b;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${preview}</div>` : ''}
-        ${hasAttach ? `<div style="display:flex;align-items:center;gap:4px;margin-top:6px;font-size:.7rem;color:#94a3b8;"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>সংযুক্তি আছে</div>` : ''}
+  <div class="gh-row gn-notice-card${unread ? ' gn-unread' : ''} fade-in" data-notice-id="${id}">
+    <div style="flex:1;min-width:0;">
+      <div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;">
+        <span style="font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:999px;background:${bg};color:${color};">${CAT_LABEL[cat] || cat}</span>
+        ${unread ? '<span style="font-size:.62rem;font-weight:700;background:#ef4444;color:#fff;padding:2px 7px;border-radius:999px;">নতুন</span>' : ''}
       </div>
+      <div class="gh-row-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${n.title ?? ''}</div>
+      ${preview ? `<div class="gh-row-sub" style="margin-top:2px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;">${preview}</div>` : ''}
+      ${hasAttach ? `<div style="display:flex;align-items:center;gap:3px;margin-top:3px;font-size:.65rem;color:#94a3b8;"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>সংযুক্তি</div>` : ''}
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:10px;">
+      <span style="font-size:.65rem;color:#94a3b8;">${_fmtShort(n.publishDate)}</span>
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#cbd5e1" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
     </div>
   </div>`;
 }
@@ -266,4 +264,9 @@ function _truncate(html, max) {
 function _fmt(d) {
   if (!d) return '—';
   return new Date(d).toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function _fmtShort(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short' });
 }
