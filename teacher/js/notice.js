@@ -91,7 +91,6 @@ async function _renderNoticeList(container) {
     const id  = n.Id ?? n.id;
     return `
     <div class="notice-card fade-in" data-notice-id="${id}">
-      <div class="notice-card-left" style="background:${catColor[cat]||'#2563eb'};"></div>
       <div class="notice-card-body">
         <div class="notice-card-top">
           <span class="notice-cat-badge" style="background:${catBg[cat]||'#eff6ff'};color:${catColor[cat]||'#2563eb'};">
