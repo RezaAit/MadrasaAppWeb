@@ -85,6 +85,8 @@ export async function init() {
       const sessionChild = sessionStorage.getItem('active_child');
       if (sessionChild) {
         try { state.activeChild = JSON.parse(sessionChild); } catch (_) {}
+        const sessionSection = sessionStorage.getItem('active_section');
+        if (sessionSection) state.activeSection = sessionSection;
       }
       await loadDashboard();
       return;
@@ -361,6 +363,7 @@ function initProfileNav(openSection = null) {
       if (state.children.length > 1) {
         state.activeChild = null;
         sessionStorage.removeItem('active_child');
+        sessionStorage.removeItem('active_section');
         renderChildSelector();
         navigateTo('screen-dashboard', { back: true });
       }
@@ -386,6 +389,7 @@ function loadSection(section) {
   const content = document.getElementById('profile-content');
   content.innerHTML = _skeletonCards(3);
   state.activeSection = section;
+  sessionStorage.setItem('active_section', section);
 
   const child = state.activeChild;
   switch (section) {
