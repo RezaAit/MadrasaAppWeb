@@ -101,9 +101,87 @@ export function checkAuth() {
   return !!localStorage.getItem('guardian_token');
 }
 
+let _logoutPrimed = false;
+let _logoutTimer = null;
+
 export function logout() {
-  localStorage.removeItem('guardian_token');
-  localStorage.removeItem('guardian_data');
-  localStorage.removeItem('active_child');
-  location.reload();
+  if (!_logoutPrimed) {
+    _logoutPrimed = true;
+    _showLogoutWarning();
+    _logoutTimer = setTimeout(() => {
+      _logoutPrimed = false;
+      _dismissLogoutWarning();
+    }, 4000);
+    return;
+  }
+  clearTimeout(_logoutTimer);
+  _logoutPrimed = false;
+  _dismissLogoutWarning();
+  _showLogoutConfirm();
+}
+
+function _showLogoutWarning() {
+  const el = document.createElement('div');
+  el.id = 'logout-warning';
+  const shell = document.querySelector('.app-shell') || document.body;
+  const shellRect = shell.getBoundingClientRect();
+  el.style.cssText = `
+    position:fixed;
+    top:${shellRect.top + 68}px;
+    left:${shellRect.left + 12}px;
+    width:${shellRect.width - 24}px;
+    background:#dc2626;color:#fff;
+    padding:13px 16px;border-radius:14px;
+    font-size:.88rem;font-weight:700;
+    box-shadow:0 6px 20px rgba(220,38,38,.45);
+    display:flex;align-items:center;gap:10px;
+    z-index:9999;
+    animation:slideDown 200ms ease;
+  `;
+  el.innerHTML = `
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="2.5" style="flex-shrink:0;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    <span style="flex:1;">লগআউট করতে আবার চাপুন</span>
+    <span style="background:rgba(255,255,255,.25);padding:3px 10px;border-radius:8px;font-size:.8rem;font-weight:800;" id="logout-countdown">4s</span>
+  `;
+  document.body.appendChild(el);
+  let t = 4;
+  const counter = document.getElementById('logout-countdown');
+  const iv = setInterval(() => {
+    t--;
+    if (counter) counter.textContent = `${t}s`;
+    if (t <= 0) clearInterval(iv);
+  }, 1000);
+  el._interval = iv;
+}
+
+function _dismissLogoutWarning() {
+  const el = document.getElementById('logout-warning');
+  if (el) { clearInterval(el._interval); el.remove(); }
+}
+
+function _showLogoutConfirm() {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px);';
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:20px;padding:24px;max-width:320px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);text-align:center;">
+      <div style="width:56px;height:56px;border-radius:16px;background:#fee2e2;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#dc2626" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </div>
+      <div style="font-size:1.05rem;font-weight:800;color:#0f172a;margin-bottom:8px;">লগআউট করবেন?</div>
+      <div style="font-size:.85rem;color:#64748b;line-height:1.6;margin-bottom:20px;">আপনি অ্যাপ থেকে বের হয়ে যাবেন। পুনরায় প্রবেশ করতে OTP লাগবে।</div>
+      <div style="display:flex;gap:10px;">
+        <button id="lc-cancel" style="flex:1;padding:12px;border-radius:12px;border:1.5px solid #e2e8f0;background:#f8fafc;font-size:.9rem;font-weight:600;color:#64748b;cursor:pointer;font-family:inherit;">থাকুন</button>
+        <button id="lc-ok" style="flex:1;padding:12px;border-radius:12px;border:none;background:#dc2626;color:#fff;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 3px 10px rgba(220,38,38,.35);">লগআউট</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#lc-cancel').onclick = () => overlay.remove();
+  overlay.querySelector('#lc-ok').onclick = () => {
+    overlay.remove();
+    localStorage.removeItem('guardian_token');
+    localStorage.removeItem('guardian_data');
+    localStorage.removeItem('active_child');
+    location.reload();
+  };
 }
