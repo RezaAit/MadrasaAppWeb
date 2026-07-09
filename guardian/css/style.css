@@ -253,7 +253,7 @@ html, body {
   color: #fff;
 }
 .profile-hero .hero-name { color: #fff !important; }
-.profile-hero .hero-name-bn { color: rgba(183 255 253,.92) !important; }
+.profile-hero .hero-name-bn { color: #97f4fff2 !important; }
 .profile-hero .tag { background: rgba(255,255,255,.18) !important; color: #fff !important; border-color: rgba(255,255,255,.2) !important; }
 .profile-hero .hero-avatar { border-color: rgba(255,255,255,.4) !important; }
 .profile-hero .hero-avatar-ring { border-color: rgba(255,255,255) !important; }
@@ -325,12 +325,12 @@ html, body {
   100%    { transform: translateX(0); }
 }
 .hero-name-bn {
-  font-size: .78rem; margin-top: 2px;
+  font-size: .85rem; margin-top: 2px;
 }
 .hero-student-id {
-  font-size: .80rem; font-weight: 700;
+  font-size: .85rem; font-weight: 700;
   color: rgba(255,255,255,.85);
-  margin-top: 4px;
+  margin-top: 2px;
   letter-spacing: .01em;
 }
 
