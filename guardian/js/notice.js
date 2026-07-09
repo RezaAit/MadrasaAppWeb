@@ -1,8 +1,7 @@
 import { getNotices, markNoticeRead } from './api.js';
 import { openLightbox } from '../../teacher/js/file-upload.js';
 import { attachRippleAll, attachRipple } from '../../shared/js/ripple.js';
-
-const BASE_URL = 'http://localhost:805';
+import { BASE_URL } from '../../shared/js/api-config.js';
 const CAT_LABEL = { Notice: 'নোটিশ', Circular: 'সার্কুলার', Event: 'ইভেন্ট' };
 const CAT_COLOR = { Notice: '#2563eb', Circular: '#7c3aed', Event: '#d97706' };
 const CAT_BG    = { Notice: '#eff6ff', Circular: '#ede9fe', Event: '#fffbeb' };
@@ -11,21 +10,6 @@ const MONTHS_BN = ['জানুয়ারি','ফেব্রুয়ার
 export async function loadNotices(container, child) {
   container.innerHTML = `
     <style>
-      .nh-year-block { margin-bottom: 4px; }
-      .nh-year-header { display: flex; align-items: center; gap: 8px; padding: 10px 16px 6px; cursor: pointer; user-select: none; }
-      .nh-year-badge { font-size: .8rem; font-weight: 800; color: #1e40af; background: #dbeafe; border-radius: 8px; padding: 3px 10px; }
-      .nh-year-line { flex: 1; height: 1px; background: #e2e8f0; }
-      .nh-chevron { color: #94a3b8; transition: transform .2s; flex-shrink: 0; }
-      .nh-year-block.open .nh-chevron { transform: rotate(180deg); }
-      .nh-year-body { display: none; }
-      .nh-year-block.open .nh-year-body { display: block; }
-      .nh-month-block { margin-bottom: 2px; }
-      .nh-month-header { display: flex; align-items: center; gap: 8px; padding: 7px 16px 5px 24px; cursor: pointer; user-select: none; }
-      .nh-month-dot { width: 7px; height: 7px; border-radius: 50%; background: #93c5fd; flex-shrink: 0; }
-      .nh-month-name { font-size: .78rem; font-weight: 700; color: #3b82f6; flex: 1; }
-      .nh-month-count { font-size: .7rem; color: #94a3b8; font-weight: 600; }
-      .nh-month-body { display: none; padding: 0 0 4px; }
-      .nh-month-block.open .nh-month-body { display: block; }
       .notice-card-content.rte-content b, .notice-card-content.rte-content strong { font-weight: 700; }
       .notice-card-content.rte-content i { font-style: italic; }
       .notice-card-content.rte-content u { text-decoration: underline; }
@@ -72,34 +56,54 @@ export async function loadNotices(container, child) {
       const isCurrentMonth = isCurrentYear && mo === now.getMonth();
       const items = byMonth.get(mo);
       monthsHtml += `
-        <div class="nh-month-block${isCurrentMonth ? ' open' : ''}">
-          <div class="nh-month-header">
-            <div class="nh-month-dot"></div>
-            <span class="nh-month-name">${MONTHS_BN[mo]}</span>
-            <span class="nh-month-count">${items.length}টি</span>
+        <div class="nh-month-block">
+          <div class="gh-month-header nh-month-header">
+            <div class="gh-month-left">
+              <span class="gh-month-name">${MONTHS_BN[mo]}</span>
+            </div>
+            <div class="gh-month-right">
+              <span class="gh-month-count">${items.length}টি</span>
+              <svg class="gh-month-chevron${isCurrentMonth ? ' open' : ''}" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
           </div>
-          <div class="nh-month-body">${items.map(_noticeCardHtml).join('')}</div>
+          <div class="gh-month-body nh-month-body${isCurrentMonth ? ' open' : ''}">${items.map(_noticeCardHtml).join('')}</div>
         </div>`;
     }
     html += `
-      <div class="nh-year-block${isCurrentYear ? ' open' : ''}">
-        <div class="nh-year-header">
-          <span class="nh-year-badge">${yr}</span>
-          <div class="nh-year-line"></div>
-          <span style="font-size:.7rem;color:#94a3b8;font-weight:600;">${totalYear}টি</span>
-          ${chevronSvg}
+      <div class="gh-year-group nh-year-block">
+        <div class="gh-year-header nh-year-header${isCurrentYear ? '' : ' gh-closed'}">
+          <span class="gh-year-title">${yr} সাল</span>
+          <div class="gh-year-right">
+            <span class="gh-year-meta">${totalYear}টি</span>
+            <svg class="gh-year-chevron nh-chevron${isCurrentYear ? ' open' : ''}" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
         </div>
-        <div class="nh-year-body">${monthsHtml}</div>
+        <div class="gh-year-body nh-year-body"${isCurrentYear ? '' : ' style="display:none;"'}>${monthsHtml}</div>
       </div>`;
   }
 
   list.innerHTML = html;
 
   // Accordion
-  list.querySelectorAll('.nh-year-header').forEach(hdr =>
-    hdr.addEventListener('click', () => hdr.closest('.nh-year-block').classList.toggle('open')));
-  list.querySelectorAll('.nh-month-header').forEach(hdr =>
-    hdr.addEventListener('click', () => hdr.closest('.nh-month-block').classList.toggle('open')));
+  list.querySelectorAll('.nh-year-header').forEach(hdr => {
+    hdr.addEventListener('click', () => {
+      const body = hdr.nextElementSibling;
+      const chev = hdr.querySelector('.gh-year-chevron');
+      const isOpen = body.style.display !== 'none';
+      body.style.display = isOpen ? 'none' : '';
+      chev?.classList.toggle('open', !isOpen);
+      hdr.classList.toggle('gh-closed', isOpen);
+    });
+  });
+  list.querySelectorAll('.nh-month-header').forEach(hdr => {
+    hdr.addEventListener('click', () => {
+      const body = hdr.nextElementSibling;
+      const chev = hdr.querySelector('.gh-month-chevron');
+      const isOpen = body.classList.contains('open');
+      body.classList.toggle('open', !isOpen);
+      chev?.classList.toggle('open', !isOpen);
+    });
+  });
 
   // Lightbox
   list.querySelectorAll('[data-lightbox]').forEach(el =>

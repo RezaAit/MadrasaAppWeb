@@ -719,7 +719,71 @@ html, body {
 .fees-amount-big { font-size: 2.5rem; font-weight: 900; color: #EF4444; line-height: 1; }
 .fees-amount-big.zero { color: #22C55E; }
 
-/* ─── Fees Year Accordion ────────────────────────────────────────────────── */
+/* ─── Shared Guardian History Group (gh-*) ───────────────────────────────── */
+/* Fees, Attendance, Notice, Leave সব জায়গায় same year/month accordion       */
+
+.gh-year-group { margin-bottom: 10px; }
+
+.gh-year-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 14px;
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  border-radius: 12px 12px 0 0; cursor: pointer; user-select: none;
+  box-shadow: 0 2px 8px rgba(37,99,235,.2);
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 120ms;
+}
+.gh-year-header.gh-closed { border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+.gh-year-header:active { opacity: .88; }
+.gh-year-title { font-size: .88rem; font-weight: 800; color: #fff; }
+.gh-year-right { display: flex; align-items: center; gap: 8px; }
+.gh-year-meta  { font-size: .78rem; font-weight: 600; color: rgba(255,255,255,.85); }
+.gh-year-chevron { color: rgba(255,255,255,.8); transition: transform .2s ease; flex-shrink: 0; }
+.gh-year-chevron.open { transform: rotate(180deg); }
+
+.gh-year-body {
+  background: #fff; border: 1px solid #e2e8f0; border-top: none;
+  border-radius: 0 0 12px 12px; overflow: hidden;
+}
+
+.gh-month-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; background: #f8fafc;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+}
+.gh-month-left  { display: flex; flex-direction: column; gap: 1px; }
+.gh-month-name  { font-size: .83rem; font-weight: 700; color: #1e293b; }
+.gh-month-sub   { font-size: .7rem; color: #94a3b8; margin-top: 1px; }
+.gh-month-right { display: flex; align-items: center; gap: 8px; }
+.gh-month-count {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #e0e7ff; color: #4338ca;
+  min-width: 22px; height: 22px; padding: 0 6px;
+  border-radius: 999px; font-size: .68rem; font-weight: 700; line-height: 1;
+}
+.gh-month-chevron { color: #cbd5e1; transition: transform .2s ease; flex-shrink: 0; }
+.gh-month-chevron.open { transform: rotate(180deg); }
+.gh-month-body { display: none; }
+.gh-month-body.open { display: block; }
+
+/* Row inside month body */
+.gh-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px; border-bottom: 1px solid #f8fafc;
+  cursor: pointer; transition: background 120ms;
+  -webkit-tap-highlight-color: transparent;
+}
+.gh-row:last-child { border-bottom: none; }
+.gh-row:active { background: #f8fafc; }
+.gh-row-left  { display: flex; flex-direction: column; gap: 2px; }
+.gh-row-title { font-size: .88rem; font-weight: 600; color: #0f172a; }
+.gh-row-sub   { font-size: .73rem; color: #94a3b8; }
+.gh-row-right  { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.gh-row-amount { font-size: .95rem; font-weight: 700; color: #1e3a8a; }
+.gh-row-arrow  { color: #cbd5e1; flex-shrink: 0; }
+
+/* ─── Fees Year Accordion (legacy kept) ─────────────────────────────────── */
 .fees-year-toggle {
   width: 100%; display: flex; align-items: center; justify-content: space-between;
   padding: 12px 16px; background: #FFFFFF; border: 1px solid var(--border);

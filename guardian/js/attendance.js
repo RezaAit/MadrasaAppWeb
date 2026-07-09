@@ -82,15 +82,35 @@ export async function loadAttendance(container, child) {
     </div>
   `;
 
-  // Expand/collapse with smooth height animation + ripple (year / month / week headers)
-  container.querySelectorAll('.year-header, .month-header, .week-header').forEach(hdr => {
+  // Expand/collapse
+  container.querySelectorAll('.year-header').forEach(hdr => {
     attachRipple(hdr);
-    const body   = hdr.nextElementSibling;
-    const chev   = hdr.querySelector('.year-chevron, .month-chevron, .week-chevron');
-    _prepCollapsible(body);
+    const body = hdr.nextElementSibling;
+    const chev = hdr.querySelector('.gh-year-chevron');
     hdr.addEventListener('click', () => {
-      const isOpen = body.classList.contains('is-open');
-      _toggleCollapsible(body, !isOpen);
+      const isOpen = body.style.display !== 'none';
+      body.style.display = isOpen ? 'none' : '';
+      chev?.classList.toggle('open', !isOpen);
+      hdr.classList.toggle('gh-closed', isOpen);
+    });
+  });
+  container.querySelectorAll('.month-header').forEach(hdr => {
+    attachRipple(hdr);
+    const body = hdr.nextElementSibling;
+    const chev = hdr.querySelector('.gh-month-chevron');
+    hdr.addEventListener('click', () => {
+      const isOpen = body.classList.contains('open');
+      body.classList.toggle('open', !isOpen);
+      chev?.classList.toggle('open', !isOpen);
+    });
+  });
+  container.querySelectorAll('.week-header').forEach(hdr => {
+    attachRipple(hdr);
+    const body = hdr.nextElementSibling;
+    const chev = hdr.querySelector('.week-chevron');
+    hdr.addEventListener('click', () => {
+      const isOpen = body.style.display !== 'none';
+      body.style.display = isOpen ? 'none' : '';
       if (chev) chev.style.transform = isOpen ? 'rotate(-90deg)' : 'rotate(0)';
     });
   });
@@ -193,22 +213,21 @@ function _buildYearGroups(years) {
 }
 
 function _yearGroup(yearData, now) {
-  const totalPresent = yearData.months.reduce((s, m) => s + m.totalPresent, 0);
-  const totalAbsent  = yearData.months.reduce((s, m) => s + m.totalAbsent, 0);
+  const totalPresent  = yearData.months.reduce((s, m) => s + m.totalPresent, 0);
+  const totalAbsent   = yearData.months.reduce((s, m) => s + m.totalAbsent, 0);
   const isCurrentYear = yearData.year === now.getFullYear();
-
-  const monthRows = yearData.months.map(m => _monthGroup(m, now, isCurrentYear)).join('');
+  const monthRows     = yearData.months.map(m => _monthGroup(m, now, isCurrentYear)).join('');
 
   return `
-    <div class="fees-year-group mb-12 ${isCurrentYear ? 'expanded' : ''}">
-      <div class="fees-year-toggle year-header card-clickable" style="cursor:pointer;border-left:4px solid #1E3A5F;">
-        <span style="font-weight:700;font-size:.97rem;color:#0F2540;">${yearData.year} সাল</span>
-        <span style="display:flex;align-items:center;gap:8px;">
-          <span style="font-size:.82rem;color:#1E3A5F;font-weight:600;">✓ ${totalPresent} &nbsp; ✗ ${totalAbsent}</span>
-          <svg class="year-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1E3A5F" stroke-width="2.5" style="transition:transform .2s;${isCurrentYear ? '' : 'transform:rotate(-90deg);'}"><polyline points="6 9 12 15 18 9"/></svg>
-        </span>
+    <div class="gh-year-group">
+      <div class="gh-year-header year-header${isCurrentYear ? '' : ' gh-closed'}">
+        <span class="gh-year-title">${yearData.year} সাল</span>
+        <div class="gh-year-right">
+          <span class="gh-year-meta">✓ ${totalPresent} &nbsp; ✗ ${totalAbsent}</span>
+          <svg class="gh-year-chevron year-chevron${isCurrentYear ? ' open' : ''}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
       </div>
-      <div class="year-body fees-year-items card" style="padding:0;overflow:hidden;${isCurrentYear ? '' : 'display:none;'}">
+      <div class="gh-year-body year-body"${isCurrentYear ? '' : ' style="display:none;"'}>
         ${monthRows}
       </div>
     </div>
@@ -218,19 +237,22 @@ function _yearGroup(yearData, now) {
 function _monthGroup(month, now, isCurrentYear) {
   const isCurrentMonth = isCurrentYear && month.monthNum === (now.getMonth() + 1);
   const weekRows = month.weeks.map(w => _weekGroup(w, month.monthNum, month.year, now, isCurrentMonth)).join('');
+  const subParts = [
+    month.totalPresent ? `✓ ${month.totalPresent}` : '',
+    month.totalAbsent  ? `✗ ${month.totalAbsent}`  : '',
+    month.totalLeave   ? `📋 ${month.totalLeave}`  : '',
+  ].filter(Boolean).join(' · ');
 
   return `
-    <div style="border-bottom:1px solid var(--border);">
-      <div class="month-header card-clickable" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 10px 22px;background:#F0F7FF;cursor:pointer;position:relative;overflow:hidden;transition:transform .12s ease;border-left:3px solid #5B8DC4;">
-        <div style="position:relative;z-index:1;">
-          <div style="font-size:.83rem;font-weight:700;color:#27496D;">${month.label}</div>
-          <div style="font-size:.7rem;color:var(--text-muted);margin-top:2px;">
-            ${month.totalPresent ? `✓ ${month.totalPresent}` : ''} ${month.totalAbsent ? `✗ ${month.totalAbsent}` : ''} ${month.totalLeave ? `📋 ${month.totalLeave}` : ''}
-          </div>
+    <div>
+      <div class="gh-month-header month-header">
+        <div class="gh-month-left">
+          <span class="gh-month-name">${month.label}</span>
+          ${subParts ? `<span class="gh-month-sub">${subParts}</span>` : ''}
         </div>
-        <svg class="month-chevron" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#5B8DC4" stroke-width="2" style="transition:transform .2s;flex-shrink:0;position:relative;z-index:1;${isCurrentMonth ? '' : 'transform:rotate(-90deg);'}"><polyline points="6 9 12 15 18 9"/></svg>
+        <svg class="gh-month-chevron month-chevron${isCurrentMonth ? ' open' : ''}" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
-      <div class="month-body" style="${isCurrentMonth ? '' : 'display:none;'}">
+      <div class="gh-month-body month-body${isCurrentMonth ? ' open' : ''}">
         ${weekRows}
       </div>
     </div>

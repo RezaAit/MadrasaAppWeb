@@ -69,26 +69,27 @@ export async function loadFees(container, child) {
         : years.map(yr => {
             const items = byYear[yr];
             const yrTotal = items.reduce((s, h) => s + (h.ReceivedAmount || 0), 0);
+            const isOpen  = yr === currentYear;
             return `
-              <div class="fees-year-group mb-12" data-year="${yr}">
-                <button class="fees-year-toggle">
-                  <span style="font-weight:700;">${yr} সাল</span>
-                  <span style="display:flex;align-items:center;gap:8px;">
-                    <span style="font-size:.82rem;color:#1E3A5F;font-weight:600;">৳${yrTotal.toLocaleString()}</span>
-                    <svg class="fees-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-                  </span>
-                </button>
-                <div class="fees-year-items card" style="padding:0;overflow:hidden;display:none;">
+              <div class="gh-year-group" data-year="${yr}">
+                <div class="gh-year-header${isOpen ? '' : ' gh-closed'} fees-year-toggle" data-year="${yr}">
+                  <span class="gh-year-title">${yr} সাল</span>
+                  <div class="gh-year-right">
+                    <span class="gh-year-meta">৳${yrTotal.toLocaleString()}</span>
+                    <svg class="gh-year-chevron fees-chevron${isOpen ? ' open' : ''}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                  </div>
+                </div>
+                <div class="gh-year-body fees-year-items"${isOpen ? '' : ' style="display:none;"'}>
                   ${items.map(h => `
-                    <div class="fee-receipt-row" data-master-id="${h.Id}" style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;">
-                      <div>
-                        <div style="font-weight:600;font-size:.9rem;">${_monthLabel(h)}</div>
-                        <div style="font-size:.78rem;color:var(--text-muted);">পরিশোধ: ${_dateStr(h.PaymentDate)}</div>
-                        <div style="font-size:.78rem;color:var(--text-muted);">রসিদ: ${h.MoneyReceipt || '—'}</div>
+                    <div class="gh-row fee-receipt-row" data-master-id="${h.Id}">
+                      <div class="gh-row-left">
+                        <div class="gh-row-title">${_monthLabel(h)}</div>
+                        <div class="gh-row-sub">পরিশোধ: ${_dateStr(h.PaymentDate)}</div>
+                        <div class="gh-row-sub">রসিদ: ${h.MoneyReceipt || '—'}</div>
                       </div>
-                      <div style="display:flex;align-items:center;gap:8px;">
-                        <div style="font-size:1rem;font-weight:700;color:#1E3A5F;">৳${(h.ReceivedAmount || 0).toLocaleString()}</div>
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--text-muted)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                      <div class="gh-row-right">
+                        <span class="gh-row-amount">৳${(h.ReceivedAmount || 0).toLocaleString()}</span>
+                        <svg class="gh-row-arrow" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                       </div>
                     </div>`).join('')}
                 </div>
@@ -120,11 +121,13 @@ export async function loadFees(container, child) {
   attachRippleAll('.fees-year-toggle', container);
   container.querySelectorAll('.fees-year-toggle').forEach(btn => {
     btn.addEventListener('click', () => {
-      const group = btn.closest('.fees-year-group');
-      const items = group.querySelector('.fees-year-items');
-      const isNowOpen = group.classList.toggle('expanded');
-      btn.classList.toggle('open', isNowOpen);
-      items.style.display = isNowOpen ? '' : 'none';
+      const group = btn.closest('.gh-year-group');
+      const items = group.querySelector('.gh-year-body');
+      const chev  = btn.querySelector('.gh-year-chevron');
+      const isOpen = items.style.display !== 'none';
+      items.style.display = isOpen ? 'none' : '';
+      chev?.classList.toggle('open', !isOpen);
+      btn.classList.toggle('gh-closed', isOpen);
     });
   });
 
