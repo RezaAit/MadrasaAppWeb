@@ -364,8 +364,9 @@ async function _openApplyForm(container, child, allLeaves, guardian) {
     if (!res.HasError) {
       showToast(res.message || 'আবেদন জমা হয়েছে ✓', 'success');
       close();
-      // Refresh
-      const newRes = await import('./api.js').then(m => m.getLeaveHistory(studentId));
+      // Refresh — small delay so server commits the record
+      await new Promise(r => setTimeout(r, 800));
+      const newRes = await getLeaveHistory(studentId);
       const updated = newRes.results || [];
       container.querySelector('[data-tab="history"]').textContent = `ছুটির ইতিহাস (${updated.length})`;
       allLeaves.length = 0;
