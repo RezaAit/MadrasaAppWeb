@@ -355,7 +355,13 @@ function _size(bytes) {
 
 export function openPdfLightbox(src) {
   const absUrl = src.startsWith('http') ? src : (location.origin + src);
-  window.open(absUrl, '_blank');
+  const a = document.createElement('a');
+  a.href = absUrl;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => a.remove(), 100);
 }
 
 /**
