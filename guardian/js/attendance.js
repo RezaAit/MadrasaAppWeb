@@ -49,16 +49,11 @@ export async function loadAttendance(container, child) {
       </div>
 
       <!-- Summary stats -->
-      <div class="stat-grid mb-16 stagger-in">
-        <div class="stat-card">
-          <div class="stat-label">উপস্থিত (${monthLabel})</div>
-          <div class="stat-value">${totalPresent}</div>
-          <div class="stat-sub">${totalSchool} দিনের মধ্যে</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">উপস্থিতির হার</div>
+      <div class="card mb-16 stagger-in" style="padding:14px 16px;">
+        <div class="stat-label mb-4">উপস্থিতির হার (${monthLabel})</div>
+        <div style="display:flex;align-items:baseline;gap:8px;">
           <div class="stat-value">${pct}<span style="font-size:1.2rem">%</span></div>
-          <div class="stat-sub">অনুপস্থিত ${totalAbsent} · ছুটি ${totalLeave}</div>
+          <div class="stat-sub">${totalPresent}/${totalSchool} দিন · অনুপস্থিত ${totalAbsent} · ছুটি ${totalLeave}</div>
         </div>
       </div>
 
