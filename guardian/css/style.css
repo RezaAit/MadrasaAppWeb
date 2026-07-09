@@ -253,10 +253,10 @@ html, body {
   color: #fff;
 }
 .profile-hero .hero-name { color: #fff !important; }
-.profile-hero .hero-name-bn { color: rgba(255,255,255,.75) !important; }
+.profile-hero .hero-name-bn { color: rgba(183 255 253,.92) !important; }
 .profile-hero .tag { background: rgba(255,255,255,.18) !important; color: #fff !important; border-color: rgba(255,255,255,.2) !important; }
 .profile-hero .hero-avatar { border-color: rgba(255,255,255,.4) !important; }
-.profile-hero .hero-avatar-ring { border-color: rgba(255,255,255,.4) !important; }
+.profile-hero .hero-avatar-ring { border-color: rgba(255,255,255) !important; }
 
 /* Subtle decorative accent */
 .hero-blob { display: none; }
@@ -297,7 +297,7 @@ html, body {
   position: absolute;
   inset: -5px;
   border-radius: 50%;
-  border: 1.5px dashed #D4AF37;
+  border: 1.5px dashed #35f4ff;
   animation: ringRotate 14s linear infinite;
   opacity: .7;
 }
