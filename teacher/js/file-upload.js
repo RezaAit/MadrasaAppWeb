@@ -72,7 +72,7 @@ export function createFileUpload(container, {
             </div>
             <button class="fu-remove-btn fu-remove-new" type="button" data-idx="${i}">
               <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              সরান
+              মুছুন
             </button>
           </div>`;
       }
@@ -239,11 +239,58 @@ export function openLightbox(src) {
   lb.querySelector('#lb-close').onclick = () => lb.remove();
   lb.addEventListener('click', e => { if (e.target === lb) lb.remove(); });
 
-  let startY = 0;
-  lb.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: true });
+  const imgEl = lb.querySelector('img');
+  let scale = 1, startDist = 0, lastScale = 1;
+  let startY = 0, isPinching = false;
+
+  lb.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) {
+      isPinching = true;
+      startDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+    } else if (e.touches.length === 1) {
+      startY = e.touches[0].clientY;
+      isPinching = false;
+    }
+  }, { passive: true });
+
+  lb.addEventListener('touchmove', e => {
+    if (e.touches.length === 2 && isPinching) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      scale = Math.min(Math.max(lastScale * (dist / startDist), 1), 5);
+      imgEl.style.transform = `scale(${scale})`;
+    }
+  }, { passive: true });
+
   lb.addEventListener('touchend', e => {
+    if (isPinching) {
+      lastScale = scale;
+      isPinching = false;
+      return;
+    }
+    if (scale > 1) return; // don't close when zoomed
     if (e.changedTouches[0].clientY - startY > 80) lb.remove();
   }, { passive: true });
+
+  // double-tap to zoom/reset
+  let lastTap = 0;
+  imgEl.addEventListener('click', e => {
+    e.stopPropagation();
+    const now = Date.now();
+    if (now - lastTap < 300) {
+      scale = scale > 1 ? 1 : 2.5;
+      lastScale = scale;
+      imgEl.style.transform = `scale(${scale})`;
+      imgEl.style.transition = 'transform 200ms ease';
+      setTimeout(() => { imgEl.style.transition = ''; }, 200);
+    }
+    lastTap = now;
+  });
 }
 
 function _size(bytes) {
