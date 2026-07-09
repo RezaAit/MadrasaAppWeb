@@ -694,7 +694,7 @@ function _truncateHtmlSafe(html, maxChars) {
 
 function _existingAttachment(url) {
   if (!url) return `<div style="font-size:.8rem;color:#94a3b8;padding:8px 0;">কোনো সংযুক্তি নেই</div>`;
-  const full = `http://localhost:805${url}`;
+  const full = url.startsWith('http') ? url : `${BASE_URL}${url}`;
   const isPdf = url.toLowerCase().endsWith('.pdf');
   if (isPdf) {
     return `
@@ -716,7 +716,7 @@ function _attachmentPreview(rawUrl) {
   const urls = _parseAttachmentUrls(rawUrl);
   if (!urls.length) return '';
   return urls.map(url => {
-    const full = `http://localhost:805${url}`;
+    const full = url.startsWith('http') ? url : `${BASE_URL}${url}`;
     const isPdf = url.toLowerCase().endsWith('.pdf');
     if (isPdf) {
       return `
