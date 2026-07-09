@@ -51,7 +51,7 @@ export function createFileUpload(container, {
             ${_previewHtml(`${BASE}${url}`, url)}
             <button class="fu-remove-btn fu-remove-exist" type="button" data-url="${url}">
               <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              সরান
+              মুছুন
             </button>
           </div>`;
       }
@@ -95,12 +95,40 @@ export function createFileUpload(container, {
     _wire();
   }
 
-  function _addFiles(fileList) {
+  async function _addFiles(fileList) {
     for (const f of fileList) {
       if (f.size > 5 * 1024 * 1024) { alert(`"${f.name}" ফাইলটি 5MB এর বেশি`); continue; }
-      newFiles.push(f);
+      if (f.type.startsWith('image/') && f.size > 300 * 1024) {
+        const compressed = await _compressImage(f, 1200, 0.82);
+        newFiles.push(compressed);
+      } else {
+        newFiles.push(f);
+      }
     }
     _rerender();
+  }
+
+  function _compressImage(file, maxPx, quality) {
+    return new Promise(resolve => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let { width, height } = img;
+        if (width > maxPx || height > maxPx) {
+          if (width > height) { height = Math.round(height * maxPx / width); width = maxPx; }
+          else { width = Math.round(width * maxPx / height); height = maxPx; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        canvas.toBlob(blob => {
+          resolve(new File([blob], file.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' }));
+        }, 'image/jpeg', quality);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+      img.src = url;
+    });
   }
 
   function _wire() {
