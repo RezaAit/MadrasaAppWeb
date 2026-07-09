@@ -46,10 +46,12 @@ export function initLogin() {
     try {
       const res = await verifyOtp('0' + phone.replace(/^0/, ''), otp);
       if (res.success !== false && res.token) {
+        const guardianPhone = '0' + phone.replace(/^0/, '');
+        const guardianData = { ...res.guardian, phone: guardianPhone };
         localStorage.setItem('guardian_token', res.token);
-        localStorage.setItem('guardian_data', JSON.stringify(res.guardian));
-        localStorage.setItem('guardian_phone', '0' + phone.replace(/^0/, ''));
-        window.dispatchEvent(new CustomEvent('login-success', { detail: res.guardian }));
+        localStorage.setItem('guardian_data', JSON.stringify(guardianData));
+        localStorage.setItem('guardian_phone', guardianPhone);
+        window.dispatchEvent(new CustomEvent('login-success', { detail: guardianData }));
       } else {
         showToast(res.message || 'ভুল OTP', 'error');
       }

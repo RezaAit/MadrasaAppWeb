@@ -146,18 +146,11 @@ async function loadDashboard() {
     notifBtn.addEventListener('click', () => {
       if (state.children.length === 1) {
         state.activeChild = state.children[0];
-        showStudentProfile();
-        setTimeout(() => {
-          document.querySelector('.profile-nav-btn[data-section="notice"]')?.click();
-        }, 350);
-      } else {
-        const firstCard = document.querySelector('.child-card');
-        if (firstCard) {
-          firstCard.click();
-          setTimeout(() => {
-            document.querySelector('.profile-nav-btn[data-section="notice"]')?.click();
-          }, 400);
-        }
+        showStudentProfile('notice');
+      } else if (state.children.length > 1) {
+        // multi-child: open first child's notice tab
+        state.activeChild = state.children[0];
+        showStudentProfile('notice');
       }
     });
   }
@@ -207,7 +200,7 @@ function renderChildSelector() {
 }
 
 // ── Student Profile ───────────────────────────────────────────────────────
-function showStudentProfile() {
+function showStudentProfile(openSection = null) {
   const child = state.activeChild;
   if (!child) return;
   localStorage.setItem('active_child', JSON.stringify(child));
@@ -258,7 +251,7 @@ function showStudentProfile() {
   document.getElementById('qs-notice').textContent = child.noticeUnread;
 
   navigateTo('screen-profile');
-  initProfileNav();
+  initProfileNav(openSection);
   _loadQuickStats(child);
 }
 
@@ -312,40 +305,63 @@ async function _loadQuickStats(child) {
 }
 
 // ── Profile Navigation Tabs ───────────────────────────────────────────────
-function initProfileNav() {
+function initProfileNav(openSection = null) {
   const navEl  = document.querySelector('.profile-nav');
   const navBtns = document.querySelectorAll('.profile-nav-btn');
 
-  // Sliding indicator
+  // Sliding indicator — reinit each time profile opens
   const { moveTo } = initTabIndicator(navEl, { autoWire: false });
 
+  // Remove old listeners by replacing each button with a clone
   navBtns.forEach(btn => {
+    const fresh = btn.cloneNode(true);
+    btn.replaceWith(fresh);
+  });
+  const freshBtns = document.querySelectorAll('.profile-nav-btn');
+
+  freshBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      navBtns.forEach(b => b.classList.remove('active'));
+      freshBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       moveTo(btn);
       loadSection(btn.dataset.section);
     });
   });
 
-  // Position indicator on the default active tab after layout
-  requestAnimationFrame(() => moveTo(navEl?.querySelector('.profile-nav-btn.active')));
+  // Determine which section to open
+  const defaultSection = openSection || 'attendance';
+  const activeBtn = document.querySelector(`.profile-nav-btn[data-section="${defaultSection}"]`)
+    || document.querySelector('.profile-nav-btn');
+  freshBtns.forEach(b => b.classList.remove('active'));
+  activeBtn?.classList.add('active');
 
-  // Load default
-  loadSection('attendance');
-
-  attachRipple(document.getElementById('profile-back-btn'));
-  document.getElementById('profile-back-btn')?.addEventListener('click', () => {
-    if (state.children.length > 1) navigateTo('screen-dashboard', { back: true });
+  // Position indicator and scroll active tab into view
+  requestAnimationFrame(() => {
+    moveTo(activeBtn);
+    activeBtn?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   });
+
+  // Load section
+  loadSection(defaultSection);
+
+  // Back button — re-attach on fresh clone isn't needed, use delegation
+  const backBtn = document.getElementById('profile-back-btn');
+  if (backBtn && !backBtn.dataset.bound) {
+    backBtn.dataset.bound = '1';
+    backBtn.addEventListener('click', () => {
+      if (state.children.length > 1) navigateTo('screen-dashboard', { back: true });
+    });
+    attachRipple(backBtn);
+  }
 
   // Hero stats → navigate to section
   document.querySelectorAll('.hero-stat[data-nav-section]').forEach(card => {
+    if (card.dataset.bound) return;
+    card.dataset.bound = '1';
     card.addEventListener('click', () => {
       const section = card.dataset.navSection;
       const btn = document.querySelector(`.profile-nav-btn[data-section="${section}"]`);
       if (!btn) return;
-      // Scroll nav bar so the target tab is visible first, then click
       btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
       setTimeout(() => btn.click(), 150);
     });
