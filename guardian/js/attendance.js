@@ -20,10 +20,10 @@ export async function loadAttendance(container, child) {
 
   const now = new Date();
   const todayDay = now.getDate();
-  const todayEntry = days.find(d => d.day === todayDay && d.dayType === 'R');
+  const todayEntry = days.find(d => d.day === todayDay);
   const todayStatus = todayEntry
-    ? (todayEntry.isPresent ? 'Present' : todayEntry.isLeave ? 'Leave' : 'Absent')
-    : 'Unknown';
+    ? (todayEntry.dayType !== 'R' ? 'Holiday' : todayEntry.isPresent ? 'Present' : todayEntry.isLeave ? 'Leave' : 'Absent')
+    : (days.length > 0 ? 'Absent' : 'Unknown');
 
   const monthNames = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
   const monthLabel = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
@@ -39,8 +39,8 @@ export async function loadAttendance(container, child) {
       <!-- Today card -->
       <div class="card mb-16 text-center" style="padding:20px 24px;">
         <div class="stat-label mb-8">আজকের উপস্থিতি</div>
-        <span class="badge badge-${todayStatus === 'Present' ? 'present' : todayStatus === 'Absent' ? 'absent' : 'leave'}" style="font-size:.95rem;padding:7px 20px;">
-          ${todayStatus === 'Present' ? '✓ উপস্থিত' : todayStatus === 'Absent' ? '✗ অনুপস্থিত' : todayStatus === 'Leave' ? '📋 ছুটি' : '—'}
+        <span class="badge badge-${todayStatus === 'Present' ? 'present' : todayStatus === 'Absent' ? 'absent' : todayStatus === 'Leave' ? 'leave' : 'unknown'}" style="font-size:.95rem;padding:7px 20px;">
+          ${todayStatus === 'Present' ? '✓ উপস্থিত' : todayStatus === 'Absent' ? '✗ অনুপস্থিত' : todayStatus === 'Leave' ? '📋 ছুটি' : todayStatus === 'Holiday' ? '🏖 ছুটির দিন' : '—'}
         </span>
       </div>
 
@@ -246,9 +246,9 @@ function _monthGroup(month, now, isCurrentYear) {
   return `
     <div>
       <div class="gh-month-header month-header">
-        <div class="gh-month-left">
+        <div class="gh-month-left" style="flex-direction:row;align-items:center;gap:6px;">
           <span class="gh-month-name">${month.label}</span>
-          ${subParts ? `<span class="gh-month-sub">${subParts}</span>` : ''}
+          ${subParts ? `<span class="gh-month-sub" style="margin-top:0;">${subParts}</span>` : ''}
         </div>
         <svg class="gh-month-chevron month-chevron${isCurrentMonth ? ' open' : ''}" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
