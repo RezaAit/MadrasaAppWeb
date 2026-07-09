@@ -39,21 +39,19 @@ export async function loadAttendance(container, child) {
   container.innerHTML = `
     <div class="p-16">
 
-      <!-- Today card -->
-      <div class="card mb-16 text-center" style="padding:20px 24px;">
-        <div class="stat-label mb-8">আজকের উপস্থিতি</div>
-        <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:10px;">${now.toLocaleDateString('bn-BD',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
-        <span class="badge badge-${todayStatus === 'Present' ? 'present' : todayStatus === 'Absent' ? 'absent' : todayStatus === 'Leave' ? 'leave' : 'unknown'}" style="font-size:.95rem;padding:7px 20px;">
-          ${todayStatus === 'Present' ? '✓ উপস্থিত' : todayStatus === 'Absent' ? '✗ অনুপস্থিত' : todayStatus === 'Leave' ? '📋 ছুটিতে আছে' : todayStatus === 'Holiday' ? '🏖 ছুটির দিন' : '—'}
-        </span>
-      </div>
-
-      <!-- Summary stats -->
-      <div class="card mb-16 stagger-in" style="padding:14px 16px;">
-        <div class="stat-label mb-4">উপস্থিতির হার (${monthLabel})</div>
-        <div style="display:flex;align-items:baseline;gap:8px;">
+      <!-- Today + Rate row -->
+      <div class="stat-grid mb-16 stagger-in">
+        <div class="stat-card text-center">
+          <div class="stat-label mb-4">আজকের উপস্থিতি</div>
+          <div style="font-size:.7rem;color:var(--text-muted);margin-bottom:8px;">${now.toLocaleDateString('bn-BD',{weekday:'short',day:'numeric',month:'short'})}</div>
+          <span class="badge badge-${todayStatus === 'Present' ? 'present' : todayStatus === 'Absent' ? 'absent' : todayStatus === 'Leave' ? 'leave' : 'unknown'}" style="font-size:.82rem;padding:5px 14px;">
+            ${todayStatus === 'Present' ? '✓ উপস্থিত' : todayStatus === 'Absent' ? '✗ অনুপস্থিত' : todayStatus === 'Leave' ? '📋 ছুটিতে' : todayStatus === 'Holiday' ? '🏖 ছুটির দিন' : '—'}
+          </span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">উপস্থিতির হার</div>
           <div class="stat-value">${pct}<span style="font-size:1.2rem">%</span></div>
-          <div class="stat-sub">${totalPresent}/${totalSchool} দিন · অনুপস্থিত ${totalAbsent} · ছুটি ${totalLeave}</div>
+          <div class="stat-sub">${totalPresent}/${totalSchool} দিন · অনুপস্থিত ${totalAbsent}</div>
         </div>
       </div>
 

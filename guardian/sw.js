@@ -1,4 +1,4 @@
-﻿const CACHE = 'huda-guardian-v15';
+﻿const CACHE = 'huda-guardian-v16';
 const STATIC = [
   '/guardian/',
   '/guardian/index.html',
@@ -55,6 +55,7 @@ self.addEventListener('fetch', e => {
     }))
   );
 });
+
 
 
 
