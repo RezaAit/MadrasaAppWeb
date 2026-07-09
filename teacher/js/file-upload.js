@@ -79,22 +79,16 @@ export function createFileUpload(container, {
       html += `</div>`;
     }
 
-    // Pick buttons — camera and gallery separately to avoid page reload on Android
     const hasAny = newFiles.length || visibleExist.length;
     html += `
-      <input type="file" id="fu-input-cam" accept="image/*" capture="environment" style="display:none;">
       <input type="file" id="fu-input-gallery" accept="${accept}" ${multiple ? 'multiple' : ''} style="display:none;">
       <div class="fu-pick-row">
-        <button type="button" class="fu-pick-btn fu-pick-camera" id="fu-btn-camera">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          ক্যামেরা
-        </button>
         <button type="button" class="fu-pick-btn fu-pick-gallery" id="fu-btn-gallery">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          ${hasAny ? 'আরও যোগ করুন' : 'গ্যালারি / ফাইল'}
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          ${hasAny ? 'আরও যোগ করুন' : 'ছবি / ফাইল যোগ করুন'}
         </button>
       </div>
-      <div class="fu-drop-hint" style="text-align:center;margin-top:4px;">PNG, JPG, PDF • সর্বোচ্চ 5MB</div>
+      <div class="fu-drop-hint" style="text-align:center;margin-top:4px;">ক্যামেরা বা গ্যালারি থেকে বেছে নিন • সর্বোচ্চ 5MB</div>
     </div>`;
 
     container.innerHTML = html;
@@ -110,9 +104,7 @@ export function createFileUpload(container, {
   }
 
   function _wire() {
-    const camInput     = container.querySelector('#fu-input-cam');
     const galleryInput = container.querySelector('#fu-input-gallery');
-    const camBtn       = container.querySelector('#fu-btn-camera');
     const galleryBtn   = container.querySelector('#fu-btn-gallery');
 
     // Lightbox
@@ -120,11 +112,6 @@ export function createFileUpload(container, {
       el.style.cursor = 'pointer';
       el.addEventListener('click', () => openLightbox(el.dataset.lightbox));
     });
-
-    if (camBtn && camInput) {
-      camBtn.addEventListener('click', () => camInput.click());
-      camInput.addEventListener('change', e => { _addFiles(e.target.files); e.target.value = ''; });
-    }
 
     if (galleryBtn && galleryInput) {
       galleryBtn.addEventListener('click', () => galleryInput.click());
