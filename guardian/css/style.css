@@ -909,9 +909,10 @@ html, body {
 .lv-group-header:active { color: #1e293b; }
 
 .lv-group-count {
+  display: inline-flex; align-items: center; justify-content: center;
   background: #dbeafe; color: #2563eb;
   padding: 2px 8px; border-radius: 999px;
-  font-size: .7rem; font-weight: 700;
+  font-size: .7rem; font-weight: 700; line-height: 1;
 }
 .lv-chevron { color: #94a3b8; transition: transform 200ms ease; flex-shrink: 0; }
 .lv-chevron.open { transform: rotate(180deg); }
