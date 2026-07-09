@@ -247,7 +247,7 @@ html, body {
 /* ─── Student Profile Hero ────────────────────────────────────────────────── */
 .profile-hero {
   background: linear-gradient(180deg, #1e3a8a 0%, #2563eb 70%, #3b82f6 100%);
-  padding: 16px 20px 0;
+  padding: 16px 20px 50px 20px;
   position: relative;
   overflow: hidden;
   color: #fff;
@@ -265,8 +265,10 @@ html, body {
 .profile-body {
   background: #FAFAFA;
   border-radius: 0;
-  margin-top: 0;
+  margin-top: -45px;
+  border-radius: 40px;
   position: relative;
+  padding-top: 3px;
   z-index: 2;
 }
 
