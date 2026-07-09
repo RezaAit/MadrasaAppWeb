@@ -1,4 +1,4 @@
-const CACHE = 'huda-guardian-v10';
+﻿const CACHE = 'huda-guardian-v11';
 const STATIC = [
   '/guardian/',
   '/guardian/index.html',
@@ -22,7 +22,7 @@ const STATIC = [
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE).then(c => c.addAll(STATIC))
-    // skipWaiting intentionally omitted — avoids page reload when camera returns focus
+    // skipWaiting intentionally omitted â€” avoids page reload when camera returns focus
   );
 });
 
@@ -31,20 +31,20 @@ self.addEventListener('activate', e => {
     caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
     )
-    // clients.claim() intentionally omitted — prevents SW from forcing page reload on camera return
+    // clients.claim() intentionally omitted â€” prevents SW from forcing page reload on camera return
   );
 });
 
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
-  // API calls — network first, no cache
+  // API calls â€” network first, no cache
   if (url.hostname === 'sbookapi.madrasatulhuda.com') {
-    e.respondWith(fetch(e.request).catch(() => new Response('{"HasError":true,"message":"অফলাইন"}', { headers: { 'Content-Type': 'application/json' } })));
+    e.respondWith(fetch(e.request).catch(() => new Response('{"HasError":true,"message":"à¦…à¦«à¦²à¦¾à¦‡à¦¨"}', { headers: { 'Content-Type': 'application/json' } })));
     return;
   }
 
-  // Static assets — cache first
+  // Static assets â€” cache first
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request).then(res => {
       if (res.ok) {
@@ -55,3 +55,4 @@ self.addEventListener('fetch', e => {
     }))
   );
 });
+

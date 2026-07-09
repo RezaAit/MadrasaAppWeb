@@ -278,12 +278,12 @@ async function _loadQuickStats(child) {
   // Attendance — today's status
   const days = attRes?.results?.days || [];
   const todayDay = now.getDate();
-  const todayEntry = days.find(d => d.day === todayDay && d.dayType === 'R');
+  const todayEntry = days.find(d => d.day === todayDay);
   const todayStatus = todayEntry
-    ? (todayEntry.isPresent ? 'Present' : todayEntry.isLeave ? 'Leave' : 'Absent')
-    : 'Unknown';
+    ? (todayEntry.dayType !== 'R' ? 'Holiday' : todayEntry.isPresent ? 'Present' : todayEntry.isLeave ? 'Leave' : 'Absent')
+    : (days.length > 0 ? 'Absent' : 'Unknown');
   const attEl = document.getElementById('qs-attendance');
-  if (attEl) attEl.textContent = todayStatus === 'Present' ? '✓' : todayStatus === 'Absent' ? '✗' : '—';
+  if (attEl) attEl.textContent = todayStatus === 'Present' ? '✓' : todayStatus === 'Absent' ? '✗' : todayStatus === 'Leave' ? '📋' : '—';
 
   // Homework pending
   const hwList = Array.isArray(hwRes?.results) ? hwRes.results : [];

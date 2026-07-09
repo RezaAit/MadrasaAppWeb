@@ -36,14 +36,6 @@ export async function loadAttendance(container, child) {
   container.innerHTML = `
     <div class="p-16">
 
-      <!-- Today card -->
-      <div class="card mb-16 text-center" style="padding:20px 24px;">
-        <div class="stat-label mb-8">আজকের উপস্থিতি</div>
-        <span class="badge badge-${todayStatus === 'Present' ? 'present' : todayStatus === 'Absent' ? 'absent' : todayStatus === 'Leave' ? 'leave' : 'unknown'}" style="font-size:.95rem;padding:7px 20px;">
-          ${todayStatus === 'Present' ? '✓ উপস্থিত' : todayStatus === 'Absent' ? '✗ অনুপস্থিত' : todayStatus === 'Leave' ? '📋 ছুটি' : todayStatus === 'Holiday' ? '🏖 ছুটির দিন' : '—'}
-        </span>
-      </div>
-
       <!-- Summary stats -->
       <div class="stat-grid mb-16 stagger-in">
         <div class="stat-card">
