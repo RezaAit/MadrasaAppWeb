@@ -80,6 +80,10 @@ export async function init() {
   if (token && savedData) {
     try {
       state.guardian = JSON.parse(savedData);
+      const savedChild = localStorage.getItem('active_child');
+      if (savedChild) {
+        try { state.activeChild = JSON.parse(savedChild); } catch (_) {}
+      }
       await loadDashboard();
       return;
     } catch {
@@ -128,7 +132,11 @@ async function loadDashboard() {
 
   state.children = state.guardian?.children || [];
 
-  if (state.children.length === 1) {
+  if (state.activeChild) {
+    // Restore after camera/page reload — reuse previously active child + section
+    const section = state.activeSection || 'attendance';
+    showStudentProfile(section);
+  } else if (state.children.length === 1) {
     state.activeChild = state.children[0];
     showStudentProfile();
   } else {

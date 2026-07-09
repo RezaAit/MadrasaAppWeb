@@ -1,4 +1,4 @@
-const CACHE = 'huda-guardian-v3';
+const CACHE = 'huda-guardian-v4';
 const STATIC = [
   '/guardian/',
   '/guardian/index.html',
@@ -21,7 +21,8 @@ const STATIC = [
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(STATIC)).then(() => self.skipWaiting())
+    caches.open(CACHE).then(c => c.addAll(STATIC))
+    // skipWaiting intentionally omitted — avoids page reload when camera returns focus
   );
 });
 
@@ -29,7 +30,8 @@ self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    )
+    // clients.claim() intentionally omitted — prevents SW from forcing page reload on camera return
   );
 });
 
