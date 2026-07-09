@@ -54,7 +54,13 @@ export function initLogin() {
     sendOtpBtn.textContent = 'পাঠানো হচ্ছে...';
     try {
       const res = await requestOtp('0' + phone.replace(/^0/, ''));
-      if (res.success !== false) {
+      if (res.httpStatusCode === 429) {
+        showToast(res.message || 'অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন।', 'error');
+        sendOtpBtn.disabled = false;
+        sendOtpBtn.textContent = 'OTP পাঠাও';
+        return;
+      }
+      if (res.httpStatusCode === 200 || res.success !== false) {
         _otpSendCount++;
         displayNum.textContent = phone;
         phoneStep.style.display = 'none';
