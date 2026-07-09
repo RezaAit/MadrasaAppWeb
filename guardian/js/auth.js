@@ -18,8 +18,10 @@ export function initLogin() {
 
   function _startCooldown() {
     let remaining = OTP_COOLDOWN_SEC;
+    const hint = document.getElementById('otp-resend-hint');
     sendOtpBtn.disabled = true;
     sendOtpBtn.textContent = `${remaining}s পর আবার পাঠান`;
+    if (hint) hint.textContent = `OTP না আসলে ${remaining}s পর আবার চেষ্টা করুন`;
     _cooldownTimer = setInterval(() => {
       remaining--;
       if (remaining <= 0) {
@@ -28,12 +30,15 @@ export function initLogin() {
         if (_otpSendCount >= OTP_MAX_RESEND) {
           sendOtpBtn.textContent = 'সীমা শেষ';
           sendOtpBtn.disabled = true;
+          if (hint) hint.textContent = 'অনেকবার চেষ্টা করা হয়েছে। পরে আবার চেষ্টা করুন।';
         } else {
           sendOtpBtn.disabled = false;
           sendOtpBtn.textContent = 'আবার পাঠাও';
+          if (hint) hint.textContent = 'OTP না আসলে আবার পাঠাতে পারেন';
         }
       } else {
         sendOtpBtn.textContent = `${remaining}s পর আবার পাঠান`;
+        if (hint) hint.textContent = `OTP না আসলে ${remaining}s পর আবার চেষ্টা করুন`;
       }
     }, 1000);
   }

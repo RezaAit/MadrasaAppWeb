@@ -1,6 +1,9 @@
 import { requestOtp, verifyOtp } from './api.js';
 import { showToast } from './dashboard.js';
 
+const OTP_COOLDOWN_SEC = 60;
+const OTP_MAX_RESEND   = 3;
+
 export function initLogin() {
   const phoneStep  = document.getElementById('phone-step');
   const otpStep    = document.getElementById('otp-step');
@@ -10,37 +13,77 @@ export function initLogin() {
   const changeNum  = document.getElementById('change-number');
   const displayNum = document.getElementById('display-number');
 
+  let _otpSendCount = 0;
+  let _cooldownTimer = null;
+
+  function _startCooldown() {
+    let remaining = OTP_COOLDOWN_SEC;
+    const hint = document.getElementById('otp-resend-hint');
+    _setBtn(sendOtpBtn, `${remaining}s পর আবার পাঠান`, true);
+    if (hint) hint.textContent = `OTP না আসলে ${remaining}s পর আবার চেষ্টা করুন`;
+    _cooldownTimer = setInterval(() => {
+      remaining--;
+      if (remaining <= 0) {
+        clearInterval(_cooldownTimer);
+        _cooldownTimer = null;
+        if (_otpSendCount >= OTP_MAX_RESEND) {
+          _setBtn(sendOtpBtn, 'সীমা শেষ', true);
+          if (hint) hint.textContent = 'অনেকবার চেষ্টা করা হয়েছে। পরে আবার চেষ্টা করুন।';
+        } else {
+          _setBtn(sendOtpBtn, 'আবার পাঠাও', false);
+          if (hint) hint.textContent = 'OTP না আসলে আবার পাঠাতে পারেন';
+        }
+      } else {
+        sendOtpBtn.textContent = `${remaining}s পর আবার পাঠান`;
+        if (hint) hint.textContent = `OTP না আসলে ${remaining}s পর আবার চেষ্টা করুন`;
+      }
+    }, 1000);
+  }
+
+  function _resetOtpLimit() {
+    clearInterval(_cooldownTimer);
+    _cooldownTimer = null;
+    _otpSendCount = 0;
+    _setBtn(sendOtpBtn, 'OTP পাঠাও', false);
+  }
+
   // ── Send OTP ──────────────────────────────────────────────────────────────
   sendOtpBtn.addEventListener('click', async () => {
     const raw = phoneInput.value.trim();
-    // Accept either "01XXXXXXXXX" (11 digits) or "1XXXXXXXXX" (10 digits from split-pill)
     const phone = /^0/.test(raw) ? raw : '0' + raw;
 
     if (!raw) { _loginError('মোবাইল নম্বর দিন'); return; }
     if (!/^01[3-9][0-9]{8}$/.test(phone)) { _loginError('সঠিক মোবাইল নম্বর দিন (01XXXXXXXXX)'); return; }
+    if (_otpSendCount >= OTP_MAX_RESEND) { _loginError('বারবার OTP পাঠানো যাবে না। কিছুক্ষণ পর চেষ্টা করুন।'); return; }
 
     _setBtn(sendOtpBtn, 'পাঠানো হচ্ছে...', true);
 
     try {
       const res = await requestOtp(phone);
-      if (res && (res.success === true || res.httpStatusCode === 200)) {
+      if (res?.httpStatusCode === 429) {
+        _loginError(res.message || 'অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন।');
+        _setBtn(sendOtpBtn, 'OTP পাঠাও', false);
+      } else if (res && (res.success === true || res.httpStatusCode === 200)) {
+        _otpSendCount++;
         displayNum.textContent = phone;
         phoneStep.style.display = 'none';
         otpStep.style.display = 'block';
         _focusOtp();
         showToast('OTP পাঠানো হয়েছে ✓', 'success');
+        _startCooldown();
       } else {
         _loginError(res?.message || 'OTP পাঠানো যায়নি। নম্বরটি সঠিক কিনা যাচাই করুন।');
+        _setBtn(sendOtpBtn, 'OTP পাঠাও', false);
       }
     } catch (err) {
       _loginError('সার্ভারের সাথে সংযোগ নেই। ইন্টারনেট চেক করুন।');
+      _setBtn(sendOtpBtn, 'OTP পাঠাও', false);
     }
-
-    _setBtn(sendOtpBtn, 'OTP পাঠাও', false);
   });
 
   // ── Back to phone ─────────────────────────────────────────────────────────
   changeNum.addEventListener('click', () => {
+    _resetOtpLimit();
     otpStep.style.display = 'none';
     phoneStep.style.display = 'block';
     _clearError();
