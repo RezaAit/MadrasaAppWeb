@@ -120,6 +120,8 @@ async function loadDashboard() {
   // Populate header user info
   const hdrName = document.getElementById('hdr-guardian-name');
   if (hdrName) hdrName.textContent = state.guardian?.name || 'অভিভাবক';
+  const hdrPhone = document.getElementById('hdr-guardian-phone');
+  if (hdrPhone && state.guardian?.phone) hdrPhone.textContent = `📱 ${state.guardian.phone}`;
 
   state.children = state.guardian?.children || [];
 
