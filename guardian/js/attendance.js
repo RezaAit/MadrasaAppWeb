@@ -45,7 +45,7 @@ export async function loadAttendance(container, child) {
           <div class="stat-label mb-4">আজকের উপস্থিতি</div>
           <div style="font-size:.7rem;color:var(--text-muted);margin-bottom:8px;">${now.toLocaleDateString('bn-BD',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
           <span class="badge badge-${todayStatus === 'Present' ? 'present' : todayStatus === 'Absent' ? 'absent' : todayStatus === 'Leave' ? 'leave' : 'unknown'}" style="font-size:.82rem;padding:5px 14px;">
-            ${todayStatus === 'Present' ? '✓ উপস্থিত' : todayStatus === 'Absent' ? '✗ অনুপস্থিত' : todayStatus === 'Leave' ? '📋 ছুটিতে' : todayStatus === 'Holiday' ? '🏖 ছুটির দিন' : '—'}
+            ${todayStatus === 'Present' ? '✓ উপস্থিত' : todayStatus === 'Absent' ? '✗ অনুপস্থিত' : todayStatus === 'Leave' ? '📋 ছুটিতে' : todayStatus === 'Holiday' ? (now.getDay() === 5 ? '🕌 জুমার দিন' : now.getDay() === 6 ? '🌙 শনিবার ছুটি' : '🏖 সরকারি ছুটি') : '—'}
           </span>
         </div>
         <div class="stat-card" style="text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;">
