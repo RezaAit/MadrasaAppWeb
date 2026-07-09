@@ -888,7 +888,7 @@ html, body {
   box-shadow: 0 2px 8px rgba(37,99,235,.25);
   -webkit-tap-highlight-color: transparent;
 }
-.lv-year-header .lv-group-count { background: rgba(255,255,255,.25); color: #fff; display: inline-flex; align-items: center; justify-content: center; line-height: 1; }
+.lv-year-header .lv-group-count { background: rgba(255,255,255,.25); color: #fff; min-width: 22px; height: 22px; padding: 0 6px; line-height: 1; }
 .lv-year-header .lv-chevron { color: rgba(255,255,255,.8); }
 
 .lv-year-body {
@@ -909,8 +909,10 @@ html, body {
 .lv-group-count {
   display: inline-flex; align-items: center; justify-content: center;
   background: #f1f5f9; color: #94a3b8;
-  padding: 1px 7px; border-radius: 999px;
-  font-size: .68rem; font-weight: 600; line-height: 1.6;
+  min-width: 22px; height: 22px;
+  padding: 0 6px; border-radius: 999px;
+  font-size: .68rem; font-weight: 600; line-height: 1;
+  box-sizing: border-box;
 }
 .lv-chevron { color: #cbd5e1; transition: transform 200ms ease; flex-shrink: 0; }
 .lv-chevron.open { transform: rotate(180deg); }
