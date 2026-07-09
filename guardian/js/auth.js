@@ -25,12 +25,14 @@ export function initLogin() {
     let remaining = OTP_COOLDOWN_SEC;
     sendOtpBtn.disabled = true;
     sendOtpBtn.textContent = `${remaining}s পর আবার পাঠান`;
+    changeNum.disabled = true;
     _setHint(`OTP না আসলে ${remaining}s পর আবার চেষ্টা করুন`);
     _cooldownTimer = setInterval(() => {
       remaining--;
       if (remaining <= 0) {
         clearInterval(_cooldownTimer);
         _cooldownTimer = null;
+        changeNum.disabled = false;
         if (_otpSendCount >= OTP_MAX_RESEND) {
           sendOtpBtn.textContent = 'সীমা শেষ';
           sendOtpBtn.disabled = true;
@@ -53,6 +55,7 @@ export function initLogin() {
     _otpSendCount = 0;
     sendOtpBtn.disabled = false;
     sendOtpBtn.textContent = 'OTP পাঠাও';
+    changeNum.disabled = false;
   }
 
   sendOtpBtn.addEventListener('click', async () => {
