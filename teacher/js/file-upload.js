@@ -240,56 +240,106 @@ export function openLightbox(src) {
   lb.addEventListener('click', e => { if (e.target === lb) lb.remove(); });
 
   const imgEl = lb.querySelector('img');
-  let scale = 1, startDist = 0, lastScale = 1;
-  let startY = 0, isPinching = false;
+  imgEl.style.transformOrigin = 'center center';
+  imgEl.style.willChange = 'transform';
+  imgEl.style.touchAction = 'none';
+  lb.style.touchAction = 'none';
+
+  let scale = 1, lastScale = 1;
+  let panX = 0, panY = 0, lastPanX = 0, lastPanY = 0;
+  let isPinching = false;
+  let startDist = 0, pinchMidX = 0, pinchMidY = 0;
+  let dragStartX = 0, dragStartY = 0;
+  let lastTap = 0, tapStartX = 0, tapStartY = 0;
+  let swipeStartY = 0;
+
+  function applyTransform(animate) {
+    if (animate) imgEl.style.transition = 'transform 200ms ease';
+    imgEl.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+    if (animate) setTimeout(() => { imgEl.style.transition = ''; }, 210);
+  }
+
+  function clampPan() {
+    const maxX = Math.max(0, (scale - 1) * imgEl.offsetWidth  / 2);
+    const maxY = Math.max(0, (scale - 1) * imgEl.offsetHeight / 2);
+    panX = Math.min(maxX, Math.max(-maxX, panX));
+    panY = Math.min(maxY, Math.max(-maxY, panY));
+  }
 
   lb.addEventListener('touchstart', e => {
+    e.preventDefault();
     if (e.touches.length === 2) {
       isPinching = true;
       startDist = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
         e.touches[0].clientY - e.touches[1].clientY
       );
+      pinchMidX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      pinchMidY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      lastScale = scale;
+      lastPanX = panX; lastPanY = panY;
     } else if (e.touches.length === 1) {
-      startY = e.touches[0].clientY;
       isPinching = false;
+      dragStartX = e.touches[0].clientX - panX;
+      dragStartY = e.touches[0].clientY - panY;
+      swipeStartY = e.touches[0].clientY;
+      tapStartX = e.touches[0].clientX;
+      tapStartY = e.touches[0].clientY;
     }
-  }, { passive: true });
+  }, { passive: false });
 
   lb.addEventListener('touchmove', e => {
+    e.preventDefault();
     if (e.touches.length === 2 && isPinching) {
       const dist = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
         e.touches[0].clientY - e.touches[1].clientY
       );
-      scale = Math.min(Math.max(lastScale * (dist / startDist), 1), 5);
-      imgEl.style.transform = `scale(${scale})`;
+      scale = Math.min(Math.max(lastScale * (dist / startDist), 1), 6);
+      clampPan();
+      applyTransform(false);
+    } else if (e.touches.length === 1 && !isPinching && scale > 1) {
+      panX = e.touches[0].clientX - dragStartX;
+      panY = e.touches[0].clientY - dragStartY;
+      clampPan();
+      applyTransform(false);
     }
-  }, { passive: true });
+  }, { passive: false });
 
   lb.addEventListener('touchend', e => {
+    e.preventDefault();
     if (isPinching) {
       lastScale = scale;
+      lastPanX = panX; lastPanY = panY;
       isPinching = false;
+      if (scale <= 1) { scale = 1; panX = 0; panY = 0; applyTransform(true); }
       return;
     }
-    if (scale > 1) return; // don't close when zoomed
-    if (e.changedTouches[0].clientY - startY > 80) lb.remove();
-  }, { passive: true });
 
-  // double-tap to zoom/reset
-  let lastTap = 0;
-  imgEl.addEventListener('click', e => {
-    e.stopPropagation();
+    const dx = Math.abs(e.changedTouches[0].clientX - tapStartX);
+    const dy = e.changedTouches[0].clientY - swipeStartY;
+
+    // double-tap zoom
     const now = Date.now();
-    if (now - lastTap < 300) {
-      scale = scale > 1 ? 1 : 2.5;
+    if (dx < 10 && Math.abs(dy) < 10 && now - lastTap < 300) {
+      if (scale > 1) { scale = 1; panX = 0; panY = 0; }
+      else { scale = 2.5; }
       lastScale = scale;
-      imgEl.style.transform = `scale(${scale})`;
-      imgEl.style.transition = 'transform 200ms ease';
-      setTimeout(() => { imgEl.style.transition = ''; }, 200);
+      applyTransform(true);
+      lastTap = 0;
+      return;
     }
     lastTap = now;
+
+    // swipe-down to close only when not zoomed
+    if (scale <= 1 && dy > 80) { lb.remove(); return; }
+
+    // tap outside image to close when not zoomed
+    if (scale <= 1 && e.target === lb) { lb.remove(); }
+  }, { passive: false });
+
+  lb.querySelector('#lb-close').addEventListener('touchend', e => {
+    e.stopPropagation(); lb.remove();
   });
 }
 
