@@ -1,7 +1,7 @@
 import { getLeaveHistory, applyLeave, getLeaveTypes, getLeaveAttachment, checkLeaveCalendar, guardianUpdateLeave, guardianDeleteLeave } from './api.js';
 import { showToast } from './dashboard.js';
 import { createBottomSheet } from '../../shared/js/bottom-sheet.js';
-import { createFileUpload, openLightbox } from '../../teacher/js/file-upload.js';
+import { createFileUpload, openLightbox, openPdfLightbox, createRichEditor } from '../../teacher/js/file-upload.js';
 
 const BASE_URL = 'http://localhost:805';
 
@@ -269,7 +269,7 @@ async function _openApplyForm(container, child, allLeaves, guardian) {
 
       <div class="form-group">
         <label class="form-label">ছুটির কারণ</label>
-        <textarea class="form-input form-textarea" id="glv-desc" rows="3" placeholder="বিস্তারিত লিখুন..."></textarea>
+        <div id="glv-desc-wrap"></div>
       </div>
 
       <div id="glv-fu-wrap"></div>
@@ -282,6 +282,8 @@ async function _openApplyForm(container, child, allLeaves, guardian) {
       </div>
 
     </div>`;
+
+  const rte = createRichEditor(body.querySelector('#glv-desc-wrap'), { placeholder: 'বিস্তারিত লিখুন...' });
 
   const fu = createFileUpload(body.querySelector('#glv-fu-wrap'), {
     label: 'সংযুক্তি (ডাক্তারের সনদ, চিঠি ইত্যাদি)',
@@ -340,7 +342,7 @@ async function _openApplyForm(container, child, allLeaves, guardian) {
     const typeId = body.querySelector('#glv-type').value;
     const from   = body.querySelector('#glv-from').value;
     const to     = body.querySelector('#glv-to').value;
-    const desc   = body.querySelector('#glv-desc').value.trim();
+    const desc   = rte.getValue();
 
     if (!typeId) { showToast('ছুটির ধরন বেছে নিন', 'error'); return; }
     if (!from || !to) { showToast('তারিখ দিন', 'error'); return; }
@@ -428,7 +430,7 @@ async function _openEditForm(container, leave, all, child, guardian) {
 
       <div class="form-group">
         <label class="form-label">কারণ</label>
-        <textarea class="form-input form-textarea" id="glve-desc" rows="3">${descVal}</textarea>
+        <div id="glve-desc-wrap"></div>
       </div>
 
       ${existingUrls.length ? `
@@ -462,6 +464,11 @@ async function _openEditForm(container, leave, all, child, guardian) {
         </button>
       </div>
     </div>`;
+
+  const rteEd = createRichEditor(body.querySelector('#glve-desc-wrap'), {
+    placeholder: 'ছুটির কারণ লিখুন...',
+    initialValue: descVal,
+  });
 
   const fu = createFileUpload(body.querySelector('#glve-fu-wrap'), {
     label: 'নতুন সংযুক্তি (ডাক্তারের সনদ, চিঠি ইত্যাদি)',
@@ -508,7 +515,7 @@ async function _openEditForm(container, leave, all, child, guardian) {
     const typeId = body.querySelector('#glve-type').value;
     const from   = fromInp.value;
     const to     = toInp.value;
-    const desc   = body.querySelector('#glve-desc').value.trim();
+    const desc   = rteEd.getValue();
 
     if (!typeId) { showToast('ছুটির ধরন বেছে নিন', 'error'); return; }
     if (!from || !to) { showToast('তারিখ দিন', 'error'); return; }

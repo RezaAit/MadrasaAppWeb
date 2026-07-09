@@ -135,10 +135,14 @@ export function createFileUpload(container, {
     const galleryInput = container.querySelector('#fu-input-gallery');
     const galleryBtn   = container.querySelector('#fu-btn-gallery');
 
-    // Lightbox
+    // Lightbox (image)
     container.querySelectorAll('[data-lightbox]').forEach(el => {
       el.style.cursor = 'pointer';
       el.addEventListener('click', () => openLightbox(el.dataset.lightbox));
+    });
+    // PDF lightbox
+    container.querySelectorAll('[data-pdf]').forEach(el => {
+      el.addEventListener('click', () => openPdfLightbox(el.dataset.pdf));
     });
 
     if (galleryBtn && galleryInput) {
@@ -179,12 +183,12 @@ function _previewHtml(src, nameOrUrl) {
   const isPdf = (nameOrUrl || '').toLowerCase().includes('.pdf');
   if (isPdf) {
     return `
-      <a href="${src}" target="_blank" class="fu-pdf-thumb">
+      <div class="fu-pdf-thumb" data-pdf="${src}" style="cursor:pointer;">
         <div class="fu-pdf-icon">
           <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#dc2626" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
         </div>
         <span>PDF ফাইল</span>
-      </a>`;
+      </div>`;
   }
   return `
     <div class="fu-img-thumb" data-lightbox="${src}">
@@ -347,4 +351,107 @@ function _size(bytes) {
   if (bytes < 1024) return bytes + 'B';
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + 'KB';
   return (bytes / 1024 / 1024).toFixed(1) + 'MB';
+}
+
+export function openPdfLightbox(src) {
+  const existing = document.getElementById('app-pdf-lightbox');
+  if (existing) existing.remove();
+
+  const lb = document.createElement('div');
+  lb.id = 'app-pdf-lightbox';
+  lb.style.cssText = `
+    position:fixed; inset:0; z-index:99999;
+    background:rgba(0,0,0,.93);
+    display:flex; flex-direction:column;
+  `;
+  lb.innerHTML = `
+    <div style="
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 14px; background:rgba(255,255,255,.06);
+      border-bottom:1px solid rgba(255,255,255,.1);
+    ">
+      <span style="color:#fff;font-size:.9rem;font-weight:600;">PDF দেখুন</span>
+      <button id="pdf-lb-close" style="
+        width:38px;height:38px;border-radius:50%;
+        background:rgba(255,255,255,.12);
+        border:1.5px solid rgba(255,255,255,.2);
+        color:#fff; display:flex;align-items:center;justify-content:center;
+        cursor:pointer;
+      ">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <iframe src="${src}" style="flex:1;border:none;width:100%;background:#fff;"></iframe>
+  `;
+
+  document.body.appendChild(lb);
+  lb.querySelector('#pdf-lb-close').addEventListener('click', () => lb.remove());
+  lb.querySelector('#pdf-lb-close').addEventListener('touchend', e => { e.preventDefault(); lb.remove(); });
+}
+
+/**
+ * createRichEditor(container, options)
+ * Replaces container content with a toolbar + contenteditable div.
+ * Returns { getValue() → HTML string, setValue(html), focus() }
+ */
+export function createRichEditor(container, {
+  placeholder = 'লিখুন...',
+  initialValue = '',
+  minHeight = '90px',
+} = {}) {
+  container.innerHTML = `
+    <div class="rte-wrap">
+      <div class="rte-toolbar">
+        <button type="button" data-cmd="bold"      title="Bold"><b>B</b></button>
+        <button type="button" data-cmd="italic"    title="Italic"><i>I</i></button>
+        <button type="button" data-cmd="underline" title="Underline"><u>U</u></button>
+        <span class="rte-sep"></span>
+        <button type="button" data-cmd="insertUnorderedList" title="তালিকা">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg>
+        </button>
+        <button type="button" data-cmd="insertOrderedList" title="ক্রমিক তালিকা">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><text x="2" y="8" font-size="7" fill="currentColor" stroke="none">1.</text><text x="2" y="14" font-size="7" fill="currentColor" stroke="none">2.</text><text x="2" y="20" font-size="7" fill="currentColor" stroke="none">3.</text></svg>
+        </button>
+      </div>
+      <div class="rte-body" contenteditable="true" style="min-height:${minHeight};">${initialValue}</div>
+      ${!initialValue ? `<div class="rte-placeholder">${placeholder}</div>` : ''}
+    </div>
+  `;
+
+  const toolbar = container.querySelector('.rte-toolbar');
+  const body    = container.querySelector('.rte-body');
+  const ph      = container.querySelector('.rte-placeholder');
+
+  // toolbar button clicks
+  toolbar.querySelectorAll('[data-cmd]').forEach(btn => {
+    btn.addEventListener('mousedown', e => { e.preventDefault(); });
+    btn.addEventListener('click', () => {
+      document.execCommand(btn.dataset.cmd, false, null);
+      body.focus();
+      _syncActive();
+    });
+  });
+
+  function _syncActive() {
+    toolbar.querySelectorAll('[data-cmd]').forEach(btn => {
+      try { btn.classList.toggle('rte-active', document.queryCommandState(btn.dataset.cmd)); }
+      catch (_) {}
+    });
+    if (ph) ph.style.display = body.innerHTML.replace(/<br\s*\/?>/gi,'').trim() ? 'none' : '';
+  }
+
+  body.addEventListener('input',     _syncActive);
+  body.addEventListener('keyup',     _syncActive);
+  body.addEventListener('mouseup',   _syncActive);
+  body.addEventListener('touchend',  _syncActive);
+  body.addEventListener('focus',     () => { if (ph) ph.style.display = 'none'; });
+  body.addEventListener('blur', () => {
+    if (ph) ph.style.display = body.innerHTML.replace(/<br\s*\/?>/gi,'').trim() ? 'none' : '';
+  });
+
+  return {
+    getValue: () => body.innerHTML.trim() === '<br>' ? '' : body.innerHTML.trim(),
+    setValue: (html) => { body.innerHTML = html || ''; _syncActive(); },
+    focus:    () => body.focus(),
+  };
 }

@@ -1,7 +1,7 @@
 import { getPendingLeaves, actionLeave, principalLeaveDecision, getMySections, getClassStudents, getLeaveTypes, teacherApplyLeave, teacherUpdateLeave, teacherDeleteLeave, checkLeaveCalendar } from './api.js';
 import { showToast } from './dashboard.js';
 import { createBottomSheet } from '../../shared/js/bottom-sheet.js';
-import { createFileUpload, openLightbox } from './file-upload.js';
+import { createFileUpload, openLightbox, openPdfLightbox, createRichEditor } from './file-upload.js';
 
 export async function loadLeaveModule(container, teacher) {
   const isPrincipal = !!teacher?.isPrincipal;
@@ -411,7 +411,7 @@ async function _openApplyForm(container, pending, escalated, reviewed, renderLis
 
       <div class="form-group">
         <label class="form-label">কারণ</label>
-        <textarea class="form-input form-textarea" id="lv-desc" rows="3" placeholder="ছুটির কারণ লিখুন..."></textarea>
+        <div id="lv-desc-wrap"></div>
       </div>
 
       <div id="lv-fu-wrap"></div>
@@ -423,6 +423,9 @@ async function _openApplyForm(container, pending, escalated, reviewed, renderLis
         </button>
       </div>
     </div>`;
+
+  // Rich editor for description
+  const rte = createRichEditor(body.querySelector('#lv-desc-wrap'), { placeholder: 'ছুটির কারণ লিখুন...' });
 
   // File upload component — multiple files
   const fu = createFileUpload(body.querySelector('#lv-fu-wrap'), {
@@ -492,7 +495,7 @@ async function _openApplyForm(container, pending, escalated, reviewed, renderLis
     const typeId    = body.querySelector('#lv-type').value;
     const from      = body.querySelector('#lv-from').value;
     const to        = body.querySelector('#lv-to').value;
-    const desc      = body.querySelector('#lv-desc').value.trim();
+    const desc      = rte.getValue();
 
     if (!studentId) { showToast('শিক্ষার্থী বেছে নিন', 'error'); return; }
     if (!typeId)    { showToast('ছুটির ধরন বেছে নিন', 'error'); return; }
@@ -638,7 +641,7 @@ async function _openEditForm(container, leave, pending, reviewed, currentTab, re
 
       <div class="form-group">
         <label class="form-label">কারণ</label>
-        <textarea class="form-input form-textarea" id="lved-desc" rows="3">${leave.Description ?? leave.description ?? ''}</textarea>
+        <div id="lved-desc-wrap"></div>
       </div>
 
       ${existingUrls.length > 0 ? `
@@ -672,6 +675,11 @@ async function _openEditForm(container, leave, pending, reviewed, currentTab, re
         </button>
       </div>
     </div>`;
+
+  const rteEd = createRichEditor(body.querySelector('#lved-desc-wrap'), {
+    placeholder: 'ছুটির কারণ লিখুন...',
+    initialValue: leave.Description ?? leave.description ?? '',
+  });
 
   const fu = createFileUpload(body.querySelector('#lved-fu-wrap'), {
     label: 'নতুন সংযুক্তি যোগ করুন',
@@ -717,7 +725,7 @@ async function _openEditForm(container, leave, pending, reviewed, currentTab, re
     const typeId = body.querySelector('#lved-type').value;
     const from   = body.querySelector('#lved-from').value;
     const to     = body.querySelector('#lved-to').value;
-    const desc   = body.querySelector('#lved-desc').value.trim();
+    const desc   = rteEd.getValue();
 
     if (!typeId) { showToast('ছুটির ধরন বেছে নিন', 'error'); return; }
     if (!from || !to) { showToast('তারিখ দিন', 'error'); return; }
