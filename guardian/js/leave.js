@@ -2,8 +2,7 @@ import { getLeaveHistory, applyLeave, getLeaveTypes, getLeaveAttachment, checkLe
 import { showToast } from './dashboard.js';
 import { createBottomSheet } from '../../shared/js/bottom-sheet.js';
 import { createFileUpload, openLightbox, createRichEditor } from '../../teacher/js/file-upload.js';
-
-const BASE_URL = 'http://localhost:805';
+import { BASE_URL } from '../../shared/js/api-config.js';
 
 export async function loadGuardianLeave(container, child, guardian) {
   if (!child) { container.innerHTML = `<div class="empty-state"><div class="empty-title">শিক্ষার্থী নির্বাচন করুন</div></div>`; return; }

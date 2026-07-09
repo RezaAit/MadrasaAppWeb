@@ -10,7 +10,7 @@
  *   fu.getFile()     → File | null  (first new file or null)
  */
 
-const BASE = 'http://localhost:805';
+import { BASE_URL as BASE } from '../../shared/js/api-config.js';
 
 export function createFileUpload(container, {
   existingUrl  = null,

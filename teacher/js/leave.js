@@ -2,6 +2,7 @@ import { getPendingLeaves, actionLeave, principalLeaveDecision, getMySections, g
 import { showToast } from './dashboard.js';
 import { createBottomSheet } from '../../shared/js/bottom-sheet.js';
 import { createFileUpload, openLightbox, createRichEditor } from './file-upload.js';
+import { BASE_URL } from '../../shared/js/api-config.js';
 
 export async function loadLeaveModule(container, teacher) {
   const isPrincipal = !!teacher?.isPrincipal;
@@ -238,7 +239,7 @@ export async function loadLeaveModule(container, teacher) {
     content.querySelectorAll('.lv-attachment-legacy').forEach(el => {
       el.addEventListener('click', async () => {
         const id = el.dataset.leaveId;
-        const url = `http://localhost:805/api/Leave/${id}/attachment`;
+        const url = `${BASE_URL}/api/Leave/${id}/attachment`;
         const token = localStorage.getItem('teacher_token');
         el.textContent = 'লোড হচ্ছে...';
         try {
@@ -556,7 +557,7 @@ function _leaveAttachmentHtml(leave) {
 
   if (urls.length > 0) {
     const items = urls.map((url, i) => {
-      const full = url.startsWith('http') ? url : `http://localhost:805${url}`;
+      const full = url.startsWith('http') ? url : `${BASE_URL}${url}`;
       const isPdf = url.toLowerCase().endsWith('.pdf');
       if (isPdf) {
         return `<a href="${full}" target="_blank" class="glve-chip glve-chip-pdf" style="text-decoration:none;">
@@ -649,7 +650,7 @@ async function _openEditForm(container, leave, pending, reviewed, currentTab, re
           <label class="form-label">বিদ্যমান সংযুক্তি</label>
           <div id="lved-existing-atts" style="display:flex;flex-wrap:wrap;gap:8px;">
             ${existingUrls.map((url, i) => {
-              const full = url.startsWith('http') ? url : `http://localhost:805${url}`;
+              const full = url.startsWith('http') ? url : `${BASE_URL}${url}`;
               const isPdf = url.toLowerCase().endsWith('.pdf');
               if (isPdf) return `
               <div class="glve-chip glve-chip-pdf" data-url="${url}">
