@@ -364,14 +364,8 @@ async function _openApplyForm(container, child, allLeaves, guardian) {
     if (!res.HasError) {
       showToast(res.message || 'আবেদন জমা হয়েছে ✓', 'success');
       close();
-      // Refresh — small delay so server commits the record
-      await new Promise(r => setTimeout(r, 800));
-      const newRes = await getLeaveHistory(studentId);
-      const updated = newRes.results || [];
-      container.querySelector('[data-tab="history"]').textContent = `ছুটির ইতিহাস (${updated.length})`;
-      allLeaves.length = 0;
-      updated.forEach(l => allLeaves.push(l));
-      renderHistory(container, allLeaves, child, guardian);
+      await new Promise(r => setTimeout(r, 500));
+      loadGuardianLeave(container, child, guardian);
     } else {
       showToast(res.message || 'ত্রুটি হয়েছে', 'error');
       btn.disabled = false;
@@ -540,12 +534,8 @@ async function _openEditForm(container, leave, all, child, guardian) {
     if (!res.HasError) {
       showToast(res.message || 'আবেদন আপডেট হয়েছে ✓', 'success');
       close();
-      const newRes = await getLeaveHistory(studentId);
-      const updated = newRes.results || [];
-      all.length = 0;
-      updated.forEach(l => all.push(l));
-      container.querySelector('[data-tab="history"]').textContent = `ছুটির ইতিহাস (${all.length})`;
-      renderHistory(container, all, child, guardian);
+      await new Promise(r => setTimeout(r, 500));
+      loadGuardianLeave(container, child, guardian);
     } else {
       showToast(res.message || 'ত্রুটি হয়েছে', 'error');
       submitBtn.disabled = false;
