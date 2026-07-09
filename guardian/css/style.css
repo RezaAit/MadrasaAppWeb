@@ -919,42 +919,68 @@ html, body {
 .lv-group-body { display: flex; flex-direction: column; gap: 8px; padding-top: 8px; }
 
 .lv-card {
-  background: #fff; border-radius: 16px;
-  display: flex; flex-direction: column; overflow: hidden;
-  border: 1px solid #e8edf2;
-  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  background: #fff;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  border: none;
+  box-shadow: 0 2px 12px rgba(0,0,0,.07), 0 1px 3px rgba(0,0,0,.04);
   transition: box-shadow 150ms, transform 120ms;
+  -webkit-tap-highlight-color: transparent;
 }
-.lv-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.10); }
-.lv-card:active { transform: scale(.99); }
-.lv-card-accent { height: 4px; width: 100%; flex-shrink: 0; }
-.lv-card-body { flex: 1; padding: 14px 14px 12px; }
+.lv-card:active { transform: scale(.985); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+
+/* Left vertical color stripe — native app style */
+.lv-card-accent {
+  width: 5px;
+  flex-shrink: 0;
+  height: auto;
+  align-self: stretch;
+  border-radius: 0;
+}
+
+.lv-card-body { flex: 1; padding: 14px 14px 12px; min-width: 0; }
 
 .lv-card-header {
   display: flex; align-items: flex-start;
-  justify-content: space-between; gap: 8px; margin-bottom: 10px;
+  justify-content: space-between; gap: 8px; margin-bottom: 8px;
 }
-.lv-student-name { font-size: .97rem; font-weight: 700; color: #0f172a; letter-spacing: -.01em; }
-.lv-meta { font-size: .74rem; color: #64748b; margin-top: 2px; font-weight: 500; }
+.lv-student-name {
+  font-size: 1rem; font-weight: 800; color: #0f172a;
+  letter-spacing: -.02em; line-height: 1.25;
+}
+.lv-meta {
+  font-size: .75rem; color: #64748b; margin-top: 3px;
+  font-weight: 500; display: flex; align-items: center; gap: 4px;
+}
+.lv-meta::before {
+  content: '';
+  display: inline-block; width: 12px; height: 1.5px;
+  background: #94a3b8; border-radius: 2px; margin-right: 1px;
+}
 
 .lv-status-badge {
-  font-size: .68rem; font-weight: 800;
+  font-size: .67rem; font-weight: 800;
   padding: 4px 10px; border-radius: 999px;
-  white-space: nowrap; flex-shrink: 0; letter-spacing: .3px;
+  white-space: nowrap; flex-shrink: 0; letter-spacing: .4px;
+  text-transform: uppercase;
 }
 
-.lv-info-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.lv-info-row {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;
+}
 .lv-info-item {
   display: flex; align-items: center; gap: 5px;
-  font-size: .74rem; color: #475569; font-weight: 500;
-  background: #f1f5f9; border-radius: 20px; padding: 4px 10px;
+  font-size: .74rem; color: #475569; font-weight: 600;
+  background: #f1f5f9; border-radius: 8px; padding: 4px 10px;
 }
 .lv-info-item svg { color: #94a3b8; flex-shrink: 0; }
 
 .lv-desc {
-  font-size: .83rem; color: #475569;
-  line-height: 1.55; margin-bottom: 10px;
-  padding: 9px 12px; background: #f8fafc;
+  font-size: .82rem; color: #334155;
+  line-height: 1.6; margin-bottom: 10px;
+  padding: 8px 12px; background: #f8fafc;
   border-radius: 10px; border-left: 3px solid #cbd5e1;
 }
 
@@ -972,27 +998,45 @@ html, body {
   display: flex; align-items: flex-start; gap: 6px;
   font-size: .78rem; color: #64748b;
   margin-top: 10px; padding: 8px 10px;
-  background: #f1f5f9; border-radius: 8px; line-height: 1.5;
+  background: #f8fafc; border-radius: 8px; line-height: 1.5;
+  border: 1px solid #f1f5f9;
+}
+
+/* Attachment thumbnails in history card */
+.glve-chip-img {
+  width: 60px; height: 60px;
+  border-radius: 10px; border: 2px solid #e2e8f0;
+  overflow: hidden; flex-shrink: 0; cursor: pointer; position: relative;
+}
+.glve-chip-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.glve-chip-pdf {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 3px;
+  width: 60px; height: 60px; border-radius: 10px;
+  background: #fff1f2; border: 2px solid #fecaca;
+  font-size: .6rem; color: #dc2626; font-weight: 700;
+  text-decoration: none; flex-shrink: 0;
 }
 
 /* Leave edit/delete action buttons */
 .lv-edit-actions {
-  display: flex; gap: 6px; flex-wrap: wrap;
-  margin-top: 10px; padding-top: 10px;
+  display: flex; gap: 8px;
+  margin-top: 12px; padding-top: 12px;
   border-top: 1px solid #f1f5f9;
 }
 .lv-btn {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 8px 16px; border-radius: 999px;
-  font-size: .78rem; font-weight: 700; cursor: pointer;
-  transition: all 150ms; -webkit-tap-highlight-color: transparent;
-  font-family: inherit; flex: 0 0 auto;
+  flex: 1;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 14px; border-radius: 12px;
+  font-size: .8rem; font-weight: 700; cursor: pointer;
+  transition: all 120ms; -webkit-tap-highlight-color: transparent;
+  font-family: inherit;
 }
-.lv-btn:active { transform: scale(.97); }
-.lv-btn-edit  { background: #dbeafe; color: #1d4ed8; border: 1.5px solid #93c5fd; }
-.lv-btn-edit:active  { background: #1d4ed8; color: #fff; }
-.lv-btn-delete { background: #fee2e2; color: #dc2626; border: 1.5px solid #fca5a5; }
-.lv-btn-delete:active { background: #dc2626; color: #fff; }
+.lv-btn:active { transform: scale(.96); }
+.lv-btn-edit  { background: #eff6ff; color: #1d4ed8; border: 1.5px solid #bfdbfe; }
+.lv-btn-edit:active  { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
+.lv-btn-delete { background: #fff1f2; color: #dc2626; border: 1.5px solid #fecaca; }
+.lv-btn-delete:active { background: #dc2626; color: #fff; border-color: #dc2626; }
 
 /* File upload component (fu-*) — multi-file inline grid */
 .fu-root { display: flex; flex-direction: column; gap: 8px; }
@@ -1093,17 +1137,6 @@ html, body {
 .glve-chip {
   position: relative; border-radius: 10px; overflow: hidden;
   flex-shrink: 0; cursor: pointer;
-}
-.glve-chip-img {
-  width: 72px; height: 72px; border: 2px solid #e2e8f0;
-}
-.glve-chip-img img {
-  width: 100%; height: 100%; object-fit: cover; display: block;
-}
-.glve-chip-pdf {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 3px; width: 72px; height: 72px; background: #fff1f2;
-  border: 2px solid #fecaca; font-size: .65rem; color: #dc2626; font-weight: 600;
 }
 .glve-chip-remove {
   position: absolute; top: 2px; right: 2px;
