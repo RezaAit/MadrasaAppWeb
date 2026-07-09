@@ -790,7 +790,8 @@ html, body {
   -ms-overflow-style: none;
   scrollbar-width: none;
   padding: 0 4px;
-  margin-top: 16px;
+  margin-top: 10px;
+  margin-bottom: 7px;
 }
 .profile-nav::-webkit-scrollbar { display: none; }
 .profile-nav-btn {
