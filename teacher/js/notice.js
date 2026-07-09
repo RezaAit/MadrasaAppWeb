@@ -16,7 +16,7 @@ export async function loadNoticeModule(container, teacher) {
       .nh-year-block { margin-bottom: 4px; }
       .nh-year-header {
         display: flex; align-items: center; gap: 8px;
-        padding: 10px 16px 6px;
+        padding: 10px 12px 6px;
         cursor: pointer; user-select: none;
       }
       .nh-year-badge {
@@ -32,7 +32,7 @@ export async function loadNoticeModule(container, teacher) {
       .nh-month-block { margin-bottom: 2px; }
       .nh-month-header {
         display: flex; align-items: center; gap: 8px;
-        padding: 7px 16px 5px 24px;
+        padding: 7px 12px 5px 12px;
         cursor: pointer; user-select: none;
       }
       .nh-month-dot { width: 7px; height: 7px; border-radius: 50%; background: #93c5fd; flex-shrink: 0; }
@@ -44,7 +44,7 @@ export async function loadNoticeModule(container, teacher) {
       .nh-week-label {
         font-size: .68rem; font-weight: 700; color: #cbd5e1;
         text-transform: uppercase; letter-spacing: .07em;
-        padding: 6px 16px 2px 36px;
+        padding: 6px 12px 2px 12px;
       }
       /* RTE formatted content in card */
       .notice-card-content.rte-content { line-height: 1.6; }
@@ -55,12 +55,12 @@ export async function loadNoticeModule(container, teacher) {
       .notice-card-content.rte-content ul, .notice-card-content.rte-content ol { padding-left: 1.4em; margin: 2px 0; }
       .notice-card-content.rte-content h1, .notice-card-content.rte-content h2, .notice-card-content.rte-content h3 { font-weight: 700; margin: 2px 0; }
     </style>
-    <div class="p-16">
-      <button class="notice-create-fab" id="create-notice-btn">
+    <div style="padding:16px 0 16px;">
+      <button class="notice-create-fab" id="create-notice-btn" style="margin:0 16px;width:calc(100% - 32px);">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         নতুন নোটিশ তৈরি করুন
       </button>
-      <div class="section-header mt-16"><span class="section-title">নোটিশ ইতিহাস</span></div>
+      <div class="section-header mt-16" style="padding:0 16px;"><span class="section-title">নোটিশ ইতিহাস</span></div>
       <div id="notice-list" class="stagger-in"></div>
     </div>
   `;
@@ -90,7 +90,7 @@ async function _renderNoticeList(container) {
     const cat = n.Category ?? n.category ?? 'Notice';
     const id  = n.Id ?? n.id;
     return `
-    <div class="notice-card fade-in" data-notice-id="${id}" style="margin-left:36px;margin-right:12px;">
+    <div class="notice-card fade-in" data-notice-id="${id}">
       <div class="notice-card-left" style="background:${catColor[cat]||'#2563eb'};"></div>
       <div class="notice-card-body">
         <div class="notice-card-top">

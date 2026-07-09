@@ -1,4 +1,4 @@
-const CACHE = 'huda-teacher-v8';
+﻿const CACHE = 'huda-teacher-v9';
 const STATIC = [
   '/teacher/',
   '/teacher/index.html',
@@ -39,13 +39,13 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
-  // API calls — network first, no cache
+  // API calls â€” network first, no cache
   if (url.hostname === 'sbookapi.madrasatulhuda.com') {
-    e.respondWith(fetch(e.request).catch(() => new Response('{"HasError":true,"message":"অফলাইন"}', { headers: { 'Content-Type': 'application/json' } })));
+    e.respondWith(fetch(e.request).catch(() => new Response('{"HasError":true,"message":"à¦…à¦«à¦²à¦¾à¦‡à¦¨"}', { headers: { 'Content-Type': 'application/json' } })));
     return;
   }
 
-  // Static assets — cache first
+  // Static assets â€” cache first
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request).then(res => {
       if (res.ok) {
