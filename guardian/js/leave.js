@@ -76,25 +76,30 @@ function renderHistory(container, all, child, guardian) {
     const isLatestYr = yr === latestYear;
     const totalYr = [...months.values()].reduce((s,m) => s+m.items.length, 0);
 
+    const yrGroup = document.createElement('div');
+    yrGroup.className = 'gh-year-group';
+
     const yrHeader = document.createElement('div');
-    yrHeader.className = 'lv-year-header';
+    yrHeader.className = `gh-year-header${isLatestYr ? '' : ' gh-closed'}`;
     yrHeader.innerHTML = `
-      <span>${yr}</span>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span class="lv-group-count">${totalYr}টি</span>
-        <svg class="lv-chevron ${isLatestYr?'open':''}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      <span class="gh-year-title">${yr} সাল</span>
+      <div class="gh-year-right">
+        <span class="gh-year-meta">${totalYr}টি আবেদন</span>
+        <svg class="gh-year-chevron${isLatestYr ? ' open' : ''}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
       </div>`;
-    content.appendChild(yrHeader);
+    yrGroup.appendChild(yrHeader);
 
     const yrBody = document.createElement('div');
-    yrBody.className = 'lv-year-body';
+    yrBody.className = 'gh-year-body';
     if (!isLatestYr) yrBody.style.display = 'none';
-    content.appendChild(yrBody);
+    yrGroup.appendChild(yrBody);
+    content.appendChild(yrGroup);
 
     yrHeader.addEventListener('click', () => {
       const open = yrBody.style.display !== 'none';
-      yrBody.style.display = open ? 'none' : 'flex';
-      yrHeader.querySelector('.lv-chevron').classList.toggle('open', !open);
+      yrBody.style.display = open ? 'none' : '';
+      yrHeader.querySelector('.gh-year-chevron').classList.toggle('open', !open);
+      yrHeader.classList.toggle('gh-closed', open);
     });
 
     const sortedMonths = [...months.entries()].sort((a,b) => b[0].localeCompare(a[0]));
@@ -102,24 +107,23 @@ function renderHistory(container, all, child, guardian) {
       const isLatestMon = mKey === latestMonth;
 
       const mHeader = document.createElement('div');
-      mHeader.className = 'lv-group-header';
+      mHeader.className = 'gh-month-header';
       mHeader.innerHTML = `
-        <span>${group.label}</span>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span class="lv-group-count">${group.items.length}টি</span>
-          <svg class="lv-chevron ${isLatestMon?'open':''}" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>`;
+        <div class="gh-month-left" style="flex-direction:row;align-items:center;gap:6px;">
+          <span class="gh-month-name">${group.label}</span>
+          <span class="gh-month-sub" style="margin-top:0;">${group.items.length}টি</span>
+        </div>
+        <svg class="gh-month-chevron${isLatestMon ? ' open' : ''}" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>`;
       yrBody.appendChild(mHeader);
 
       const mBody = document.createElement('div');
-      mBody.className = 'lv-group-body';
-      if (!isLatestMon) mBody.style.display = 'none';
+      mBody.className = `gh-month-body${isLatestMon ? ' open' : ''}`;
       yrBody.appendChild(mBody);
 
       mHeader.addEventListener('click', () => {
-        const open = mBody.style.display !== 'none';
-        mBody.style.display = open ? 'none' : 'flex';
-        mHeader.querySelector('.lv-chevron').classList.toggle('open', !open);
+        const open = mBody.classList.contains('open');
+        mBody.classList.toggle('open', !open);
+        mHeader.querySelector('.gh-month-chevron').classList.toggle('open', !open);
       });
 
       group.items.forEach(leave => {
@@ -127,7 +131,6 @@ function renderHistory(container, all, child, guardian) {
         const statusColor = { Pending:'#f59e0b', Escalated:'#8b5cf6', Approved:'#16a34a', Disapproved:'#dc2626' }[st] || '#94a3b8';
         const statusLabel = { Pending:'অপেক্ষমান', Escalated:'অধ্যক্ষে', Approved:'অনুমোদিত', Disapproved:'প্রত্যাখ্যাত' }[st] || st;
         const id = leave.LeaveId ?? leave.leaveId;
-        const hasFile = leave.HasFile ?? leave.hasFile;
         const dayCount = leave.Duration ?? leave.duration ?? 1;
 
         const card = document.createElement('div');
