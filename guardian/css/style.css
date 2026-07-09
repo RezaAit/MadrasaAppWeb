@@ -230,6 +230,18 @@ html, body {
   font-size: 0.75rem; color: var(--text-muted); font-weight: 500;
 }
 
+/* ─── Dashboard Header — blue ─────────────────────────────────────────────── */
+.dashboard-app-header {
+  background: #1e3a8a !important;
+  border-bottom: none !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18) !important;
+  padding-top: max(env(safe-area-inset-top), 0px) !important;
+  color: #fff !important;
+}
+.dashboard-app-header h1 { color: #fff !important; }
+.dashboard-app-header .header-action { color: rgba(255,255,255,.8) !important; }
+.dashboard-app-header .header-action:hover { background: rgba(255,255,255,.15) !important; }
+
 /* ─── Profile Header — seamless blue continuation ─────────────────────────── */
 .profile-app-header {
   background: #1e3a8a !important;

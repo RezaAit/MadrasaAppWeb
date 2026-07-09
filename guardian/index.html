@@ -105,11 +105,8 @@
 
   <!-- ═══════════════════════════════════════════════════ DASHBOARD SCREEN -->
   <div id="screen-dashboard" class="screen">
-    <div class="app-header">
-      <svg viewBox="0 0 32 32" width="28" height="28" fill="none">
-        <circle cx="16" cy="16" r="14" fill="rgba(255,255,255,0.2)"/>
-        <text x="16" y="21" text-anchor="middle" font-size="14" fill="white" font-family="serif" font-weight="bold">م</text>
-      </svg>
+    <div class="app-header dashboard-app-header">
+      <img src="/images/logo_32x32.png" alt="logo" width="28" height="28" style="border-radius:6px;flex-shrink:0;">
       <h1>মাদরাসাতুল হুদা আল-ইসলামিয়া আস-সালাফিয়া</h1>
       <button class="header-action" id="clear-cache-btn" title="রিফ্রেশ">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
@@ -120,9 +117,15 @@
     </div>
 
     <div class="scroll-content p-16">
-      <div style="margin-bottom:20px;">
-        <p style="font-size:.8rem;color:var(--text-muted);">স্বাগতম,</p>
-        <h2 style="font-size:1.1rem;font-weight:700;" id="hdr-guardian-name">অভিভাবক</h2>
+      <div style="margin-bottom:20px;display:flex;align-items:flex-start;justify-content:space-between;">
+        <div>
+          <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:2px;">আস-সালামু আলাইকুম ওয়া রাহমাতুল্লাহি ওয়া বারাকাতুহ,</p>
+          <h2 style="font-size:1.1rem;font-weight:700;" id="hdr-guardian-name">অভিভাবক</h2>
+        </div>
+        <div id="dash-notif-btn" style="position:relative;cursor:pointer;padding:6px;flex-shrink:0;margin-top:2px;">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--text-muted)" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span id="dash-notif-badge" style="display:none;position:absolute;top:2px;right:2px;background:#ef4444;color:#fff;font-size:.6rem;font-weight:700;min-width:16px;height:16px;border-radius:8px;text-align:center;line-height:16px;padding:0 3px;"></span>
+        </div>
       </div>
       <div class="section-header">
         <span class="section-title">আপনার সন্তানগণ</span>

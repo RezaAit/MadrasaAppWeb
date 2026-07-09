@@ -269,6 +269,26 @@ async function _loadQuickStats(child) {
   const unread = notices.filter(n => !n.isRead).length;
   const noticeEl = document.getElementById('qs-notice');
   if (noticeEl) noticeEl.textContent = unread;
+
+  // Dashboard notification badge
+  const badge = document.getElementById('dash-notif-badge');
+  if (badge) {
+    if (unread > 0) {
+      badge.textContent = unread > 99 ? '99+' : unread;
+      badge.style.display = '';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  // Notification bell click → notice tab in profile
+  document.getElementById('dash-notif-btn')?.addEventListener('click', () => {
+    const firstChild = document.querySelector('.child-card');
+    if (firstChild) firstChild.click();
+    setTimeout(() => {
+      document.querySelector('.profile-nav-btn[data-section="notice"]')?.click();
+    }, 400);
+  });
 }
 
 // ── Profile Navigation Tabs ───────────────────────────────────────────────
