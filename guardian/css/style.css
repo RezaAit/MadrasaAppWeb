@@ -888,7 +888,7 @@ html, body {
   box-shadow: 0 2px 8px rgba(37,99,235,.25);
   -webkit-tap-highlight-color: transparent;
 }
-.lv-year-header .lv-group-count { background: rgba(255,255,255,.25); color: #fff; }
+.lv-year-header .lv-group-count { background: rgba(255,255,255,.25); color: #fff; display: inline-flex; align-items: center; justify-content: center; line-height: 1; }
 .lv-year-header .lv-chevron { color: rgba(255,255,255,.8); }
 
 .lv-year-body {
