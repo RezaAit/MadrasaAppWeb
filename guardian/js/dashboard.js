@@ -275,15 +275,12 @@ async function _loadQuickStats(child) {
     getNotices(child.studentIID),
   ]);
 
-  // Attendance — today's status
-  const days = attRes?.results?.days || [];
-  const todayDay = now.getDate();
-  const todayEntry = days.find(d => d.day === todayDay);
-  const todayStatus = todayEntry
-    ? (todayEntry.dayType !== 'R' ? 'Holiday' : todayEntry.isPresent ? 'Present' : todayEntry.isLeave ? 'Leave' : 'Absent')
-    : (days.length > 0 ? 'Absent' : 'Unknown');
+  // Attendance — this month's present count
+  const attData = attRes?.results || {};
+  const totalPresent = attData.totalPresent ?? 0;
+  const totalSchool  = (attData.days || []).filter(d => d.dayType === 'R').length;
   const attEl = document.getElementById('qs-attendance');
-  if (attEl) attEl.textContent = todayStatus === 'Present' ? '✓' : todayStatus === 'Absent' ? '✗' : todayStatus === 'Leave' ? '📋' : '—';
+  if (attEl) attEl.textContent = totalSchool ? `${totalPresent}/${totalSchool}` : '—';
 
   // Homework pending
   const hwList = Array.isArray(hwRes?.results) ? hwRes.results : [];
