@@ -80,10 +80,6 @@ export async function init() {
   if (token && savedData) {
     try {
       state.guardian = JSON.parse(savedData);
-      const savedChild = localStorage.getItem('active_child');
-      if (savedChild) {
-        try { state.activeChild = JSON.parse(savedChild); } catch (_) {}
-      }
       await loadDashboard();
       return;
     } catch {
@@ -132,11 +128,7 @@ async function loadDashboard() {
 
   state.children = state.guardian?.children || [];
 
-  if (state.activeChild) {
-    // Restore after camera/page reload — reuse previously active child + section
-    const section = state.activeSection || 'attendance';
-    showStudentProfile(section);
-  } else if (state.children.length === 1) {
+  if (state.children.length === 1) {
     state.activeChild = state.children[0];
     showStudentProfile();
   } else {
@@ -211,7 +203,6 @@ function renderChildSelector() {
 function showStudentProfile(openSection = null) {
   const child = state.activeChild;
   if (!child) return;
-  localStorage.setItem('active_child', JSON.stringify(child));
 
   // Populate hero
   const nameEl = document.getElementById('profile-name');
@@ -357,7 +348,12 @@ function initProfileNav(openSection = null) {
   if (backBtn && !backBtn.dataset.bound) {
     backBtn.dataset.bound = '1';
     backBtn.addEventListener('click', () => {
-      if (state.children.length > 1) navigateTo('screen-dashboard', { back: true });
+      if (state.children.length > 1) {
+        state.activeChild = null;
+        localStorage.removeItem('active_child');
+        renderChildSelector();
+        navigateTo('screen-dashboard', { back: true });
+      }
     });
     attachRipple(backBtn);
   }
