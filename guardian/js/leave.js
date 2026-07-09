@@ -288,6 +288,7 @@ async function _openApplyForm(container, child, allLeaves, guardian) {
   const fu = createFileUpload(body.querySelector('#glv-fu-wrap'), {
     label: 'সংযুক্তি (ডাক্তারের সনদ, চিঠি ইত্যাদি)',
     accept: 'image/*,.pdf',
+    multiple: true,
   });
 
   // ── Day count + calendar validation on date change ──
@@ -357,8 +358,7 @@ async function _openApplyForm(container, child, allLeaves, guardian) {
     fd.append('FromDate', from);
     fd.append('ToDate', to);
     if (desc) fd.append('Description', desc);
-    const file = fu.getFile();
-    if (file) fd.append('attachment', file);
+    fu.getFiles().forEach(f => fd.append('attachments', f));
 
     const res = await applyLeave(fd);
     if (!res.HasError) {
