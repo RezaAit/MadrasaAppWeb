@@ -306,25 +306,32 @@ html, body {
 /* Name block */
 .hero-info { flex: 1; min-width: 0; overflow: hidden; }
 .hero-name {
-  font-size: 1.1rem; font-weight: 800;
+  font-size: 1.05rem; font-weight: 800;
   letter-spacing: -.01em;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   color: var(--text-main);
   line-height: 1.25;
+  display: block;
 }
-/* Marquee for long names */
+/* Marquee for long names — clip overflow, animate */
 .hero-name.marquee-name {
-  animation: marquee-scroll 8s linear infinite;
+  overflow: visible;
   text-overflow: clip;
+  animation: marquee-scroll 9s ease-in-out infinite;
 }
 @keyframes marquee-scroll {
-  0%   { transform: translateX(0); }
-  30%  { transform: translateX(0); }
-  70%  { transform: translateX(calc(-100% + 160px)); }
-  100% { transform: translateX(0); }
+  0%,20%  { transform: translateX(0); }
+  60%,80% { transform: translateX(var(--marquee-offset, -60px)); }
+  100%    { transform: translateX(0); }
 }
 .hero-name-bn {
-  font-size: .78rem; color: var(--text-muted); margin-top: 3px;
+  font-size: .78rem; color: var(--text-muted); margin-top: 2px;
+}
+.hero-student-id {
+  font-size: .72rem; font-weight: 700;
+  color: rgba(255,255,255,.85);
+  margin-top: 4px;
+  letter-spacing: .01em;
 }
 
 /* Row 2: chips — single scrollable row */
@@ -811,6 +818,8 @@ html, body {
   background: #fff !important;
   height: 3px;
   border-radius: 3px 3px 0 0;
+  transform: scaleX(0.7);
+  transform-origin: center;
   transition: left .22s cubic-bezier(.4,0,.2,1), width .22s cubic-bezier(.4,0,.2,1);
 }
 

@@ -1,4 +1,4 @@
-import { getUserDetails, getAttendanceHistory, getHomework, getStudentDue, getNotices } from './api.js';
+﻿import { getUserDetails, getAttendanceHistory, getHomework, getStudentDue, getNotices } from './api.js';
 import { initLogin, checkAuth, logout } from './auth.js';
 import { attachRippleAll, attachRipple } from '../../shared/js/ripple.js';
 import { initTabIndicator } from '../../shared/js/tab-indicator.js';
@@ -188,17 +188,20 @@ function showStudentProfile() {
   const nameEl = document.getElementById('profile-name');
   if (nameEl) {
     nameEl.textContent = child.fullName;
-    // marquee if name overflows
-    requestAnimationFrame(() => {
-      if (nameEl.scrollWidth > nameEl.clientWidth) {
+    nameEl.classList.remove('marquee-name');
+    // marquee only if overflows — use a short delay for layout to settle
+    setTimeout(() => {
+      if (nameEl.scrollWidth > nameEl.offsetWidth + 2) {
         nameEl.classList.add('marquee-name');
-      } else {
-        nameEl.classList.remove('marquee-name');
       }
-    });
+    }, 100);
   }
   const nameBnEl = document.getElementById('profile-name-bn');
   if (nameBnEl) nameBnEl.textContent = child.nameBangla || '';
+
+  const idEl = document.getElementById('profile-student-id');
+  if (idEl) idEl.textContent = child.studentInsID ? `🎓 ${child.studentInsID}` : '';
+
   const avatarEl = document.getElementById('profile-avatar');
   if (child.photoUrl) {
     avatarEl.innerHTML = `<img src="${child.photoUrl}" alt="${child.fullName}">`;
@@ -206,16 +209,13 @@ function showStudentProfile() {
     avatarEl.textContent = child.fullName.slice(0, 1);
   }
 
-  // Info chips — Student ID first as badge, then rest
+  // Info chips — class, section, group, roll
   const chipsEl = document.getElementById('profile-chips');
   if (chipsEl) {
     const chip = (label, val) => val
       ? `<span class="hero-chip">${label}: ${val}</span>`
       : '';
-    const idChip = child.studentInsID
-      ? `<span class="hero-chip hero-chip-id">🎓 ${child.studentInsID}</span>`
-      : '';
-    chipsEl.innerHTML = idChip + [
+    chipsEl.innerHTML = [
       chip('শ্রেণি', child.className),
       chip('সেকশন', child.section),
       chip('গ্রুপ', child.group),
@@ -331,3 +331,4 @@ function loadSection(section) {
 function _skeletonCards(n) {
   return Array.from({ length: n }, () => `<div class="skeleton skeleton-card mb-12"></div>`).join('');
 }
+
