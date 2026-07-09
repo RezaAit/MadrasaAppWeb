@@ -1,6 +1,9 @@
 import { requestOtp, verifyOtp } from './api.js';
 import { showToast, navigateTo } from './dashboard.js';
 
+const OTP_COOLDOWN_SEC = 60;
+const OTP_MAX_RESEND   = 3;
+
 export function initLogin() {
   const phoneStep = document.getElementById('phone-step');
   const otpStep   = document.getElementById('otp-step');
@@ -10,28 +13,69 @@ export function initLogin() {
   const changeNum  = document.getElementById('change-number');
   const displayNum = document.getElementById('display-number');
 
+  let _otpSendCount = 0;
+  let _cooldownTimer = null;
+
+  function _startCooldown() {
+    let remaining = OTP_COOLDOWN_SEC;
+    sendOtpBtn.disabled = true;
+    sendOtpBtn.textContent = `${remaining}s পর আবার পাঠান`;
+    _cooldownTimer = setInterval(() => {
+      remaining--;
+      if (remaining <= 0) {
+        clearInterval(_cooldownTimer);
+        _cooldownTimer = null;
+        if (_otpSendCount >= OTP_MAX_RESEND) {
+          sendOtpBtn.textContent = 'সীমা শেষ';
+          sendOtpBtn.disabled = true;
+        } else {
+          sendOtpBtn.disabled = false;
+          sendOtpBtn.textContent = 'আবার পাঠাও';
+        }
+      } else {
+        sendOtpBtn.textContent = `${remaining}s পর আবার পাঠান`;
+      }
+    }, 1000);
+  }
+
+  function _resetOtpLimit() {
+    clearInterval(_cooldownTimer);
+    _cooldownTimer = null;
+    _otpSendCount = 0;
+    sendOtpBtn.disabled = false;
+    sendOtpBtn.textContent = 'OTP পাঠাও';
+  }
+
   sendOtpBtn.addEventListener('click', async () => {
     const phone = phoneInput.value.trim();
     if (!phone || phone.length < 10) { showToast('সঠিক মোবাইল নম্বর দিন', 'error'); return; }
+    if (_otpSendCount >= OTP_MAX_RESEND) { showToast('বারবার OTP পাঠানো যাবে না। কিছুক্ষণ পর চেষ্টা করুন।', 'error'); return; }
     sendOtpBtn.disabled = true;
     sendOtpBtn.textContent = 'পাঠানো হচ্ছে...';
     try {
       const res = await requestOtp('0' + phone.replace(/^0/, ''));
       if (res.success !== false) {
+        _otpSendCount++;
         displayNum.textContent = phone;
         phoneStep.style.display = 'none';
         otpStep.style.display = 'block';
         _focusOtp();
         showToast('OTP পাঠানো হয়েছে', 'success');
+        _startCooldown();
       } else {
         showToast(res.message || 'ত্রুটি হয়েছে', 'error');
+        sendOtpBtn.disabled = false;
+        sendOtpBtn.textContent = 'OTP পাঠাও';
       }
-    } catch { showToast('সংযোগ সমস্যা', 'error'); }
-    sendOtpBtn.disabled = false;
-    sendOtpBtn.textContent = 'OTP পাঠাও';
+    } catch {
+      showToast('সংযোগ সমস্যা', 'error');
+      sendOtpBtn.disabled = false;
+      sendOtpBtn.textContent = 'OTP পাঠাও';
+    }
   });
 
   changeNum.addEventListener('click', () => {
+    _resetOtpLimit();
     otpStep.style.display = 'none';
     phoneStep.style.display = 'block';
     _clearOtp();
