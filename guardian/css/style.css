@@ -727,18 +727,18 @@ html, body {
 .gh-year-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 11px 14px;
-  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  background: #f1f5f9;
   border-radius: 12px 12px 0 0; cursor: pointer; user-select: none;
-  box-shadow: 0 2px 8px rgba(37,99,235,.2);
+  box-shadow: none;
   -webkit-tap-highlight-color: transparent;
   transition: opacity 120ms;
 }
-.gh-year-header.gh-closed { border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+.gh-year-header.gh-closed { border-radius: 12px; }
 .gh-year-header:active { opacity: .88; }
-.gh-year-title { font-size: .88rem; font-weight: 800; color: #fff; }
+.gh-year-title { font-size: .88rem; font-weight: 800; color: #1e293b; }
 .gh-year-right { display: flex; align-items: center; gap: 8px; }
-.gh-year-meta  { font-size: .78rem; font-weight: 600; color: rgba(255,255,255,.85); }
-.gh-year-chevron { color: rgba(255,255,255,.8); transition: transform .2s ease; flex-shrink: 0; }
+.gh-year-meta  { font-size: .78rem; font-weight: 600; color: #64748b; }
+.gh-year-chevron { color: #94a3b8; transition: transform .2s ease; flex-shrink: 0; }
 .gh-year-chevron.open { transform: rotate(180deg); }
 
 .gh-year-body {
