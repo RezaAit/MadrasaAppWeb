@@ -140,10 +140,6 @@ export function createFileUpload(container, {
       el.style.cursor = 'pointer';
       el.addEventListener('click', () => openLightbox(el.dataset.lightbox));
     });
-    // PDF lightbox
-    container.querySelectorAll('[data-pdf]').forEach(el => {
-      el.addEventListener('click', () => openPdfLightbox(el.dataset.pdf));
-    });
 
     if (galleryBtn && galleryInput) {
       galleryBtn.addEventListener('click', () => galleryInput.click());
@@ -183,12 +179,12 @@ function _previewHtml(src, nameOrUrl) {
   const isPdf = (nameOrUrl || '').toLowerCase().includes('.pdf');
   if (isPdf) {
     return `
-      <div class="fu-pdf-thumb" data-pdf="${src}" style="cursor:pointer;">
+      <a href="${src}" class="fu-pdf-thumb" style="cursor:pointer;text-decoration:none;">
         <div class="fu-pdf-icon">
           <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#dc2626" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
         </div>
         <span>PDF ফাইল</span>
-      </div>`;
+      </a>`;
   }
   return `
     <div class="fu-img-thumb" data-lightbox="${src}">
@@ -353,16 +349,6 @@ function _size(bytes) {
   return (bytes / 1024 / 1024).toFixed(1) + 'MB';
 }
 
-export function openPdfLightbox(src) {
-  const absUrl = src.startsWith('http') ? src : (location.origin + src);
-  const a = document.createElement('a');
-  a.href = absUrl;
-  a.target = '_blank';
-  a.rel = 'noopener';
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(() => a.remove(), 100);
-}
 
 /**
  * createRichEditor(container, options)

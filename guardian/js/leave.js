@@ -1,7 +1,7 @@
 import { getLeaveHistory, applyLeave, getLeaveTypes, getLeaveAttachment, checkLeaveCalendar, guardianUpdateLeave, guardianDeleteLeave } from './api.js';
 import { showToast } from './dashboard.js';
 import { createBottomSheet } from '../../shared/js/bottom-sheet.js';
-import { createFileUpload, openLightbox, openPdfLightbox, createRichEditor } from '../../teacher/js/file-upload.js';
+import { createFileUpload, openLightbox, createRichEditor } from '../../teacher/js/file-upload.js';
 
 const BASE_URL = 'http://localhost:805';
 

@@ -1,7 +1,7 @@
 import { getPendingLeaves, actionLeave, principalLeaveDecision, getMySections, getClassStudents, getLeaveTypes, teacherApplyLeave, teacherUpdateLeave, teacherDeleteLeave, checkLeaveCalendar } from './api.js';
 import { showToast } from './dashboard.js';
 import { createBottomSheet } from '../../shared/js/bottom-sheet.js';
-import { createFileUpload, openLightbox, openPdfLightbox, createRichEditor } from './file-upload.js';
+import { createFileUpload, openLightbox, createRichEditor } from './file-upload.js';
 
 export async function loadLeaveModule(container, teacher) {
   const isPrincipal = !!teacher?.isPrincipal;
