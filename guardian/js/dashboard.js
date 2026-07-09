@@ -185,7 +185,18 @@ function showStudentProfile() {
   localStorage.setItem('active_child', JSON.stringify(child));
 
   // Populate hero
-  document.getElementById('profile-name').textContent = child.fullName;
+  const nameEl = document.getElementById('profile-name');
+  if (nameEl) {
+    nameEl.textContent = child.fullName;
+    // marquee if name overflows
+    requestAnimationFrame(() => {
+      if (nameEl.scrollWidth > nameEl.clientWidth) {
+        nameEl.classList.add('marquee-name');
+      } else {
+        nameEl.classList.remove('marquee-name');
+      }
+    });
+  }
   const nameBnEl = document.getElementById('profile-name-bn');
   if (nameBnEl) nameBnEl.textContent = child.nameBangla || '';
   const avatarEl = document.getElementById('profile-avatar');
@@ -195,18 +206,20 @@ function showStudentProfile() {
     avatarEl.textContent = child.fullName.slice(0, 1);
   }
 
-  // Info chips
+  // Info chips — Student ID first as badge, then rest
   const chipsEl = document.getElementById('profile-chips');
   if (chipsEl) {
     const chip = (label, val) => val
       ? `<span class="hero-chip">${label}: ${val}</span>`
       : '';
-    chipsEl.innerHTML = [
+    const idChip = child.studentInsID
+      ? `<span class="hero-chip hero-chip-id">🎓 ${child.studentInsID}</span>`
+      : '';
+    chipsEl.innerHTML = idChip + [
       chip('শ্রেণি', child.className),
       chip('সেকশন', child.section),
       chip('গ্রুপ', child.group),
       chip('রোল', child.roll),
-      chip('আইডি', child.studentInsID),
     ].join('');
   }
 

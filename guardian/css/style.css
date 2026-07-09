@@ -230,10 +230,24 @@ html, body {
   font-size: 0.75rem; color: var(--text-muted); font-weight: 500;
 }
 
+/* ─── Profile Header — seamless blue continuation ─────────────────────────── */
+.profile-app-header {
+  background: #1e3a8a !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  padding-top: max(env(safe-area-inset-top), 0px) !important;
+  color: #fff !important;
+}
+.profile-app-header h1 { color: #fff !important; }
+.profile-app-header .back-btn { color: rgba(255,255,255,.9) !important; }
+.profile-app-header .header-action { color: rgba(255,255,255,.8) !important; }
+.profile-app-header .back-btn:hover,
+.profile-app-header .header-action:hover { background: rgba(255,255,255,.15) !important; }
+
 /* ─── Student Profile Hero ────────────────────────────────────────────────── */
 .profile-hero {
-  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #3b82f6 100%);
-  padding: 20px 20px 0;
+  background: linear-gradient(180deg, #1e3a8a 0%, #2563eb 70%, #3b82f6 100%);
+  padding: 16px 20px 0;
   position: relative;
   overflow: hidden;
   color: #fff;
@@ -290,13 +304,24 @@ html, body {
 @keyframes ringRotate { to { transform: rotate(360deg); } }
 
 /* Name block */
-.hero-info { flex: 1; min-width: 0; }
+.hero-info { flex: 1; min-width: 0; overflow: hidden; }
 .hero-name {
   font-size: 1.1rem; font-weight: 800;
   letter-spacing: -.01em;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   color: var(--text-main);
   line-height: 1.25;
+}
+/* Marquee for long names */
+.hero-name.marquee-name {
+  animation: marquee-scroll 8s linear infinite;
+  text-overflow: clip;
+}
+@keyframes marquee-scroll {
+  0%   { transform: translateX(0); }
+  30%  { transform: translateX(0); }
+  70%  { transform: translateX(calc(-100% + 160px)); }
+  100% { transform: translateX(0); }
 }
 .hero-name-bn {
   font-size: .78rem; color: var(--text-muted); margin-top: 3px;
@@ -325,6 +350,13 @@ html, body {
   color: var(--text-muted);
   white-space: nowrap;
   letter-spacing: .01em;
+}
+/* Student ID chip — highlighted */
+.hero-chip-id {
+  background: rgba(255,255,255,.22);
+  border-color: rgba(255,255,255,.35);
+  color: #fff;
+  font-weight: 700;
 }
 
 /* Stats row */
@@ -772,14 +804,15 @@ html, body {
   font-family: inherit;
 }
 .profile-nav-btn.active { color: #fff; font-weight: 700; }
-.profile-nav-btn.active::after {
-  content: ''; position: absolute;
-  bottom: 0; left: 8px; right: 8px;
-  height: 2.5px; background: #fff;
-  border-radius: 2px 2px 0 0;
-}
 .profile-nav-btn svg { opacity: .6; transition: opacity 150ms; }
 .profile-nav-btn.active svg { opacity: 1; }
+/* Tab indicator inside profile-nav must be white */
+.profile-nav .tab-indicator {
+  background: #fff !important;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  transition: left .22s cubic-bezier(.4,0,.2,1), width .22s cubic-bezier(.4,0,.2,1);
+}
 
 /* ─── Guardian global ────────────────────────────────────────────────────── */
 .btn-primary { background: #2563eb !important; box-shadow: 0 2px 8px rgba(37,99,235,.3) !important; }
