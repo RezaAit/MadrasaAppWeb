@@ -354,39 +354,8 @@ function _size(bytes) {
 }
 
 export function openPdfLightbox(src) {
-  const existing = document.getElementById('app-pdf-lightbox');
-  if (existing) existing.remove();
-
-  const lb = document.createElement('div');
-  lb.id = 'app-pdf-lightbox';
-  lb.style.cssText = `
-    position:fixed; inset:0; z-index:99999;
-    background:rgba(0,0,0,.93);
-    display:flex; flex-direction:column;
-  `;
-  lb.innerHTML = `
-    <div style="
-      display:flex; align-items:center; justify-content:space-between;
-      padding:10px 14px; background:rgba(255,255,255,.06);
-      border-bottom:1px solid rgba(255,255,255,.1);
-    ">
-      <span style="color:#fff;font-size:.9rem;font-weight:600;">PDF দেখুন</span>
-      <button id="pdf-lb-close" style="
-        width:38px;height:38px;border-radius:50%;
-        background:rgba(255,255,255,.12);
-        border:1.5px solid rgba(255,255,255,.2);
-        color:#fff; display:flex;align-items:center;justify-content:center;
-        cursor:pointer;
-      ">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <iframe src="${src}" style="flex:1;border:none;width:100%;background:#fff;"></iframe>
-  `;
-
-  document.body.appendChild(lb);
-  lb.querySelector('#pdf-lb-close').addEventListener('click', () => lb.remove());
-  lb.querySelector('#pdf-lb-close').addEventListener('touchend', e => { e.preventDefault(); lb.remove(); });
+  const absUrl = src.startsWith('http') ? src : (location.origin + src);
+  window.open(absUrl, '_blank');
 }
 
 /**
