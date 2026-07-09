@@ -80,6 +80,12 @@ export async function init() {
   if (token && savedData) {
     try {
       state.guardian = JSON.parse(savedData);
+      // Restore active child only when returning mid-session (e.g. camera return)
+      // sessionStorage survives page reload but not app close/reopen
+      const sessionChild = sessionStorage.getItem('active_child');
+      if (sessionChild) {
+        try { state.activeChild = JSON.parse(sessionChild); } catch (_) {}
+      }
       await loadDashboard();
       return;
     } catch {
@@ -128,7 +134,10 @@ async function loadDashboard() {
 
   state.children = state.guardian?.children || [];
 
-  if (state.children.length === 1) {
+  if (state.activeChild) {
+    // Returning mid-session (e.g. after camera) — restore previous profile
+    showStudentProfile(state.activeSection || 'leave');
+  } else if (state.children.length === 1) {
     state.activeChild = state.children[0];
     showStudentProfile();
   } else {
@@ -203,6 +212,7 @@ function renderChildSelector() {
 function showStudentProfile(openSection = null) {
   const child = state.activeChild;
   if (!child) return;
+  sessionStorage.setItem('active_child', JSON.stringify(child));
 
   // Populate hero
   const nameEl = document.getElementById('profile-name');
@@ -350,7 +360,7 @@ function initProfileNav(openSection = null) {
     backBtn.addEventListener('click', () => {
       if (state.children.length > 1) {
         state.activeChild = null;
-        localStorage.removeItem('active_child');
+        sessionStorage.removeItem('active_child');
         renderChildSelector();
         navigateTo('screen-dashboard', { back: true });
       }
