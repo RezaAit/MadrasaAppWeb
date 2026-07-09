@@ -48,6 +48,7 @@ export function initLogin() {
       if (res.success !== false && res.token) {
         localStorage.setItem('guardian_token', res.token);
         localStorage.setItem('guardian_data', JSON.stringify(res.guardian));
+        localStorage.setItem('guardian_phone', '0' + phone.replace(/^0/, ''));
         window.dispatchEvent(new CustomEvent('login-success', { detail: res.guardian }));
       } else {
         showToast(res.message || 'ভুল OTP', 'error');

@@ -121,7 +121,10 @@ async function loadDashboard() {
   const hdrName = document.getElementById('hdr-guardian-name');
   if (hdrName) hdrName.textContent = state.guardian?.name || 'অভিভাবক';
   const hdrPhone = document.getElementById('hdr-guardian-phone');
-  if (hdrPhone && state.guardian?.phone) hdrPhone.textContent = `📱 ${state.guardian.phone}`;
+  if (hdrPhone) {
+    const ph = state.guardian?.phone || localStorage.getItem('guardian_phone') || '';
+    if (ph) hdrPhone.textContent = `📱 ${ph}`;
+  }
 
   state.children = state.guardian?.children || [];
 
@@ -135,6 +138,29 @@ async function loadDashboard() {
 
   attachRipple(document.getElementById('logout-btn'));
   document.getElementById('logout-btn')?.addEventListener('click', logout);
+
+  // Notification bell — attach once
+  const notifBtn = document.getElementById('dash-notif-btn');
+  if (notifBtn && !notifBtn.dataset.bound) {
+    notifBtn.dataset.bound = '1';
+    notifBtn.addEventListener('click', () => {
+      if (state.children.length === 1) {
+        state.activeChild = state.children[0];
+        showStudentProfile();
+        setTimeout(() => {
+          document.querySelector('.profile-nav-btn[data-section="notice"]')?.click();
+        }, 350);
+      } else {
+        const firstCard = document.querySelector('.child-card');
+        if (firstCard) {
+          firstCard.click();
+          setTimeout(() => {
+            document.querySelector('.profile-nav-btn[data-section="notice"]')?.click();
+          }, 400);
+        }
+      }
+    });
+  }
 }
 
 // ── Child Selector ────────────────────────────────────────────────────────
@@ -283,14 +309,6 @@ async function _loadQuickStats(child) {
     }
   }
 
-  // Notification bell click → notice tab in profile
-  document.getElementById('dash-notif-btn')?.addEventListener('click', () => {
-    const firstChild = document.querySelector('.child-card');
-    if (firstChild) firstChild.click();
-    setTimeout(() => {
-      document.querySelector('.profile-nav-btn[data-section="notice"]')?.click();
-    }, 400);
-  });
 }
 
 // ── Profile Navigation Tabs ───────────────────────────────────────────────
