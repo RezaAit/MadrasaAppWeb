@@ -282,8 +282,7 @@ html, body {
   border-top-right-radius: 21px;
   position: relative;
   padding-top: 1px;
-  z-index: 2;
-  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  z-index: 2;  
 }
 
 /* Row 1: avatar + name */
