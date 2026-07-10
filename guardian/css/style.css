@@ -697,26 +697,51 @@ html, body {
 .hw-feedback-hero {
   border-radius: 20px; padding: 28px 20px; text-align: center;
   display: flex; flex-direction: column; align-items: center; gap: 8px;
-  position: relative; overflow: visible;
-  border: 2px solid var(--hw-glow, #16a34a);
+  position: relative; overflow: hidden;
+  /* animated gradient border via outline trick + pseudo shimmer */
+  border: 2.5px solid transparent;
+  background-clip: padding-box;
+  outline: 2.5px solid var(--hw-glow, #16a34a);
+  outline-offset: -2px;
   box-shadow:
-    0 0 0 4px color-mix(in srgb, var(--hw-glow, #16a34a) 15%, transparent),
-    0 0 18px 4px color-mix(in srgb, var(--hw-glow, #16a34a) 25%, transparent),
-    0 0 40px 8px color-mix(in srgb, var(--hw-glow, #16a34a) 12%, transparent);
-  animation: hero-glow-pulse 2.4s ease-in-out infinite;
+    0 0 12px 3px var(--hw-glow-a30, rgba(22,163,74,.3)),
+    0 0 32px 8px var(--hw-glow-a18, rgba(22,163,74,.18)),
+    0 0 60px 16px var(--hw-glow-a10, rgba(22,163,74,.10)),
+    inset 0 0 30px 0 var(--hw-glow-a06, rgba(22,163,74,.06));
+  animation: hero-glow-pulse 2s ease-in-out infinite;
+}
+.hw-feedback-hero::before {
+  content: '';
+  position: absolute; inset: 0; border-radius: 18px;
+  background: linear-gradient(115deg,
+    transparent 20%,
+    var(--hw-glow-a18, rgba(22,163,74,.18)) 48%,
+    var(--hw-glow-a30, rgba(22,163,74,.30)) 52%,
+    transparent 80%
+  );
+  transform: translateX(-100%);
+  animation: hero-shimmer 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes hero-shimmer {
+  0%   { transform: translateX(-110%); }
+  55%  { transform: translateX(110%); }
+  100% { transform: translateX(110%); }
 }
 @keyframes hero-glow-pulse {
   0%, 100% {
     box-shadow:
-      0 0 0 4px color-mix(in srgb, var(--hw-glow, #16a34a) 15%, transparent),
-      0 0 18px 4px color-mix(in srgb, var(--hw-glow, #16a34a) 25%, transparent),
-      0 0 40px 8px color-mix(in srgb, var(--hw-glow, #16a34a) 12%, transparent);
+      0 0 12px 3px var(--hw-glow-a30, rgba(22,163,74,.3)),
+      0 0 32px 8px var(--hw-glow-a18, rgba(22,163,74,.18)),
+      0 0 60px 16px var(--hw-glow-a10, rgba(22,163,74,.10)),
+      inset 0 0 30px 0 var(--hw-glow-a06, rgba(22,163,74,.06));
   }
   50% {
     box-shadow:
-      0 0 0 6px color-mix(in srgb, var(--hw-glow, #16a34a) 22%, transparent),
-      0 0 28px 8px color-mix(in srgb, var(--hw-glow, #16a34a) 35%, transparent),
-      0 0 55px 14px color-mix(in srgb, var(--hw-glow, #16a34a) 18%, transparent);
+      0 0 20px 6px var(--hw-glow-a40, rgba(22,163,74,.40)),
+      0 0 50px 14px var(--hw-glow-a25, rgba(22,163,74,.25)),
+      0 0 90px 24px var(--hw-glow-a14, rgba(22,163,74,.14)),
+      inset 0 0 40px 0 var(--hw-glow-a10, rgba(22,163,74,.10));
   }
 }
 .hw-feedback-emoji {

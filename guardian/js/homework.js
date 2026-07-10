@@ -529,7 +529,7 @@ function showFeedbackDetail(hw) {
     content: `
       <div class="hw-sheet-wrap">
         <!-- Reaction hero -->
-        <div class="hw-feedback-hero" style="background:${rc.bg};--hw-glow:${rc.color};">
+        <div class="hw-feedback-hero" style="background:${rc.bg};--hw-glow:${rc.color};--hw-glow-a06:rgba(${rc.glow},.06);--hw-glow-a10:rgba(${rc.glow},.10);--hw-glow-a14:rgba(${rc.glow},.14);--hw-glow-a18:rgba(${rc.glow},.18);--hw-glow-a25:rgba(${rc.glow},.25);--hw-glow-a30:rgba(${rc.glow},.30);--hw-glow-a40:rgba(${rc.glow},.40);">
           <div class="hw-feedback-emoji">${rc.emoji}</div>
           <div class="hw-feedback-label" style="color:${rc.color};">${rc.label}</div>
           <div class="hw-feedback-hw">${hw.title}</div>
@@ -701,11 +701,12 @@ function _fmt(d) {
 }
 
 function _reactionConfig(r) {
-  return {
-    Excellent:          { emoji: '🌟', label: 'অসাধারণ!',           bg: '#fefce8', color: '#ca8a04' },
-    StarWork:           { emoji: '⭐', label: 'তারকা কাজ!',         bg: '#fef9c3', color: '#a16207' },
-    Good:               { emoji: '✅', label: 'ভালো হয়েছে',         bg: '#f0fdf4', color: '#16a34a' },
-    NeedsImprovement:   { emoji: '📈', label: 'আরও উন্নতি দরকার',   bg: '#fff7ed', color: '#ea580c' },
-    Incomplete:         { emoji: '❌', label: 'অসম্পূর্ণ',          bg: '#fef2f2', color: '#dc2626' },
-  }[r] || { emoji: '📝', label: r, bg: '#f8fafc', color: '#475569' };
+  const map = {
+    Excellent:        { emoji: '🌟', label: 'অসাধারণ!',          bg: '#fefce8', color: '#d97706', glow: '217,119,6'  },
+    StarWork:         { emoji: '⭐', label: 'তারকা কাজ!',        bg: '#fef9c3', color: '#b45309', glow: '180,83,9'   },
+    Good:             { emoji: '✅', label: 'ভালো হয়েছে',        bg: '#f0fdf4', color: '#16a34a', glow: '22,163,74'  },
+    NeedsImprovement: { emoji: '📈', label: 'আরও উন্নতি দরকার', bg: '#fff7ed', color: '#ea580c', glow: '234,88,12'  },
+    Incomplete:       { emoji: '❌', label: 'অসম্পূর্ণ',         bg: '#fef2f2', color: '#dc2626', glow: '220,38,38'  },
+  };
+  return map[r] || { emoji: '📝', label: r, bg: '#f8fafc', color: '#475569', glow: '71,85,105' };
 }
