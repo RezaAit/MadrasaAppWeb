@@ -70,15 +70,16 @@ export async function getHomework(studentIID) {
   return _safeJson(r);
 }
 
-export async function submitHomework(detailsId, payload, extraImages = [], videos = [], youtubeUrls = []) {
+export async function submitHomework(detailsId, payload, extraImages = [], videos = [], youtubeUrls = [], docs = []) {
   if (useMock('homework')) {
-    console.log('[MOCK] submitHomework payload:', payload, extraImages, videos, youtubeUrls);
+    console.log('[MOCK] submitHomework payload:', payload, extraImages, videos, youtubeUrls, docs);
     return mockDelay({ HasError: false, message: 'হোমওয়ার্ক জমা হয়েছে' });
   }
   const fd = new FormData();
   Object.entries(payload).forEach(([k, v]) => v !== null && v !== undefined && fd.append(k, v));
   extraImages.forEach(file => fd.append('images', file));
   videos.forEach(file => fd.append('videos', file));
+  docs.forEach(file => fd.append('files', file));
   if (youtubeUrls.length) fd.append('youtubeUrls', JSON.stringify(youtubeUrls));
   const r = await fetch(`${BASE_URL}/api/Homework/submit/${detailsId}`, {
     method: 'POST',

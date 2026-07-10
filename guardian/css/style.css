@@ -646,6 +646,20 @@ html, body {
 .hw-submit-yt-url { font-size: .75rem; color: #dc2626; word-break: break-all; }
 .hw-yt-remove { position: absolute; top: 6px; right: 6px; }
 
+.hw-submit-doc-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.hw-submit-doc-card {
+  display: flex; align-items: center; gap: 10px; position: relative;
+  background: #f0f9ff; border-radius: 10px; padding: 10px 40px 10px 10px;
+  border: 1.5px solid #bae6fd;
+  text-decoration: none;
+}
+.hw-submit-doc-card--link { padding-right: 36px; cursor: pointer; }
+.hw-submit-doc-card--link:hover { background: #e0f2fe; }
+.hw-submit-doc-icon { flex-shrink: 0; width: 32px; display: flex; align-items: center; justify-content: center; }
+.hw-submit-doc-info { flex: 1; min-width: 0; }
+.hw-submit-doc-name { font-size: .82rem; font-weight: 600; color: #0369a1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hw-submit-doc-size { font-size: .72rem; color: #64748b; margin-top: 2px; }
+
 .hw-pick-row {
   display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
   padding: 10px 0 6px;

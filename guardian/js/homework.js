@@ -252,6 +252,7 @@ function openSubmitScreen(mainContainer, hw, child, all) {
   const photoEntries = []; // [{ file, annotatedBlob, previewUrl, annotatedUrl }]
   const videoFiles   = []; // File[]
   const ytUrls       = []; // string[]
+  const docFiles     = []; // { file, name }[]
   const style = _subjectStyle(hw.subject);
   const daysLeft = _daysLeftNum(hw.dueDate);
   const isOverdue = daysLeft < 0;
@@ -364,6 +365,28 @@ function openSubmitScreen(mainContainer, hw, child, all) {
           <div id="voice-recorder-wrap"></div>
         </div>
 
+        <!-- File/Doc -->
+        <div class="hw-option-card" id="hw-opt-file">
+          <div class="hw-option-icon" style="background:#f0f9ff;color:#0284c7;">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <div class="hw-option-body">
+            <div class="hw-option-title">ফাইল আপলোড</div>
+            <div class="hw-option-sub">PDF, DOC, TXT (সর্বোচ্চ ১০MB)</div>
+          </div>
+          <div class="hw-option-toggle" id="hw-file-toggle">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="hw-option-body-wrap" id="hw-file-wrap">
+          <input type="file" id="hw-doc-input" accept=".pdf,.doc,.docx,.txt,.ppt,.pptx,.xls,.xlsx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" multiple style="display:none;">
+          <button type="button" class="hw-pick-btn hw-pick-gallery" id="hw-doc-btn" style="width:100%;margin-top:8px;">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            ফাইল বেছে নিন
+          </button>
+          <div id="hw-doc-list" class="hw-submit-doc-list"></div>
+        </div>
+
         <!-- Text -->
         <div class="hw-option-card" id="hw-opt-text">
           <div class="hw-option-icon" style="background:#f0fdf4;color:#16a34a;">
@@ -400,7 +423,7 @@ function openSubmitScreen(mainContainer, hw, child, all) {
   });
 
   // Collapsible option cards
-  [['video','video-wrap'],['yt','yt-wrap'],['voice','voice-wrap'],['text','text-wrap']].forEach(([key, wrapId]) => {
+  [['video','video-wrap'],['yt','yt-wrap'],['file','file-wrap'],['voice','voice-wrap'],['text','text-wrap']].forEach(([key, wrapId]) => {
     const card = sheetBody.querySelector(`#hw-opt-${key}`);
     const wrap = sheetBody.querySelector(`#hw-${wrapId}`);
     const toggle = sheetBody.querySelector(`#hw-${key}-toggle`);
@@ -432,6 +455,13 @@ function openSubmitScreen(mainContainer, hw, child, all) {
       Array.from(e.target.files).forEach(file => _addVideo(file));
       e.target.value = '';
     });
+  });
+
+  // Doc/File listeners
+  sheetBody.querySelector('#hw-doc-btn')?.addEventListener('click', () => sheetBody.querySelector('#hw-doc-input').click());
+  sheetBody.querySelector('#hw-doc-input')?.addEventListener('change', e => {
+    Array.from(e.target.files).forEach(file => _addDoc(file));
+    e.target.value = '';
   });
 
   // YouTube listener
@@ -474,6 +504,28 @@ function openSubmitScreen(mainContainer, hw, child, all) {
     card.querySelector('.hw-submit-photo-remove').addEventListener('click', () => {
       videoFiles.splice(idx, 1);
       card.remove();
+    });
+    list.appendChild(card);
+  }
+
+  function _addDoc(file) {
+    const maxBytes = 10 * 1024 * 1024;
+    if (file.size > maxBytes) { showToast('ফাইল সর্বোচ্চ ১০MB হতে পারবে', 'error'); return; }
+    docFiles.push(file);
+    const idx = docFiles.length - 1;
+    const list = sheetBody.querySelector('#hw-doc-list');
+    const ext = file.name.split('.').pop().toUpperCase();
+    const card = document.createElement('div');
+    card.className = 'hw-submit-doc-card';
+    card.innerHTML = `
+      <div class="hw-submit-doc-icon">${_docIcon(ext)}</div>
+      <div class="hw-submit-doc-info">
+        <div class="hw-submit-doc-name">${file.name}</div>
+        <div class="hw-submit-doc-size">${_fmtSize(file.size)}</div>
+      </div>
+      <button class="hw-submit-photo-remove" data-idx="${idx}">✕</button>`;
+    card.querySelector('.hw-submit-photo-remove').addEventListener('click', () => {
+      docFiles.splice(idx, 1); card.remove();
     });
     list.appendChild(card);
   }
@@ -524,7 +576,7 @@ function openSubmitScreen(mainContainer, hw, child, all) {
   sheetBody.querySelector('#final-submit-btn')?.addEventListener('click', async () => {
     const remarks = sheetBody.querySelector('#hw-remarks').value.trim();
     const vBlob = voiceRecorder?.getBlob() ?? null;
-    if (!photoEntries.length && !vBlob && !remarks) {
+    if (!photoEntries.length && !vBlob && !remarks && !videoFiles.length && !ytUrls.length && !docFiles.length) {
       showToast('কমপক্ষে একটি তথ্য দিন', 'error'); return;
     }
     const btn = sheetBody.querySelector('#final-submit-btn');
@@ -539,7 +591,7 @@ function openSubmitScreen(mainContainer, hw, child, all) {
       textRemarks:  remarks || null,
     };
     const extraImages = photoEntries.slice(1).map(e => e.annotatedBlob || e.file);
-    const resData = await submitHomework(hw.id, payload, extraImages, videoFiles, ytUrls);
+    const resData = await submitHomework(hw.id, payload, extraImages, videoFiles, ytUrls, docFiles);
     if (!resData.HasError) {
       _showSuccessScreen(sheetBody, close, hw, mainContainer, child, all);
     } else {
@@ -630,6 +682,23 @@ function showSubmittedView(hw) {
           <div class="hw-feedback-section" style="margin-top:14px;">
             <div class="hw-feedback-section-title">তোমার ভয়েস নোট</div>
             <audio controls style="width:100%;border-radius:10px;" src="${_full(sub.voiceNoteUrl)}"></audio>
+          </div>` : ''}
+
+        ${sub?.files?.length ? `
+          <div class="hw-feedback-section" style="margin-top:14px;">
+            <div class="hw-feedback-section-title">জমা দেওয়া ফাইল</div>
+            ${sub.files.map(f => {
+              const name = f.split('/').pop();
+              const ext = name.split('.').pop().toUpperCase();
+              return `<a href="${_full(f)}" target="_blank" rel="noopener" class="hw-submit-doc-card hw-submit-doc-card--link">
+                <div class="hw-submit-doc-icon">${_docIcon(ext)}</div>
+                <div class="hw-submit-doc-info">
+                  <div class="hw-submit-doc-name">${name}</div>
+                  <div class="hw-submit-doc-size">${ext} ফাইল</div>
+                </div>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </a>`;
+            }).join('')}
           </div>` : ''}
       </div>`,
     fullHeight: true,
@@ -798,6 +867,19 @@ function _renderInstructionMedia(hw) {
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
+function _docIcon(ext) {
+  if (ext === 'PDF') return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#dc2626" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+  if (['DOC','DOCX'].includes(ext)) return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#2563eb" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+  if (['XLS','XLSX'].includes(ext)) return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#16a34a" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+  return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#475569" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+}
+
+function _fmtSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
 function _ytVideoId(url) {
   try {
     const u = new URL(url);
