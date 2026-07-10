@@ -633,6 +633,19 @@ html, body {
   padding: 3px 6px; display: flex; align-items: center; justify-content: center; gap: 4px;
 }
 
+.hw-submit-video-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.hw-submit-video-card { position: relative; border-radius: 10px; overflow: hidden; background: #0f172a; }
+.hw-submit-video-preview { width: 100%; max-height: 200px; display: block; border-radius: 10px; }
+.hw-submit-yt-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.hw-submit-yt-card {
+  display: flex; align-items: center; gap: 10px; position: relative;
+  background: #fff1f2; border-radius: 10px; padding: 8px 36px 8px 8px;
+  border: 1.5px solid #fecaca;
+}
+.hw-submit-yt-thumb { width: 60px; height: 40px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+.hw-submit-yt-url { font-size: .75rem; color: #dc2626; word-break: break-all; }
+.hw-yt-remove { position: absolute; top: 6px; right: 6px; }
+
 .hw-pick-row {
   display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
   padding: 10px 0 6px;

@@ -249,8 +249,9 @@ function _renderSubmitted(list) {
 // ── Submit Screen ──────────────────────────────────────────────────────────
 function openSubmitScreen(mainContainer, hw, child, all) {
   let voiceRecorder = null;
-  // photoEntries: [{ file: File, annotatedBlob: Blob|null, previewUrl: string, annotatedUrl: string|null }]
-  const photoEntries = [];
+  const photoEntries = []; // [{ file, annotatedBlob, previewUrl, annotatedUrl }]
+  const videoFiles   = []; // File[]
+  const ytUrls       = []; // string[]
   const style = _subjectStyle(hw.subject);
   const daysLeft = _daysLeftNum(hw.dueDate);
   const isOverdue = daysLeft < 0;
@@ -295,6 +296,56 @@ function openSubmitScreen(mainContainer, hw, child, all) {
           </button>
         </div>
         <div id="hw-photo-grid" class="hw-submit-photo-grid"></div>
+
+        <!-- Video -->
+        <div class="hw-option-card" id="hw-opt-video">
+          <div class="hw-option-icon" style="background:#fdf4ff;color:#9333ea;">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          </div>
+          <div class="hw-option-body">
+            <div class="hw-option-title">ভিডিও যোগ করুন</div>
+            <div class="hw-option-sub">গ্যালারি বা রেকর্ড (সর্বোচ্চ ৫০MB)</div>
+          </div>
+          <div class="hw-option-toggle" id="hw-video-toggle">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="hw-option-body-wrap" id="hw-video-wrap">
+          <input type="file" id="hw-video-gallery-input" accept="video/*" multiple style="display:none;">
+          <input type="file" id="hw-video-cam-input" accept="video/*" capture="environment" style="display:none;">
+          <div class="hw-pick-row" style="margin-top:4px;">
+            <button type="button" class="hw-pick-btn hw-pick-gallery" id="hw-video-gallery-btn">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span>গ্যালারি</span>
+            </button>
+            <button type="button" class="hw-pick-btn hw-pick-camera" id="hw-video-cam-btn">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+              <span>রেকর্ড</span>
+            </button>
+          </div>
+          <div id="hw-video-list" class="hw-submit-video-list"></div>
+        </div>
+
+        <!-- YouTube -->
+        <div class="hw-option-card" id="hw-opt-yt">
+          <div class="hw-option-icon" style="background:#fee2e2;color:#dc2626;">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="#dc2626"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.2v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.2 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zm-13.5 8.6V8.4l8.1 3.6-8.1 3.6z"/></svg>
+          </div>
+          <div class="hw-option-body">
+            <div class="hw-option-title">YouTube লিংক</div>
+            <div class="hw-option-sub">Watch বা Shorts লিংক দিন</div>
+          </div>
+          <div class="hw-option-toggle" id="hw-yt-toggle">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="hw-option-body-wrap" id="hw-yt-wrap">
+          <div style="display:flex;gap:8px;padding:8px 0 4px;">
+            <input type="text" id="hw-yt-input" class="hw-textarea" placeholder="https://youtube.com/..." style="flex:1;padding:10px 12px;font-size:.85rem;resize:none;height:auto;">
+            <button type="button" id="hw-yt-add-btn" class="hw-pick-btn hw-pick-gallery" style="flex-shrink:0;padding:10px 14px;">+ যোগ</button>
+          </div>
+          <div id="hw-yt-list" class="hw-submit-yt-list"></div>
+        </div>
 
         <!-- Voice -->
         <div class="hw-option-card" id="hw-opt-voice">
@@ -349,7 +400,7 @@ function openSubmitScreen(mainContainer, hw, child, all) {
   });
 
   // Collapsible option cards
-  [['voice','voice-wrap'],['text','text-wrap']].forEach(([key, wrapId]) => {
+  [['video','video-wrap'],['yt','yt-wrap'],['voice','voice-wrap'],['text','text-wrap']].forEach(([key, wrapId]) => {
     const card = sheetBody.querySelector(`#hw-opt-${key}`);
     const wrap = sheetBody.querySelector(`#hw-${wrapId}`);
     const toggle = sheetBody.querySelector(`#hw-${key}-toggle`);
@@ -373,6 +424,60 @@ function openSubmitScreen(mainContainer, hw, child, all) {
     if (e.target.files.length) _addPhotos(e.target.files);
   });
 
+  // Video listeners
+  sheetBody.querySelector('#hw-video-gallery-btn')?.addEventListener('click', () => sheetBody.querySelector('#hw-video-gallery-input').click());
+  sheetBody.querySelector('#hw-video-cam-btn')?.addEventListener('click', () => sheetBody.querySelector('#hw-video-cam-input').click());
+  ['#hw-video-gallery-input','#hw-video-cam-input'].forEach(sel => {
+    sheetBody.querySelector(sel)?.addEventListener('change', e => {
+      Array.from(e.target.files).forEach(file => _addVideo(file));
+      e.target.value = '';
+    });
+  });
+
+  // YouTube listener
+  sheetBody.querySelector('#hw-yt-add-btn')?.addEventListener('click', () => {
+    const input = sheetBody.querySelector('#hw-yt-input');
+    const url = input.value.trim();
+    if (!url) return;
+    if (!_ytVideoId(url)) { showToast('সঠিক YouTube লিংক দিন', 'error'); return; }
+    ytUrls.push(url);
+    input.value = '';
+    _renderYtList();
+  });
+
+  function _renderYtList() {
+    const list = sheetBody.querySelector('#hw-yt-list');
+    list.innerHTML = ytUrls.map((url, i) => {
+      const vid = _ytVideoId(url);
+      const thumb = vid ? `https://img.youtube.com/vi/${vid}/mqdefault.jpg` : '';
+      return `<div class="hw-submit-yt-card" data-idx="${i}">
+        ${thumb ? `<img src="${thumb}" class="hw-submit-yt-thumb" alt="">` : ''}
+        <div class="hw-submit-yt-url">${url}</div>
+        <button class="hw-submit-photo-remove hw-yt-remove" data-idx="${i}">✕</button>
+      </div>`;
+    }).join('');
+    list.querySelectorAll('.hw-yt-remove').forEach(btn => {
+      btn.addEventListener('click', () => { ytUrls.splice(+btn.dataset.idx, 1); _renderYtList(); });
+    });
+  }
+
+  function _addVideo(file) {
+    videoFiles.push(file);
+    const idx = videoFiles.length - 1;
+    const list = sheetBody.querySelector('#hw-submit-video-list') || sheetBody.querySelector('#hw-video-list');
+    const url = URL.createObjectURL(file);
+    const card = document.createElement('div');
+    card.className = 'hw-submit-video-card';
+    card.innerHTML = `
+      <video src="${url}" class="hw-submit-video-preview" controls playsinline></video>
+      <button class="hw-submit-photo-remove" data-idx="${idx}">✕</button>`;
+    card.querySelector('.hw-submit-photo-remove').addEventListener('click', () => {
+      videoFiles.splice(idx, 1);
+      card.remove();
+    });
+    list.appendChild(card);
+  }
+
   function _addPhotos(files) {
     const grid = sheetBody.querySelector('#hw-photo-grid');
     Array.from(files).forEach(file => {
@@ -390,10 +495,12 @@ function openSubmitScreen(mainContainer, hw, child, all) {
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           আঁকুন
         </button>`;
+      card.querySelector('.hw-submit-photo-img').addEventListener('click', () => {
+        _openImageZoom(entry.annotatedUrl || entry.previewUrl);
+      });
       card.querySelector('.hw-submit-photo-remove').addEventListener('click', () => {
         photoEntries.splice(idx, 1);
         card.remove();
-        // re-index remaining cards
         grid.querySelectorAll('.hw-submit-photo-card').forEach((c, i) => c.dataset.idx = i);
       });
       card.querySelector('.hw-submit-photo-annotate').addEventListener('click', () => {
@@ -432,7 +539,7 @@ function openSubmitScreen(mainContainer, hw, child, all) {
       textRemarks:  remarks || null,
     };
     const extraImages = photoEntries.slice(1).map(e => e.annotatedBlob || e.file);
-    const resData = await submitHomework(hw.id, payload, extraImages);
+    const resData = await submitHomework(hw.id, payload, extraImages, videoFiles, ytUrls);
     if (!resData.HasError) {
       _showSuccessScreen(sheetBody, close, hw, mainContainer, child, all);
     } else {
@@ -496,6 +603,22 @@ function showSubmittedView(hw) {
           <div class="hw-photo-grid">
             ${allPhotos.map(u => `<img src="${_full(u)}" data-full="${_full(u)}" class="hw-zoomable">`).join('')}
           </div>` : '<div style="color:#94a3b8;font-size:.85rem;text-align:center;padding:20px 0;">কোনো ছবি জমা দেওয়া হয়নি</div>'}
+
+        ${(sub?.videos?.length || sub?.videoNoteUrl) ? `
+          <div class="hw-feedback-section" style="margin-top:14px;">
+            <div class="hw-feedback-section-title">তোমার ভিডিও</div>
+            ${sub?.videoNoteUrl ? `<video controls style="width:100%;border-radius:10px;margin-bottom:8px;" src="${_full(sub.videoNoteUrl)}"></video>` : ''}
+            ${(sub?.videos || []).map(v => `<video controls style="width:100%;border-radius:10px;margin-bottom:8px;" src="${_full(v)}"></video>`).join('')}
+          </div>` : ''}
+
+        ${sub?.youtubeUrls?.length ? `
+          <div class="hw-feedback-section" style="margin-top:14px;">
+            <div class="hw-feedback-section-title">YouTube ভিডিও</div>
+            ${sub.youtubeUrls.map(u => {
+              const vid = _ytVideoId(u);
+              return vid ? `<div class="hw-instr-yt-wrap"><iframe class="hw-instr-yt" src="https://www.youtube.com/embed/${vid}" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div>` : '';
+            }).join('')}
+          </div>` : ''}
 
         ${sub?.textRemarks ? `
           <div class="hw-feedback-section" style="margin-top:14px;">
