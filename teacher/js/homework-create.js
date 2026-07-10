@@ -368,10 +368,15 @@ async function _openReviewScreen(container, hw) {
           <span style="font-size:.8rem;color:#dc2626;font-weight:600;">YouTube ভিডিও দেখুন</span>
         </a>`;
       }).join('')}
-      ${instrPdfs.map(url => `<a href="${url}" target="_blank" style="display:flex;align-items:center;gap:8px;padding:8px;background:#fff;border:1px solid #fca5a5;border-radius:8px;margin-bottom:6px;text-decoration:none;">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#dc2626" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        <span style="font-size:.8rem;color:#dc2626;font-weight:600;">PDF দেখুন</span>
-      </a>`).join('')}
+      ${instrPdfs.map(url => {
+        const fname = url.split('/').pop() || 'ফাইল';
+        const ext = (fname.split('.').pop() || '').toUpperCase();
+        return `<a href="${url}" target="_blank" style="display:flex;align-items:center;gap:8px;padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;text-decoration:none;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#475569" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span style="font-size:.8rem;color:#334155;font-weight:600;">${fname.length > 30 ? fname.slice(0,27)+'…' : fname}</span>
+          <span style="font-size:.72rem;color:#94a3b8;margin-left:auto;">${ext}</span>
+        </a>`;
+      }).join('')}
     </div>` : '';
 
   const subjectName = hw.subjectName ?? hw.SubjectName ?? '';

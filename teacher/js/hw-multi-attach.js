@@ -322,15 +322,15 @@ export function createMultiAttachManager(container, {
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         </div>
         <div>
-          <div class="hwc-section-title">PDF সংযুক্ত করুন</div>
-          <div class="hwc-section-sub">একাধিক PDF যোগ করুন</div>
+          <div class="hwc-section-title">ফাইল সংযুক্ত করুন</div>
+          <div class="hwc-section-sub">PDF, DOC, TXT, XLS — সর্বোচ্চ ২০ MB</div>
         </div>
       </div>
       <div id="hwm-pdf-list" class="hwm-pdf-list"></div>
-      <input type="file" id="hwm-pdf-input" accept=".pdf,application/pdf" multiple class="hwc-hidden-input">
+      <input type="file" id="hwm-pdf-input" accept=".pdf,.doc,.docx,.txt,.ppt,.pptx,.xls,.xlsx,application/pdf,application/msword,text/plain" multiple class="hwc-hidden-input">
       <button type="button" class="hwc-voice-init-btn" id="hwm-pdf-add-btn" style="margin-top:8px;">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        PDF যোগ করুন
+        ফাইল যোগ করুন
       </button>
     </div>
   `;
@@ -690,14 +690,11 @@ export function createMultiAttachManager(container, {
       const card = document.createElement('div');
       card.className = 'hwm-pdf-card';
       card.dataset.existingId = p.id;
-      const name = p.pdfUrl.split('/').pop() || 'PDF ফাইল';
+      const name = p.pdfUrl.split('/').pop() || 'ফাইল';
+      const ext = '.' + (name.split('.').pop() || 'pdf').toLowerCase();
       card.innerHTML = `
         <div class="hwm-pdf-row">
-          <svg viewBox="0 0 64 64" width="32" height="32" fill="none" style="flex-shrink:0;">
-            <rect x="8" y="4" width="36" height="48" rx="4" fill="#fee2e2" stroke="#fca5a5" stroke-width="1.5"/>
-            <polyline points="36,4 36,16 48,16" fill="#fecaca" stroke="#fca5a5" stroke-width="1.5"/>
-            <text x="14" y="38" font-family="Arial" font-weight="700" font-size="10" fill="#dc2626">PDF</text>
-          </svg>
+          ${_docFileIcon(ext)}
           <a href="${p.pdfUrl}" target="_blank" class="hwm-pdf-name">${name.length > 35 ? name.slice(0, 32) + '...' : name}</a>
           <button type="button" class="hwm-remove-btn" title="সরান">✕</button>
         </div>
@@ -712,20 +709,29 @@ export function createMultiAttachManager(container, {
     });
   }
 
+  const _docAllowed = ['.pdf','.doc','.docx','.txt','.ppt','.pptx','.xls','.xlsx'];
+
+  function _docFileIcon(ext) {
+    const e = ext.toLowerCase();
+    if (e === '.pdf') return `<svg viewBox="0 0 64 64" width="32" height="32" fill="none" style="flex-shrink:0;"><rect x="8" y="4" width="36" height="48" rx="4" fill="#fee2e2" stroke="#fca5a5" stroke-width="1.5"/><polyline points="36,4 36,16 48,16" fill="#fecaca" stroke="#fca5a5" stroke-width="1.5"/><text x="10" y="38" font-family="Arial" font-weight="700" font-size="10" fill="#dc2626">PDF</text></svg>`;
+    if (e === '.doc' || e === '.docx') return `<svg viewBox="0 0 64 64" width="32" height="32" fill="none" style="flex-shrink:0;"><rect x="8" y="4" width="36" height="48" rx="4" fill="#dbeafe" stroke="#93c5fd" stroke-width="1.5"/><polyline points="36,4 36,16 48,16" fill="#bfdbfe" stroke="#93c5fd" stroke-width="1.5"/><text x="9" y="38" font-family="Arial" font-weight="700" font-size="9" fill="#2563eb">DOC</text></svg>`;
+    if (e === '.xls' || e === '.xlsx') return `<svg viewBox="0 0 64 64" width="32" height="32" fill="none" style="flex-shrink:0;"><rect x="8" y="4" width="36" height="48" rx="4" fill="#dcfce7" stroke="#86efac" stroke-width="1.5"/><polyline points="36,4 36,16 48,16" fill="#bbf7d0" stroke="#86efac" stroke-width="1.5"/><text x="10" y="38" font-family="Arial" font-weight="700" font-size="10" fill="#16a34a">XLS</text></svg>`;
+    if (e === '.txt') return `<svg viewBox="0 0 64 64" width="32" height="32" fill="none" style="flex-shrink:0;"><rect x="8" y="4" width="36" height="48" rx="4" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/><polyline points="36,4 36,16 48,16" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="1.5"/><text x="10" y="38" font-family="Arial" font-weight="700" font-size="10" fill="#475569">TXT</text></svg>`;
+    return `<svg viewBox="0 0 64 64" width="32" height="32" fill="none" style="flex-shrink:0;"><rect x="8" y="4" width="36" height="48" rx="4" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/><polyline points="36,4 36,16 48,16" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="1.5"/><text x="9" y="38" font-family="Arial" font-weight="700" font-size="9" fill="#475569">FILE</text></svg>`;
+  }
+
   function _addNewPdf(file) {
-    if (!file || file.type !== 'application/pdf') { showToast('শুধু PDF ফাইল গ্রহণযোগ্য', 'error'); return; }
-    if (file.size > 20 * 1024 * 1024) { showToast('PDF ২০ MB এর বেশি হবে না', 'error'); return; }
+    if (!file) return;
+    const ext = '.' + file.name.split('.').pop().toLowerCase();
+    if (!_docAllowed.includes(ext)) { showToast('শুধু PDF, DOC, TXT, XLS ফাইল গ্রহণযোগ্য', 'error'); return; }
+    if (file.size > 20 * 1024 * 1024) { showToast('ফাইল ২০ MB এর বেশি হবে না', 'error'); return; }
     const idx = newPdfs.length;
     newPdfs.push(file);
     const card = document.createElement('div');
     card.className = 'hwm-pdf-card hwm-pdf-card--new';
     card.innerHTML = `
       <div class="hwm-pdf-row">
-        <svg viewBox="0 0 64 64" width="32" height="32" fill="none" style="flex-shrink:0;">
-          <rect x="8" y="4" width="36" height="48" rx="4" fill="#fee2e2" stroke="#fca5a5" stroke-width="1.5"/>
-          <polyline points="36,4 36,16 48,16" fill="#fecaca" stroke="#fca5a5" stroke-width="1.5"/>
-          <text x="14" y="38" font-family="Arial" font-weight="700" font-size="10" fill="#dc2626">PDF</text>
-        </svg>
+        ${_docFileIcon(ext)}
         <div class="hwm-pdf-name">${file.name.length > 35 ? file.name.slice(0, 32) + '...' : file.name} <span style="color:var(--text-muted);font-size:.7rem;">${_pdfSize(file.size)}</span></div>
         <button type="button" class="hwm-remove-btn" title="সরান">✕</button>
       </div>
