@@ -281,34 +281,20 @@ function openSubmitScreen(mainContainer, hw, child, all) {
         <!-- Upload options -->
         <div class="hw-section-title">জমা দেওয়ার পদ্ধতি বেছে নিন</div>
 
-        <!-- Photo -->
-        <div class="hw-option-card" id="hw-opt-photo">
-          <div class="hw-option-icon" style="background:#eff6ff;color:#2563eb;">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          </div>
-          <div class="hw-option-body">
-            <div class="hw-option-title">ছবি তুলুন / আপলোড</div>
-            <div class="hw-option-sub">ক্যামেরা বা গ্যালারি থেকে</div>
-          </div>
-          <div class="hw-option-toggle" id="hw-photo-toggle">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-          </div>
+        <!-- Photo pick (always visible) -->
+        <input type="file" id="hw-photo-gallery-input" accept="image/*" style="display:none;">
+        <input type="file" id="hw-photo-cam-input" accept="image/*" capture="environment" style="display:none;">
+        <div class="hw-pick-row" id="hw-photo-pick-row">
+          <button type="button" class="hw-pick-btn hw-pick-gallery" id="hw-photo-gallery-btn">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>গ্যালারি</span>
+          </button>
+          <button type="button" class="hw-pick-btn hw-pick-camera" id="hw-photo-cam-btn">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            <span>ক্যামেরা</span>
+          </button>
         </div>
-        <div class="hw-option-body-wrap" id="hw-photo-wrap">
-          <input type="file" id="hw-photo-gallery-input" accept="image/*" style="display:none;">
-          <input type="file" id="hw-photo-cam-input" accept="image/*" capture="environment" style="display:none;">
-          <div class="hw-pick-row" id="hw-photo-pick-row">
-            <button type="button" class="hw-pick-btn hw-pick-gallery" id="hw-photo-gallery-btn">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-              <span>গ্যালারি</span>
-            </button>
-            <button type="button" class="hw-pick-btn hw-pick-camera" id="hw-photo-cam-btn">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-              <span>ক্যামেরা</span>
-            </button>
-          </div>
-          <div id="hw-photo-preview" class="hw-photo-preview hidden"></div>
-        </div>
+        <div id="hw-photo-preview" class="hw-photo-preview hidden"></div>
 
         <!-- Multi photo -->
         <div class="hw-option-card" id="hw-opt-multi">
@@ -385,7 +371,7 @@ function openSubmitScreen(mainContainer, hw, child, all) {
   });
 
   // Collapsible option cards
-  [['photo','photo-wrap'],['multi','multi-wrap'],['voice','voice-wrap'],['text','text-wrap']].forEach(([key, wrapId]) => {
+  [['multi','multi-wrap'],['voice','voice-wrap'],['text','text-wrap']].forEach(([key, wrapId]) => {
     const card = sheetBody.querySelector(`#hw-opt-${key}`);
     const wrap = sheetBody.querySelector(`#hw-${wrapId}`);
     const toggle = sheetBody.querySelector(`#hw-${key}-toggle`);
