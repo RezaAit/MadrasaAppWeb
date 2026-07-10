@@ -302,11 +302,6 @@ function openSubmitScreen(mainContainer, hw, child, all) {
             <button class="hw-dropzone-btn" onclick="document.getElementById('hw-photo-input').click()">ছবি বেছে নিন</button>
           </div>
           <div id="hw-photo-preview" class="hw-photo-preview hidden"></div>
-          <div id="annotation-area" class="hidden">
-            <div class="hw-ann-toolbar" id="ann-toolbar-wrap"></div>
-            <div class="hw-ann-canvas-wrap"><canvas id="hw-ann-canvas"></canvas></div>
-            <button class="hw-ann-save-btn" id="save-annotation-btn">✓ আঁকা সংরক্ষণ করুন</button>
-          </div>
         </div>
 
         <!-- Multi photo -->
@@ -417,41 +412,38 @@ function openSubmitScreen(mainContainer, hw, child, all) {
   async function _handlePrimaryPhoto(file, sb) {
     primaryPhotoFile = file;
     const url = URL.createObjectURL(file);
+    let currentAnnotatedUrl = null;
     const preview = sb.querySelector('#hw-photo-preview');
     preview.innerHTML = `
-      <div class="hw-photo-thumb">
-        <img src="${url}" alt="">
-        <button class="hw-photo-remove" id="hw-photo-remove">✕</button>
+      <div class="hw-photo-thumb" style="position:relative;">
+        <img id="hw-photo-thumb-img" src="${url}" alt="" style="width:100%;border-radius:10px;display:block;">
+        <button class="hw-photo-remove" id="hw-photo-remove" style="position:absolute;top:6px;right:6px;">✕</button>
       </div>
-      <button class="hw-annotate-btn" id="hw-annotate-btn">✏️ ছবিতে আঁকুন</button>`;
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="hw-annotate-btn" id="hw-annotate-btn" style="flex:1;">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          ছবিতে আঁকুন
+        </button>
+      </div>`;
     preview.classList.remove('hidden');
     sb.querySelector('#hw-dropzone').classList.add('hidden');
     sb.querySelector('#hw-photo-remove')?.addEventListener('click', () => {
-      primaryPhotoFile = null; annotatedBlob = null;
+      primaryPhotoFile = null; annotatedBlob = null; currentAnnotatedUrl = null;
       preview.innerHTML = ''; preview.classList.add('hidden');
       sb.querySelector('#hw-dropzone').classList.remove('hidden');
-      sb.querySelector('#annotation-area').classList.add('hidden');
     });
-    sb.querySelector('#hw-annotate-btn')?.addEventListener('click', async () => {
-      sb.querySelector('#annotation-area').classList.remove('hidden');
-      await initAnnotation(sb.querySelector('#hw-ann-canvas'), url);
-      buildToolbar('ann-toolbar-wrap');
+    sb.querySelector('#hw-annotate-btn')?.addEventListener('click', () => {
+      const srcUrl = currentAnnotatedUrl || url;
+      _openAnnotationOverlay(srcUrl, blob => {
+        annotatedBlob = blob;
+        currentAnnotatedUrl = URL.createObjectURL(blob);
+        const img = sb.querySelector('#hw-photo-thumb-img');
+        if (img) img.src = currentAnnotatedUrl;
+        const btn = sb.querySelector('#hw-annotate-btn');
+        if (btn) { btn.style.background = '#dcfce7'; btn.style.color = '#15803d'; btn.querySelector('svg').style.stroke = '#15803d'; }
+      });
     });
   }
-
-  sheetBody.querySelector('#save-annotation-btn')?.addEventListener('click', async () => {
-    const btn = sheetBody.querySelector('#save-annotation-btn');
-    btn.disabled = true;
-    btn.textContent = '⏳ সংরক্ষণ হচ্ছে...';
-    annotatedBlob = await getAnnotatedBlob();
-    btn.textContent = '✓ সংরক্ষিত হয়েছে!';
-    btn.style.background = '#15803d';
-    setTimeout(() => {
-      btn.textContent = '✓ আঁকা সংরক্ষণ করুন';
-      btn.style.background = '';
-      btn.disabled = false;
-    }, 2000);
-  });
 
   // Multi images
   sheetBody.querySelector('#hw-multi-input')?.addEventListener('change', e => {
@@ -698,6 +690,129 @@ function _openImageZoom(src) {
 
 function _daysLeftNum(dueDate) {
   return Math.ceil((new Date(dueDate) - new Date()) / 86400000);
+}
+
+// ── Fullscreen annotation overlay (same as teacher app) ───────────────────
+async function _openAnnotationOverlay(imageUrl, onSave) {
+  const ov = document.createElement('div');
+  ov.id = 'ann-fs-overlay';
+  ov.style.cssText = `position:fixed;inset:0;z-index:999990;background:#0f172a;display:flex;flex-direction:column;font-family:system-ui,sans-serif;`;
+
+  const canvasId  = 'ann-fs-canvas';
+  const toolbarId = 'ann-fs-toolbar';
+
+  ov.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#1e293b;flex-shrink:0;">
+      <span style="color:#f1f5f9;font-size:.9rem;font-weight:700;">✏ ছবিতে আঁকুন</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button id="ann-fs-zoom-out" style="background:rgba(255,255,255,.1);border:none;color:#e2e8f0;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;">−</button>
+        <span id="ann-fs-zoom-label" style="color:#94a3b8;font-size:.75rem;font-weight:600;min-width:36px;text-align:center;">100%</span>
+        <button id="ann-fs-zoom-in"  style="background:rgba(255,255,255,.1);border:none;color:#e2e8f0;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;">+</button>
+        <button id="ann-fs-pan-btn"  style="background:rgba(255,255,255,.1);border:none;color:#fbbf24;width:34px;height:34px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;" title="Pan / Draw toggle">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a2 2 0 0 0-4 0v0"/><path d="M14 10V4a2 2 0 0 0-4 0v2"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="ann-fs-viewport" style="flex:1;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;touch-action:none;">
+      <div id="ann-fs-canvas-wrap" style="transform-origin:0 0;will-change:transform;cursor:crosshair;">
+        <canvas id="${canvasId}"></canvas>
+      </div>
+    </div>
+    <div style="flex-shrink:0;background:#1e293b;">
+      <div id="${toolbarId}"></div>
+      <div style="display:flex;gap:10px;padding:10px 14px;">
+        <button id="ann-fs-save" style="flex:1;background:#2563eb;color:#fff;border:none;border-radius:10px;padding:12px;font-size:.9rem;font-weight:700;cursor:pointer;">✓ সেভ করুন</button>
+        <button id="ann-fs-cancel" style="flex:0 0 auto;background:rgba(255,255,255,.08);color:#94a3b8;border:none;border-radius:10px;padding:12px 18px;font-size:.9rem;cursor:pointer;">বাতিল</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(ov);
+
+  const canvas   = ov.querySelector(`#${canvasId}`);
+  const wrap     = ov.querySelector('#ann-fs-canvas-wrap');
+  const viewport = ov.querySelector('#ann-fs-viewport');
+  const zoomLbl  = ov.querySelector('#ann-fs-zoom-label');
+
+  await initAnnotation(canvas, imageUrl);
+  buildToolbar(toolbarId);
+
+  let scale = 1, tx = 0, ty = 0, panMode = false;
+
+  function _applyTransform() {
+    wrap.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`;
+    zoomLbl.textContent  = Math.round(scale * 100) + '%';
+  }
+  function _centerCanvas() {
+    const vw = viewport.clientWidth, vh = viewport.clientHeight;
+    const cw = canvas.width,         ch = canvas.height;
+    const fitScale = Math.min(vw / cw, vh / ch, 1);
+    scale = fitScale;
+    tx = (vw - cw * scale) / 2;
+    ty = (vh - ch * scale) / 2;
+    _applyTransform();
+  }
+  requestAnimationFrame(_centerCanvas);
+
+  ov.querySelector('#ann-fs-zoom-in').addEventListener('click',  () => { scale = Math.min(scale * 1.3, 6); _applyTransform(); });
+  ov.querySelector('#ann-fs-zoom-out').addEventListener('click', () => { scale = Math.max(scale / 1.3, 0.2); _applyTransform(); });
+
+  const panBtn = ov.querySelector('#ann-fs-pan-btn');
+  panBtn.addEventListener('click', () => {
+    panMode = !panMode;
+    panBtn.style.background = panMode ? '#fef3c7' : 'rgba(255,255,255,.1)';
+    panBtn.style.color      = panMode ? '#92400e' : '#fbbf24';
+    wrap.style.cursor       = panMode ? 'grab' : 'crosshair';
+    canvas.style.pointerEvents = panMode ? 'none' : '';
+    import('../../shared/js/annotation.js').then(m => m.setMode(panMode ? 'scroll' : 'pen'));
+  });
+
+  let _lastDist = 0, _dragging = false, _startX = 0, _startY = 0, _startTx = 0, _startTy = 0;
+  viewport.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) {
+      _lastDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    } else if (e.touches.length === 1 && panMode) {
+      _dragging = true; _startX = e.touches[0].clientX; _startY = e.touches[0].clientY; _startTx = tx; _startTy = ty;
+    }
+  }, { passive: true });
+  viewport.addEventListener('touchmove', e => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      if (_lastDist) scale = Math.min(6, Math.max(0.2, scale * dist / _lastDist));
+      _lastDist = dist; _applyTransform();
+    } else if (e.touches.length === 1 && _dragging && panMode) {
+      e.preventDefault();
+      tx = _startTx + (e.touches[0].clientX - _startX);
+      ty = _startTy + (e.touches[0].clientY - _startY);
+      _applyTransform();
+    }
+  }, { passive: false });
+  viewport.addEventListener('touchend', e => {
+    if (e.touches.length < 2) _lastDist = 0;
+    if (e.touches.length === 0) _dragging = false;
+  }, { passive: true });
+
+  let _mouseDrag = false, _msx = 0, _msy = 0, _mtx = 0, _mty = 0;
+  viewport.addEventListener('mousedown', e => { if (!panMode) return; _mouseDrag = true; _msx = e.clientX; _msy = e.clientY; _mtx = tx; _mty = ty; wrap.style.cursor = 'grabbing'; });
+  viewport.addEventListener('mousemove', e => { if (!_mouseDrag) return; tx = _mtx + (e.clientX - _msx); ty = _mty + (e.clientY - _msy); _applyTransform(); });
+  viewport.addEventListener('mouseup',   () => { _mouseDrag = false; if (panMode) wrap.style.cursor = 'grab'; });
+  viewport.addEventListener('wheel', e => {
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+    const rect = viewport.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    tx = mx - (mx - tx) * factor; ty = my - (my - ty) * factor;
+    scale = Math.min(6, Math.max(0.2, scale * factor)); _applyTransform();
+  }, { passive: false });
+
+  ov.querySelector('#ann-fs-save').addEventListener('click', async () => {
+    const saveBtn = ov.querySelector('#ann-fs-save');
+    saveBtn.textContent = '⏳ সেভ হচ্ছে...'; saveBtn.disabled = true;
+    const blob = await getAnnotatedBlob();
+    ov.remove();
+    if (blob) onSave(blob);
+  });
+  ov.querySelector('#ann-fs-cancel').addEventListener('click', () => ov.remove());
 }
 
 function _fmt(d) {
