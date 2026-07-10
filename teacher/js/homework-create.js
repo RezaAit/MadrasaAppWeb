@@ -82,6 +82,22 @@ function _renderHwCard(hw) {
         ${hw.status !== 'Published' ? `<button type="button" class="btn-hw-publish" data-pub-id="${hw.id}">▶ প্রকাশ করুন</button>` : ''}
         ${subCount === 0 ? `<button type="button" class="btn-hw-delete" data-del-id="${hw.id}">🗑 মুছুন</button>` : ''}
       </div>
+      ${(() => {
+        const imgs  = (hw.photoAttachmentUrls || hw.PhotoAttachmentUrls || '').split(',').filter(Boolean).length;
+        const anns  = (hw.annotatedPhotoUrls || hw.AnnotatedPhotoUrls || '').split(',').filter(Boolean).length;
+        const imgCount = Math.max(imgs, anns);
+        const hasVoice = !!(hw.voiceAttachmentUrl || hw.VoiceAttachmentUrl || hw.voiceAttachmentUrls || hw.VoiceAttachmentUrls);
+        const hasPdf   = !!(hw.pdfAttachmentUrl  || hw.PdfAttachmentUrl);
+        const hasYt    = !!(hw.youtubeUrls || hw.YoutubeUrls);
+        const hasVideo = !!(hw.videoAttachmentUrls || hw.VideoAttachmentUrls);
+        const parts = [];
+        if (imgCount > 0) parts.push(`<span style="display:inline-flex;align-items:center;gap:3px;font-size:.72rem;color:#475569;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>${imgCount}টি ছবি</span>`);
+        if (hasVoice) parts.push(`<span style="display:inline-flex;align-items:center;gap:3px;font-size:.72rem;color:#475569;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>ভয়েস</span>`);
+        if (hasPdf)   parts.push(`<span style="display:inline-flex;align-items:center;gap:3px;font-size:.72rem;color:#475569;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>PDF</span>`);
+        if (hasYt)    parts.push(`<span style="display:inline-flex;align-items:center;gap:3px;font-size:.72rem;color:#dc2626;"><svg viewBox="0 0 24 24" width="12" height="12" fill="#dc2626"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.2v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.2 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zm-13.5 8.6V8.4l8.1 3.6-8.1 3.6z"/></svg>YouTube</span>`);
+        if (hasVideo) parts.push(`<span style="display:inline-flex;align-items:center;gap:3px;font-size:.72rem;color:#475569;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>ভিডিও</span>`);
+        return parts.length ? `<div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">${parts.join('')}</div>` : '';
+      })()}
     </div>
     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-light);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
   </div>`;

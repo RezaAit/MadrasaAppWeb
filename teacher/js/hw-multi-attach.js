@@ -370,7 +370,8 @@ export function createMultiAttachManager(container, {
 
       card.querySelector('.hwm-zoomable').addEventListener('click', () => _openLightbox(displayUrl));
 
-      card.querySelector('.hwm-toggle-ann-btn').addEventListener('click', () => {
+      card.querySelector('.hwm-toggle-ann-btn').addEventListener('click', e => {
+        e.stopPropagation();
         const currentUrl = card.querySelector('.hwm-img-thumb').src;
         _openAnnotationOverlay(currentUrl, blob => {
           const newUrl = URL.createObjectURL(blob);
@@ -388,7 +389,8 @@ export function createMultiAttachManager(container, {
         });
       });
 
-      card.querySelector('.hwm-remove-btn').addEventListener('click', async () => {
+      card.querySelector('.hwm-remove-btn').addEventListener('click', async e => {
+        e.stopPropagation();
         card.style.opacity = '0.4';
         await onDelete('image', img.id);
         existingImagesLocal = existingImagesLocal.filter(i => i.id !== img.id);
@@ -429,7 +431,8 @@ export function createMultiAttachManager(container, {
 
     card.querySelector('.hwm-zoomable').addEventListener('click', () => _openLightbox(card.querySelector('.hwm-img-thumb').src));
 
-    card.querySelector('.hwm-toggle-ann-btn').addEventListener('click', () => {
+    card.querySelector('.hwm-toggle-ann-btn').addEventListener('click', e => {
+      e.stopPropagation();
       const currentUrl = card.querySelector('.hwm-img-thumb').src;
       _openAnnotationOverlay(currentUrl, async blob => {
         entry.annotatedBlob = blob;
