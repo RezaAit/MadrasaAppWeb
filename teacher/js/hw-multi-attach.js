@@ -402,7 +402,7 @@ export function createMultiAttachManager(container, {
     showToast('ছবি প্রস্তুত হচ্ছে…');
     let result;
     try {
-      result = await compressImage(file, { maxPx: 1600, quality: 0.82, maxBytes: 400_000 });
+      result = await compressImage(file, { maxPx: 1600, quality: 0.78, maxBytes: 250_000 });
     } catch (_) {
       showToast('ছবি প্রস্তুত করা যায়নি', 'error'); return;
     }
@@ -419,6 +419,7 @@ export function createMultiAttachManager(container, {
       <div class="hwm-img-thumb-wrap">
         <img src="${previewUrl}" class="hwm-img-thumb hwm-zoomable" style="cursor:zoom-in;">
         <span id="hwm-ann-saved-${idx}" class="hwm-ann-saved hidden">✓</span>
+        <span class="hwm-img-size-badge">${result.compressedKB} KB</span>
       </div>
       <div class="hwm-img-ann-toggle">
         <button type="button" class="btn btn-ghost btn-sm hwm-toggle-ann-btn" data-idx="${idx}">✏ আঁকুন</button>
