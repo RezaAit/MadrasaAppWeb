@@ -392,11 +392,9 @@ function openSubmitScreen(mainContainer, hw, child, all) {
         </button>
       </div>`;
     preview.classList.remove('hidden');
-    sb.querySelector('#hw-photo-pick-row').classList.add('hidden');
     sb.querySelector('#hw-photo-remove')?.addEventListener('click', () => {
       primaryPhotoFile = null; annotatedBlob = null; currentAnnotatedUrl = null;
       preview.innerHTML = ''; preview.classList.add('hidden');
-      sb.querySelector('#hw-photo-pick-row').classList.remove('hidden');
       // reset file inputs so same file can be re-picked
       sb.querySelector('#hw-photo-gallery-input').value = '';
       sb.querySelector('#hw-photo-cam-input').value = '';
