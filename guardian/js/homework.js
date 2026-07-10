@@ -296,28 +296,6 @@ function openSubmitScreen(mainContainer, hw, child, all) {
         </div>
         <div id="hw-photo-preview" class="hw-photo-preview hidden"></div>
 
-        <!-- Multi photo -->
-        <div class="hw-option-card" id="hw-opt-multi">
-          <div class="hw-option-icon" style="background:#fdf4ff;color:#9333ea;">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="14" height="14" rx="2"/><path d="M22 10v10a2 2 0 0 1-2 2H10"/></svg>
-          </div>
-          <div class="hw-option-body">
-            <div class="hw-option-title">একাধিক ছবি</div>
-            <div class="hw-option-sub">সর্বোচ্চ ১০টি ছবি</div>
-          </div>
-          <div class="hw-option-toggle" id="hw-multi-toggle">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-          </div>
-        </div>
-        <div class="hw-option-body-wrap" id="hw-multi-wrap">
-          <input type="file" id="hw-multi-input" accept="image/*" multiple style="display:none;">
-          <button class="hw-multi-pick-btn" onclick="document.getElementById('hw-multi-input').click()">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            ছবি যোগ করুন
-          </button>
-          <div class="hw-multi-grid" id="multi-preview"></div>
-        </div>
-
         <!-- Voice -->
         <div class="hw-option-card" id="hw-opt-voice">
           <div class="hw-option-icon" style="background:#fff7ed;color:#ea580c;">
@@ -371,7 +349,7 @@ function openSubmitScreen(mainContainer, hw, child, all) {
   });
 
   // Collapsible option cards
-  [['multi','multi-wrap'],['voice','voice-wrap'],['text','text-wrap']].forEach(([key, wrapId]) => {
+  [['voice','voice-wrap'],['text','text-wrap']].forEach(([key, wrapId]) => {
     const card = sheetBody.querySelector(`#hw-opt-${key}`);
     const wrap = sheetBody.querySelector(`#hw-${wrapId}`);
     const toggle = sheetBody.querySelector(`#hw-${key}-toggle`);
@@ -435,24 +413,6 @@ function openSubmitScreen(mainContainer, hw, child, all) {
       });
     });
   }
-
-  // Multi images
-  sheetBody.querySelector('#hw-multi-input')?.addEventListener('change', e => {
-    const files = Array.from(e.target.files).slice(0, 10);
-    photoFiles = files;
-    const grid = sheetBody.querySelector('#multi-preview');
-    grid.innerHTML = '';
-    files.forEach((f, i) => {
-      const url = URL.createObjectURL(f);
-      const div = document.createElement('div');
-      div.className = 'hw-multi-thumb';
-      div.innerHTML = `<img src="${url}" alt=""><button class="hw-multi-remove" data-idx="${i}">✕</button>`;
-      div.querySelector('.hw-multi-remove').addEventListener('click', ev => {
-        ev.stopPropagation(); photoFiles.splice(i, 1); div.remove();
-      });
-      grid.appendChild(div);
-    });
-  });
 
   // Submit
   sheetBody.querySelector('#final-submit-btn')?.addEventListener('click', async () => {
