@@ -198,12 +198,12 @@ function _openLightbox(src) {
 }
 
 function _ytThumb(url) {
-  const m = url.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  const m = url.match(/(?:v=|youtu\.be\/|shorts\/)([A-Za-z0-9_-]{11})/);
   return m ? `https://img.youtube.com/vi/${m[1]}/mqdefault.jpg` : null;
 }
 
 function _isValidYt(url) {
-  return /youtube\.com\/watch|youtu\.be\//.test(url);
+  return /youtube\.com\/watch|youtube\.com\/shorts\/|youtu\.be\//.test(url);
 }
 
 export function createMultiAttachManager(container, {
@@ -604,7 +604,7 @@ export function createMultiAttachManager(container, {
   }
 
   function _ytVideoId(url) {
-    const m = url.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+    const m = url.match(/(?:v=|youtu\.be\/|shorts\/)([A-Za-z0-9_-]{11})/);
     return m ? m[1] : null;
   }
 

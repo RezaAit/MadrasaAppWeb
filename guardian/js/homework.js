@@ -679,6 +679,7 @@ function _ytVideoId(url) {
   try {
     const u = new URL(url);
     if (u.hostname.includes('youtu.be')) return u.pathname.slice(1).split('?')[0];
+    if (u.pathname.startsWith('/shorts/')) return u.pathname.split('/shorts/')[1].split('?')[0];
     return u.searchParams.get('v') || null;
   } catch { return null; }
 }
