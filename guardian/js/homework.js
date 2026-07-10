@@ -100,6 +100,7 @@ export async function loadHomework(container, child) {
       if (!hw) return;
       if (hw.status === 'Pending') openSubmitScreen(container, hw, child, all);
       else if (hw.teacherFeedback) showFeedbackDetail(hw);
+      else if (hw.status === 'Submitted') showSubmittedView(hw);
     });
   });
 }
@@ -248,9 +249,8 @@ function _renderSubmitted(list) {
 // ── Submit Screen ──────────────────────────────────────────────────────────
 function openSubmitScreen(mainContainer, hw, child, all) {
   let voiceRecorder = null;
-  let primaryPhotoFile = null;
-  let annotatedBlob = null;
-  let photoFiles = [];
+  // photoEntries: [{ file: File, annotatedBlob: Blob|null, previewUrl: string, annotatedUrl: string|null }]
+  const photoEntries = [];
   const style = _subjectStyle(hw.subject);
   const daysLeft = _daysLeftNum(hw.dueDate);
   const isOverdue = daysLeft < 0;
@@ -281,10 +281,10 @@ function openSubmitScreen(mainContainer, hw, child, all) {
         <!-- Upload options -->
         <div class="hw-section-title">জমা দেওয়ার পদ্ধতি বেছে নিন</div>
 
-        <!-- Photo pick (always visible) -->
-        <input type="file" id="hw-photo-gallery-input" accept="image/*" style="display:none;">
+        <!-- Photo pick + grid -->
+        <input type="file" id="hw-photo-gallery-input" accept="image/*" multiple style="display:none;">
         <input type="file" id="hw-photo-cam-input" accept="image/*" capture="environment" style="display:none;">
-        <div class="hw-pick-row" id="hw-photo-pick-row">
+        <div class="hw-pick-row">
           <button type="button" class="hw-pick-btn hw-pick-gallery" id="hw-photo-gallery-btn">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
             <span>গ্যালারি</span>
@@ -294,7 +294,7 @@ function openSubmitScreen(mainContainer, hw, child, all) {
             <span>ক্যামেরা</span>
           </button>
         </div>
-        <div id="hw-photo-preview" class="hw-photo-preview hidden"></div>
+        <div id="hw-photo-grid" class="hw-submit-photo-grid"></div>
 
         <!-- Voice -->
         <div class="hw-option-card" id="hw-opt-voice">
@@ -367,63 +367,72 @@ function openSubmitScreen(mainContainer, hw, child, all) {
   sheetBody.querySelector('#hw-photo-gallery-btn')?.addEventListener('click', () => sheetBody.querySelector('#hw-photo-gallery-input').click());
   sheetBody.querySelector('#hw-photo-cam-btn')?.addEventListener('click', () => sheetBody.querySelector('#hw-photo-cam-input').click());
   sheetBody.querySelector('#hw-photo-gallery-input')?.addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (file) _handlePrimaryPhoto(file, sheetBody);
+    if (e.target.files.length) _addPhotos(e.target.files);
   });
   sheetBody.querySelector('#hw-photo-cam-input')?.addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (file) _handlePrimaryPhoto(file, sheetBody);
+    if (e.target.files.length) _addPhotos(e.target.files);
   });
 
-  async function _handlePrimaryPhoto(file, sb) {
-    primaryPhotoFile = file;
-    const url = URL.createObjectURL(file);
-    let currentAnnotatedUrl = null;
-    const preview = sb.querySelector('#hw-photo-preview');
-    preview.innerHTML = `
-      <div class="hw-photo-thumb" style="position:relative;">
-        <img id="hw-photo-thumb-img" src="${url}" alt="" style="width:100%;border-radius:10px;display:block;">
-        <button class="hw-photo-remove" id="hw-photo-remove" style="position:absolute;top:6px;right:6px;">✕</button>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:8px;">
-        <button class="hw-annotate-btn" id="hw-annotate-btn" style="flex:1;">
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          ছবিতে আঁকুন
-        </button>
-      </div>`;
-    preview.classList.remove('hidden');
-    sb.querySelector('#hw-photo-remove')?.addEventListener('click', () => {
-      primaryPhotoFile = null; annotatedBlob = null; currentAnnotatedUrl = null;
-      preview.innerHTML = ''; preview.classList.add('hidden');
-      // reset file inputs so same file can be re-picked
-      sb.querySelector('#hw-photo-gallery-input').value = '';
-      sb.querySelector('#hw-photo-cam-input').value = '';
-    });
-    sb.querySelector('#hw-annotate-btn')?.addEventListener('click', () => {
-      const srcUrl = currentAnnotatedUrl || url;
-      _openAnnotationOverlay(srcUrl, blob => {
-        annotatedBlob = blob;
-        currentAnnotatedUrl = URL.createObjectURL(blob);
-        const img = sb.querySelector('#hw-photo-thumb-img');
-        if (img) img.src = currentAnnotatedUrl;
-        const btn = sb.querySelector('#hw-annotate-btn');
-        if (btn) { btn.style.background = '#dcfce7'; btn.style.color = '#15803d'; btn.querySelector('svg').style.stroke = '#15803d'; }
+  function _addPhotos(files) {
+    const grid = sheetBody.querySelector('#hw-photo-grid');
+    Array.from(files).forEach(file => {
+      const entry = { file, annotatedBlob: null, previewUrl: URL.createObjectURL(file), annotatedUrl: null };
+      photoEntries.push(entry);
+      const idx = photoEntries.length - 1;
+
+      const card = document.createElement('div');
+      card.className = 'hw-submit-photo-card';
+      card.dataset.idx = idx;
+      card.innerHTML = `
+        <img class="hw-submit-photo-img" src="${entry.previewUrl}" alt="">
+        <button class="hw-submit-photo-remove">✕</button>
+        <button class="hw-submit-photo-annotate">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          আঁকুন
+        </button>`;
+      card.querySelector('.hw-submit-photo-remove').addEventListener('click', () => {
+        photoEntries.splice(idx, 1);
+        card.remove();
+        // re-index remaining cards
+        grid.querySelectorAll('.hw-submit-photo-card').forEach((c, i) => c.dataset.idx = i);
       });
+      card.querySelector('.hw-submit-photo-annotate').addEventListener('click', () => {
+        const src = entry.annotatedUrl || entry.previewUrl;
+        _openAnnotationOverlay(src, blob => {
+          entry.annotatedBlob = blob;
+          entry.annotatedUrl = URL.createObjectURL(blob);
+          card.querySelector('.hw-submit-photo-img').src = entry.annotatedUrl;
+          const btn = card.querySelector('.hw-submit-photo-annotate');
+          btn.style.background = '#dcfce7'; btn.style.color = '#15803d';
+        });
+      });
+      grid.appendChild(card);
     });
+    // reset inputs
+    sheetBody.querySelector('#hw-photo-gallery-input').value = '';
+    sheetBody.querySelector('#hw-photo-cam-input').value = '';
   }
 
   // Submit
   sheetBody.querySelector('#final-submit-btn')?.addEventListener('click', async () => {
     const remarks = sheetBody.querySelector('#hw-remarks').value.trim();
     const vBlob = voiceRecorder?.getBlob() ?? null;
-    if (!primaryPhotoFile && !annotatedBlob && !photoFiles.length && !vBlob && !remarks) {
+    if (!photoEntries.length && !vBlob && !remarks) {
       showToast('কমপক্ষে একটি তথ্য দিন', 'error'); return;
     }
     const btn = sheetBody.querySelector('#final-submit-btn');
     btn.disabled = true;
     btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin .8s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> জমা হচ্ছে...`;
-    const payload = { image: primaryPhotoFile, annotated: annotatedBlob, voice: vBlob, textRemarks: remarks || null };
-    const resData = await submitHomework(hw.id, payload, photoFiles);
+    // first photo → primary; annotated blob if exists; rest → extraImages
+    const first = photoEntries[0] || null;
+    const payload = {
+      image:        first ? (first.annotatedBlob || first.file) : null,
+      annotated:    null,
+      voice:        vBlob,
+      textRemarks:  remarks || null,
+    };
+    const extraImages = photoEntries.slice(1).map(e => e.annotatedBlob || e.file);
+    const resData = await submitHomework(hw.id, payload, extraImages);
     if (!resData.HasError) {
       _showSuccessScreen(sheetBody, close, hw, mainContainer, child, all);
     } else {
@@ -451,6 +460,60 @@ function _showSuccessScreen(sheetBody, close, hw, mainContainer, child, all) {
     const found = all.find(h => h.id === hw.id);
     if (found) found.status = 'Submitted';
     loadHomework(mainContainer, child);
+  });
+}
+
+// ── Submitted view (no feedback yet) ─────────────────────────────────────
+function showSubmittedView(hw) {
+  const sub = hw.submission;
+  const allPhotos = [];
+  if (sub?.primaryImageUrl) allPhotos.push(sub.primaryImageUrl);
+  if (sub?.annotatedPhotoUrl) allPhotos.push(sub.annotatedPhotoUrl);
+  (sub?.images || []).forEach(u => allPhotos.push(u));
+
+  const { open, body: sheetBody } = createBottomSheet({
+    id: 'hw-submitted-sheet',
+    title: 'জমা দেওয়া হয়েছে',
+    content: `
+      <div class="hw-sheet-wrap">
+        <div style="display:flex;align-items:center;gap:10px;background:#f0fdf4;border-radius:14px;padding:14px;margin-bottom:16px;">
+          <div style="width:40px;height:40px;background:#16a34a;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:700;color:#15803d;font-size:.95rem;">জমা হয়েছে</div>
+            <div style="font-size:.8rem;color:#4ade80;">শিক্ষক শীঘ্রই রিভিউ করবেন</div>
+          </div>
+        </div>
+
+        <div style="font-weight:700;font-size:.85rem;color:#0f172a;margin-bottom:6px;">${hw.subject} · ${hw.title}</div>
+
+        ${allPhotos.length ? `
+          <div class="hw-feedback-section-title" style="margin-top:14px;margin-bottom:8px;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            জমা দেওয়া ছবি
+          </div>
+          <div class="hw-photo-grid">
+            ${allPhotos.map(u => `<img src="${_full(u)}" data-full="${_full(u)}" class="hw-zoomable">`).join('')}
+          </div>` : '<div style="color:#94a3b8;font-size:.85rem;text-align:center;padding:20px 0;">কোনো ছবি জমা দেওয়া হয়নি</div>'}
+
+        ${sub?.textRemarks ? `
+          <div class="hw-feedback-section" style="margin-top:14px;">
+            <div class="hw-feedback-section-title">তোমার মন্তব্য</div>
+            <p class="hw-feedback-remark">${sub.textRemarks}</p>
+          </div>` : ''}
+
+        ${sub?.voiceNoteUrl ? `
+          <div class="hw-feedback-section" style="margin-top:14px;">
+            <div class="hw-feedback-section-title">তোমার ভয়েস নোট</div>
+            <audio controls style="width:100%;border-radius:10px;" src="${_full(sub.voiceNoteUrl)}"></audio>
+          </div>` : ''}
+      </div>`,
+    fullHeight: true,
+  });
+  open();
+  sheetBody.querySelectorAll('.hw-zoomable').forEach(img => {
+    img.addEventListener('click', () => _openImageZoom(img.dataset.full));
   });
 }
 
