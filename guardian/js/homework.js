@@ -529,12 +529,17 @@ function showFeedbackDetail(hw) {
     content: `
       <div class="hw-sheet-wrap">
         <!-- Reaction hero -->
-        <div class="hw-feedback-hero" style="background:${rc.bg};--hw-glow:${rc.color};--hw-glow-a06:rgba(${rc.glow},.06);--hw-glow-a10:rgba(${rc.glow},.10);--hw-glow-a14:rgba(${rc.glow},.14);--hw-glow-a18:rgba(${rc.glow},.18);--hw-glow-a25:rgba(${rc.glow},.25);--hw-glow-a30:rgba(${rc.glow},.30);--hw-glow-a40:rgba(${rc.glow},.40);">
-          <div class="hw-feedback-emoji">${rc.emoji}</div>
-          <div class="hw-feedback-label" style="color:${rc.color};">${rc.label}</div>
-          <div class="hw-feedback-hw">${hw.title}</div>
-          ${hw.subject ? `<div style="font-size:.78rem;font-weight:700;color:${rc.color};opacity:.8;margin-top:4px;">${hw.subject}</div>` : ''}
-          ${hw.dueDate ? `<div style="font-size:.72rem;color:${rc.color};opacity:.6;margin-top:2px;">সীমা: ${_fmt(hw.dueDate)}</div>` : ''}
+        <div class="hw-feedback-hero-wrap">
+          <div class="hw-wave-ring" style="--hw-glow:${rc.color};"></div>
+          <div class="hw-wave-ring" style="--hw-glow:${rc.color};"></div>
+          <div class="hw-wave-ring" style="--hw-glow:${rc.color};"></div>
+          <div class="hw-feedback-hero" style="background:${rc.bg};--hw-glow:${rc.color};--hw-glow-a06:rgba(${rc.glow},.06);--hw-glow-a10:rgba(${rc.glow},.10);--hw-glow-a14:rgba(${rc.glow},.14);--hw-glow-a18:rgba(${rc.glow},.18);--hw-glow-a25:rgba(${rc.glow},.25);--hw-glow-a30:rgba(${rc.glow},.30);--hw-glow-a40:rgba(${rc.glow},.40);">
+            <div class="hw-feedback-emoji">${rc.emoji}</div>
+            <div class="hw-feedback-label" style="color:${rc.color};">${rc.label}</div>
+            <div class="hw-feedback-hw">${hw.title}</div>
+            ${hw.subject ? `<div style="font-size:.78rem;font-weight:700;color:${rc.color};opacity:.8;margin-top:4px;">${hw.subject}</div>` : ''}
+            ${hw.dueDate ? `<div style="font-size:.72rem;color:${rc.color};opacity:.6;margin-top:2px;">সীমা: ${_fmt(hw.dueDate)}</div>` : ''}
+          </div>
         </div>
 
         ${fb.note ? `

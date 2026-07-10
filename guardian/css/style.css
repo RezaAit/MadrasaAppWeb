@@ -694,21 +694,37 @@ html, body {
 }
 
 /* Feedback sheet */
+/* Wave ring wrapper — sits behind the hero card */
+.hw-feedback-hero-wrap {
+  position: relative;
+  display: flex; justify-content: center;
+  margin-bottom: 4px;
+}
+.hw-wave-ring {
+  position: absolute;
+  inset: -2px; border-radius: 22px;
+  border: 2px solid var(--hw-glow, #16a34a);
+  opacity: 0;
+  animation: wave-expand 2.4s ease-out infinite;
+  pointer-events: none;
+}
+.hw-wave-ring:nth-child(2) { animation-delay: .8s; }
+.hw-wave-ring:nth-child(3) { animation-delay: 1.6s; }
+@keyframes wave-expand {
+  0%   { transform: scale(1);    opacity: .7; }
+  100% { transform: scale(1.18); opacity: 0;  }
+}
+
 .hw-feedback-hero {
   border-radius: 20px; padding: 28px 20px; text-align: center;
   display: flex; flex-direction: column; align-items: center; gap: 8px;
-  position: relative; overflow: hidden;
-  /* animated gradient border via outline trick + pseudo shimmer */
-  border: 2.5px solid transparent;
-  background-clip: padding-box;
-  outline: 2.5px solid var(--hw-glow, #16a34a);
-  outline-offset: -2px;
+  position: relative; overflow: hidden; width: 100%;
+  border: 2px solid var(--hw-glow, #16a34a);
   box-shadow:
-    0 0 12px 3px var(--hw-glow-a30, rgba(22,163,74,.3)),
-    0 0 32px 8px var(--hw-glow-a18, rgba(22,163,74,.18)),
-    0 0 60px 16px var(--hw-glow-a10, rgba(22,163,74,.10)),
-    inset 0 0 30px 0 var(--hw-glow-a06, rgba(22,163,74,.06));
-  animation: hero-glow-pulse 2s ease-in-out infinite;
+    0 0 14px 4px var(--hw-glow-a30, rgba(22,163,74,.3)),
+    0 0 36px 10px var(--hw-glow-a18, rgba(22,163,74,.18)),
+    inset 0 0 28px 0 var(--hw-glow-a06, rgba(22,163,74,.06));
+  animation: hero-glow-pulse 2.4s ease-in-out infinite;
 }
 .hw-feedback-hero::before {
   content: '';
@@ -720,7 +736,7 @@ html, body {
     transparent 80%
   );
   transform: translateX(-100%);
-  animation: hero-shimmer 2.8s ease-in-out infinite;
+  animation: hero-shimmer 3s ease-in-out infinite;
   pointer-events: none;
 }
 @keyframes hero-shimmer {
@@ -731,16 +747,14 @@ html, body {
 @keyframes hero-glow-pulse {
   0%, 100% {
     box-shadow:
-      0 0 12px 3px var(--hw-glow-a30, rgba(22,163,74,.3)),
-      0 0 32px 8px var(--hw-glow-a18, rgba(22,163,74,.18)),
-      0 0 60px 16px var(--hw-glow-a10, rgba(22,163,74,.10)),
-      inset 0 0 30px 0 var(--hw-glow-a06, rgba(22,163,74,.06));
+      0 0 14px 4px var(--hw-glow-a30, rgba(22,163,74,.3)),
+      0 0 36px 10px var(--hw-glow-a18, rgba(22,163,74,.18)),
+      inset 0 0 28px 0 var(--hw-glow-a06, rgba(22,163,74,.06));
   }
   50% {
     box-shadow:
-      0 0 20px 6px var(--hw-glow-a40, rgba(22,163,74,.40)),
-      0 0 50px 14px var(--hw-glow-a25, rgba(22,163,74,.25)),
-      0 0 90px 24px var(--hw-glow-a14, rgba(22,163,74,.14)),
+      0 0 22px 8px var(--hw-glow-a40, rgba(22,163,74,.40)),
+      0 0 55px 16px var(--hw-glow-a25, rgba(22,163,74,.25)),
       inset 0 0 40px 0 var(--hw-glow-a10, rgba(22,163,74,.10));
   }
 }
