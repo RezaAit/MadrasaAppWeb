@@ -364,65 +364,135 @@ async function _openReviewScreen(container, hw) {
 
   const hasInstr = instrImages.length || instrVoices.length || instrVideos.length || instrYoutube.length || instrPdfs.length || hw.description;
 
+  // ── Facebook-style mosaic image grid ──
+  function _instrImageGrid(imgs) {
+    if (!imgs.length) return '';
+    const n = imgs.length;
+    const imgEl = (img, style) =>
+      `<img src="${img.annotatedPhotoUrl || img.photoUrl}" data-zoom-instr style="${style}cursor:zoom-in;object-fit:cover;display:block;width:100%;">`;
+    let grid = '';
+    if (n === 1) {
+      grid = `<div style="border-radius:12px;overflow:hidden;max-height:340px;">${imgEl(imgs[0], 'height:340px;')}</div>`;
+    } else if (n === 2) {
+      grid = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;border-radius:12px;overflow:hidden;">
+        ${imgs.map(i => `<div style="height:220px;overflow:hidden;">${imgEl(i, 'height:220px;')}</div>`).join('')}
+      </div>`;
+    } else if (n === 3) {
+      grid = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;border-radius:12px;overflow:hidden;">
+        <div style="height:280px;overflow:hidden;">${imgEl(imgs[0], 'height:280px;')}</div>
+        <div style="display:grid;grid-template-rows:1fr 1fr;gap:3px;height:280px;">
+          <div style="overflow:hidden;">${imgEl(imgs[1], 'height:138px;')}</div>
+          <div style="overflow:hidden;">${imgEl(imgs[2], 'height:138px;')}</div>
+        </div>
+      </div>`;
+    } else {
+      const extra = n - 4;
+      grid = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;border-radius:12px;overflow:hidden;">
+        ${imgs.slice(0,3).map(i => `<div style="height:160px;overflow:hidden;">${imgEl(i, 'height:160px;')}</div>`).join('')}
+        <div style="height:160px;overflow:hidden;position:relative;">
+          ${imgEl(imgs[3], 'height:160px;')}
+          ${extra > 0 ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;"><span style="color:#fff;font-size:1.5rem;font-weight:700;">+${extra}</span></div>` : ''}
+        </div>
+      </div>`;
+    }
+    return `<div style="margin-bottom:10px;">${grid}</div>`;
+  }
+
+  // ── Styled audio card ──
+  function _instrAudioCard(url, idx) {
+    return `<div style="display:flex;align-items:center;gap:10px;background:#f1f5f9;border-radius:12px;padding:10px 12px;margin-bottom:8px;">
+      <div style="width:36px;height:36px;border-radius:50%;background:#2563eb;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="#fff"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2" fill="none" stroke="#fff" stroke-width="2"/></svg>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:.72rem;font-weight:600;color:#475569;margin-bottom:4px;">ভয়েস নোট ${idx + 1}</div>
+        <audio controls style="width:100%;height:32px;" src="${url}"></audio>
+      </div>
+    </div>`;
+  }
+
+  // ── Video card ──
+  function _instrVideoCard(url) {
+    return `<div style="border-radius:12px;overflow:hidden;background:#000;margin-bottom:8px;">
+      <video controls src="${url}" style="width:100%;display:block;max-height:220px;background:#000;"></video>
+    </div>`;
+  }
+
+  // ── YouTube card ──
+  function _instrYtCard(url, ytIdx) {
+    const m = url.match(/(?:v=|youtu\.be\/|shorts\/)([A-Za-z0-9_-]{11})/);
+    const vid = m ? m[1] : null;
+    if (!vid) return '';
+    const thumb = `https://img.youtube.com/vi/${vid}/mqdefault.jpg`;
+    const uid = `yt-t-${Date.now()}-${ytIdx}`;
+    return `<div style="border-radius:12px;overflow:hidden;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,.12);">
+      <div id="${uid}-p" style="position:relative;cursor:pointer;background:#000;" onclick="
+        document.getElementById('${uid}-p').style.display='none';
+        var f=document.getElementById('${uid}-f');
+        f.style.display='block';
+        f.querySelector('iframe').src='https://www.youtube.com/embed/${vid}?autoplay=1';
+      ">
+        <img src="${thumb}" style="width:100%;display:block;aspect-ratio:16/9;object-fit:cover;">
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;">
+          <div style="width:62px;height:62px;border-radius:50%;background:rgba(220,38,38,.92);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(220,38,38,.5);">
+            <svg viewBox="0 0 24 24" width="30" height="30" fill="#fff"><polygon points="10,8 18,12 10,16"/></svg>
+          </div>
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:0;padding:20px 12px 8px;background:linear-gradient(transparent,rgba(0,0,0,.75));">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="#ff0000"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.2v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.2 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zm-13.5 8.6V8.4l8.1 3.6-8.1 3.6z"/></svg>
+            <span style="font-size:.75rem;color:#fff;font-weight:600;">YouTube ভিডিও দেখুন</span>
+          </div>
+        </div>
+      </div>
+      <div id="${uid}-f" style="display:none;aspect-ratio:16/9;background:#000;">
+        <iframe width="100%" height="100%" style="border:none;display:block;" allow="autoplay;encrypted-media" allowfullscreen></iframe>
+      </div>
+    </div>`;
+  }
+
+  // ── File card ──
+  function _instrFileCard2(p) {
+    const url = p.pdfUrl || p.PdfUrl || p;
+    const fileSize = p.fileSize || p.FileSize || null;
+    const fname = (typeof url === 'string' ? url : '').split('/').pop() || 'ফাইল';
+    const ext = (fname.split('.').pop() || 'pdf').toLowerCase();
+    const extUp = ext.toUpperCase();
+    const cfg = ext === 'pdf' ? { bg:'#fff0f0', border:'#fca5a5', tc:'#dc2626', ic:'#dc2626' }
+      : (ext === 'doc' || ext === 'docx') ? { bg:'#eff6ff', border:'#93c5fd', tc:'#2563eb', ic:'#2563eb' }
+      : (ext === 'xls' || ext === 'xlsx') ? { bg:'#f0fdf4', border:'#86efac', tc:'#16a34a', ic:'#16a34a' }
+      : (ext === 'ppt' || ext === 'pptx') ? { bg:'#fff7ed', border:'#fdba74', tc:'#ea580c', ic:'#ea580c' }
+      : { bg:'#f8fafc', border:'#cbd5e1', tc:'#475569', ic:'#475569' };
+    const sizeStr = fileSize ? _fmtSize(fileSize) : '';
+    return `<a href="${url}" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${cfg.bg};border:1.5px solid ${cfg.border};border-radius:10px;margin-bottom:6px;text-decoration:none;">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="${cfg.ic}" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:.82rem;color:#1e293b;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${fname.length > 34 ? fname.slice(0,31)+'…' : fname}</div>
+        ${sizeStr ? `<div style="font-size:.7rem;color:#94a3b8;margin-top:2px;">${sizeStr}</div>` : ''}
+      </div>
+      <span style="font-size:.68rem;font-weight:700;color:${cfg.tc};background:${cfg.border};padding:3px 7px;border-radius:5px;flex-shrink:0;">${extUp}</span>
+    </a>`;
+  }
+
   const instrHtml = hasInstr ? `
-    <div class="card mb-16" style="background:#f8fafc;border:1px solid #e2e8f0;">
-      <div style="font-size:.8rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">📋 শিক্ষকের নির্দেশনা</div>
-      ${hw.description ? `<div style="font-size:.88rem;color:#334155;margin-bottom:10px;line-height:1.6;">${hw.description}</div>` : ''}
-      ${instrImages.length ? `
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-          ${instrImages.map(img => `<img src="${img.annotatedPhotoUrl || img.photoUrl}" data-zoom-instr style="width:90px;height:90px;object-fit:cover;border-radius:10px;cursor:zoom-in;border:1px solid #e2e8f0;">`).join('')}
-        </div>` : ''}
-      ${instrVoices.map(url => `<audio controls style="width:100%;margin-bottom:8px;" src="${url}"></audio>`).join('')}
-      ${instrVideos.map(url => `<video controls src="${url}" style="width:100%;border-radius:8px;background:#000;max-height:160px;margin-bottom:8px;"></video>`).join('')}
-      ${instrYoutube.map((url, ytIdx) => {
-        const m = url.match(/(?:v=|youtu\.be\/|shorts\/)([A-Za-z0-9_-]{11})/);
-        const vid = m ? m[1] : null;
-        const thumb = vid ? `https://img.youtube.com/vi/${vid}/mqdefault.jpg` : null;
-        const uid = `yt-instr-${Date.now()}-${ytIdx}`;
-        return `<div style="margin-bottom:8px;border-radius:10px;overflow:hidden;border:1px solid #fecaca;">
-          <div id="${uid}-preview" style="position:relative;background:#000;cursor:pointer;" onclick="
-            var p=document.getElementById('${uid}-preview');
-            var f=document.getElementById('${uid}-frame');
-            p.style.display='none';
-            f.style.display='block';
-            f.querySelector('iframe').src='https://www.youtube.com/embed/${vid}?autoplay=1';
-          ">
-            ${thumb ? `<img src="${thumb}" style="width:100%;display:block;aspect-ratio:16/9;object-fit:cover;">` : `<div style="aspect-ratio:16/9;background:#1e293b;"></div>`}
-            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
-              <div style="width:56px;height:56px;border-radius:50%;background:rgba(220,38,38,0.9);display:flex;align-items:center;justify-content:center;">
-                <svg viewBox="0 0 24 24" width="28" height="28" fill="#fff"><polygon points="10,8 18,12 10,16"/></svg>
-              </div>
-            </div>
-            <div style="position:absolute;bottom:0;left:0;right:0;padding:6px 10px;background:linear-gradient(transparent,rgba(0,0,0,0.7));">
-              <span style="font-size:.75rem;color:#fff;font-weight:600;">▶ YouTube ভিডিও</span>
-            </div>
-          </div>
-          <div id="${uid}-frame" style="display:none;aspect-ratio:16/9;background:#000;">
-            <iframe width="100%" height="100%" style="border:none;display:block;" allow="autoplay;encrypted-media" allowfullscreen></iframe>
-          </div>
-        </div>`;
-      }).join('')}
-      ${instrPdfs.map(p => {
-        const url = p.pdfUrl || p.PdfUrl || p;
-        const fileSize = p.fileSize || p.FileSize || null;
-        const fname = (typeof url === 'string' ? url : '').split('/').pop() || 'ফাইল';
-        const ext = (fname.split('.').pop() || 'pdf').toLowerCase();
-        const extUp = ext.toUpperCase();
-        const cfg = ext === 'pdf' ? { bg:'#fff0f0', border:'#fca5a5', tc:'#dc2626', ic:'#dc2626' }
-          : (ext === 'doc' || ext === 'docx') ? { bg:'#eff6ff', border:'#93c5fd', tc:'#2563eb', ic:'#2563eb' }
-          : (ext === 'xls' || ext === 'xlsx') ? { bg:'#f0fdf4', border:'#86efac', tc:'#16a34a', ic:'#16a34a' }
-          : (ext === 'ppt' || ext === 'pptx') ? { bg:'#fff7ed', border:'#fdba74', tc:'#ea580c', ic:'#ea580c' }
-          : { bg:'#f8fafc', border:'#cbd5e1', tc:'#475569', ic:'#475569' };
-        const sizeStr = fileSize ? _fmtSize(fileSize) : '';
-        return `<a href="${url}" target="_blank" style="display:flex;align-items:center;gap:10px;padding:9px 10px;background:${cfg.bg};border:1.5px solid ${cfg.border};border-radius:9px;margin-bottom:6px;text-decoration:none;">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="${cfg.ic}" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:.8rem;color:#1e293b;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${fname.length > 32 ? fname.slice(0,29)+'…' : fname}</div>
-            ${sizeStr ? `<div style="font-size:.68rem;color:#64748b;margin-top:1px;">${sizeStr}</div>` : ''}
-          </div>
-          <span style="font-size:.7rem;font-weight:700;color:${cfg.tc};background:${cfg.border};padding:2px 6px;border-radius:4px;flex-shrink:0;">${extUp}</span>
-        </a>`;
-      }).join('')}
+    <div style="background:#fff;border:1px solid #e8edf5;border-radius:14px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 4px rgba(15,23,42,.06);">
+      <div style="padding:10px 14px 8px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#1d4ed8);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <div>
+          <div style="font-size:.8rem;font-weight:700;color:#1e293b;">শিক্ষকের নির্দেশনা</div>
+          <div style="font-size:.68rem;color:#94a3b8;">${_fmtDateTime(hw.addDate ?? hw.AddDate)}</div>
+        </div>
+      </div>
+      <div style="padding:12px 14px;">
+        ${hw.description ? `<div style="font-size:.88rem;color:#1e293b;line-height:1.65;margin-bottom:10px;">${hw.description}</div>` : ''}
+        ${_instrImageGrid(instrImages)}
+        ${instrVoices.map((url, i) => _instrAudioCard(url, i)).join('')}
+        ${instrVideos.map(url => _instrVideoCard(url)).join('')}
+        ${instrYoutube.map((url, i) => _instrYtCard(url, i)).join('')}
+        ${instrPdfs.map(p => _instrFileCard2(p)).join('')}
+      </div>
     </div>` : '';
 
   const subjectName = hw.subjectName ?? hw.SubjectName ?? '';
