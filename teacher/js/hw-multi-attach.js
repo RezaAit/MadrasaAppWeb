@@ -15,6 +15,176 @@ import { showToast } from './dashboard.js';
 
 const MAX_VOICES = 5;
 
+// ── Fullscreen annotation overlay ────────────────────────────────────────────
+async function _openAnnotationOverlay(imageUrl, onSave) {
+  const ov = document.createElement('div');
+  ov.id = 'ann-fs-overlay';
+  ov.style.cssText = `
+    position:fixed;inset:0;z-index:999990;
+    background:#0f172a;display:flex;flex-direction:column;
+    font-family:system-ui,sans-serif;
+  `;
+
+  const canvasId   = 'ann-fs-canvas';
+  const toolbarId  = 'ann-fs-toolbar';
+
+  ov.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#1e293b;flex-shrink:0;">
+      <span style="color:#f1f5f9;font-size:.9rem;font-weight:700;">✏ ছবিতে আঁকুন</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button id="ann-fs-zoom-out" style="background:rgba(255,255,255,.1);border:none;color:#e2e8f0;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;">−</button>
+        <span id="ann-fs-zoom-label" style="color:#94a3b8;font-size:.75rem;font-weight:600;min-width:36px;text-align:center;">100%</span>
+        <button id="ann-fs-zoom-in"  style="background:rgba(255,255,255,.1);border:none;color:#e2e8f0;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;">+</button>
+        <button id="ann-fs-pan-btn"  style="background:rgba(255,255,255,.1);border:none;color:#fbbf24;width:34px;height:34px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;" title="Pan / Draw toggle">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a2 2 0 0 0-4 0v0"/><path d="M14 10V4a2 2 0 0 0-4 0v2"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="ann-fs-viewport" style="flex:1;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;touch-action:none;">
+      <div id="ann-fs-canvas-wrap" style="transform-origin:0 0;will-change:transform;cursor:crosshair;">
+        <canvas id="${canvasId}"></canvas>
+      </div>
+    </div>
+
+    <div style="flex-shrink:0;background:#1e293b;">
+      <div id="${toolbarId}"></div>
+      <div style="display:flex;gap:10px;padding:10px 14px;">
+        <button id="ann-fs-save" style="flex:1;background:#2563eb;color:#fff;border:none;border-radius:10px;padding:12px;font-size:.9rem;font-weight:700;cursor:pointer;">✓ সেভ করুন</button>
+        <button id="ann-fs-cancel" style="flex:0 0 auto;background:rgba(255,255,255,.08);color:#94a3b8;border:none;border-radius:10px;padding:12px 18px;font-size:.9rem;cursor:pointer;">বাতিল</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(ov);
+
+  const canvas   = ov.querySelector(`#${canvasId}`);
+  const wrap     = ov.querySelector('#ann-fs-canvas-wrap');
+  const viewport = ov.querySelector('#ann-fs-viewport');
+  const zoomLbl  = ov.querySelector('#ann-fs-zoom-label');
+
+  await initAnnotation(canvas, imageUrl);
+  buildToolbar(toolbarId);
+
+  // ── Zoom + Pan state ────────────────────────────────────────────
+  let scale = 1, tx = 0, ty = 0;
+  let panMode = false;
+
+  function _applyTransform() {
+    wrap.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`;
+    zoomLbl.textContent  = Math.round(scale * 100) + '%';
+  }
+
+  function _centerCanvas() {
+    const vw = viewport.clientWidth, vh = viewport.clientHeight;
+    const cw = canvas.width,         ch = canvas.height;
+    // fit to viewport
+    const fitScale = Math.min(vw / cw, vh / ch, 1);
+    scale = fitScale;
+    tx = (vw - cw * scale) / 2;
+    ty = (vh - ch * scale) / 2;
+    _applyTransform();
+  }
+
+  // wait for canvas to have dimensions then center
+  requestAnimationFrame(_centerCanvas);
+
+  ov.querySelector('#ann-fs-zoom-in').addEventListener('click', () => {
+    scale = Math.min(scale * 1.3, 6);
+    _applyTransform();
+  });
+  ov.querySelector('#ann-fs-zoom-out').addEventListener('click', () => {
+    scale = Math.max(scale / 1.3, 0.2);
+    _applyTransform();
+  });
+
+  const panBtn = ov.querySelector('#ann-fs-pan-btn');
+  panBtn.addEventListener('click', () => {
+    panMode = !panMode;
+    panBtn.style.background = panMode ? '#fef3c7' : 'rgba(255,255,255,.1)';
+    panBtn.style.color      = panMode ? '#92400e' : '#fbbf24';
+    wrap.style.cursor       = panMode ? 'grab' : 'crosshair';
+    // disable canvas pointer events in pan mode so we can drag the wrapper
+    canvas.style.pointerEvents = panMode ? 'none' : '';
+    import('../../shared/js/annotation.js').then(m => m.setMode(panMode ? 'scroll' : 'pen'));
+  });
+
+  // ── Touch pinch-zoom + drag (on viewport) ───────────────────────
+  let _lastDist = 0, _dragging = false, _startX = 0, _startY = 0, _startTx = 0, _startTy = 0;
+
+  viewport.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      _lastDist = Math.hypot(dx, dy);
+    } else if (e.touches.length === 1 && panMode) {
+      _dragging = true;
+      _startX = e.touches[0].clientX; _startY = e.touches[0].clientY;
+      _startTx = tx; _startTy = ty;
+    }
+  }, { passive: true });
+
+  viewport.addEventListener('touchmove', e => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const dist = Math.hypot(dx, dy);
+      if (_lastDist) scale = Math.min(6, Math.max(0.2, scale * dist / _lastDist));
+      _lastDist = dist;
+      _applyTransform();
+    } else if (e.touches.length === 1 && _dragging && panMode) {
+      e.preventDefault();
+      tx = _startTx + (e.touches[0].clientX - _startX);
+      ty = _startTy + (e.touches[0].clientY - _startY);
+      _applyTransform();
+    }
+  }, { passive: false });
+
+  viewport.addEventListener('touchend', e => {
+    if (e.touches.length < 2) _lastDist = 0;
+    if (e.touches.length === 0) _dragging = false;
+  }, { passive: true });
+
+  // ── Mouse drag in pan mode ──────────────────────────────────────
+  let _mouseDrag = false, _msx = 0, _msy = 0, _mtx = 0, _mty = 0;
+  viewport.addEventListener('mousedown', e => {
+    if (!panMode) return;
+    _mouseDrag = true; _msx = e.clientX; _msy = e.clientY; _mtx = tx; _mty = ty;
+    wrap.style.cursor = 'grabbing';
+  });
+  viewport.addEventListener('mousemove', e => {
+    if (!_mouseDrag) return;
+    tx = _mtx + (e.clientX - _msx); ty = _mty + (e.clientY - _msy);
+    _applyTransform();
+  });
+  viewport.addEventListener('mouseup', () => { _mouseDrag = false; if (panMode) wrap.style.cursor = 'grab'; });
+
+  // ── Mouse wheel zoom ────────────────────────────────────────────
+  viewport.addEventListener('wheel', e => {
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+    // zoom toward cursor
+    const rect = viewport.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    tx = mx - (mx - tx) * factor;
+    ty = my - (my - ty) * factor;
+    scale = Math.min(6, Math.max(0.2, scale * factor));
+    _applyTransform();
+  }, { passive: false });
+
+  // ── Save / Cancel ────────────────────────────────────────────────
+  ov.querySelector('#ann-fs-save').addEventListener('click', async () => {
+    const saveBtn = ov.querySelector('#ann-fs-save');
+    saveBtn.textContent = '⏳ সেভ হচ্ছে...'; saveBtn.disabled = true;
+    const blob = await getAnnotatedBlob();
+    ov.remove();
+    if (blob) onSave(blob);
+  });
+
+  ov.querySelector('#ann-fs-cancel').addEventListener('click', () => ov.remove());
+}
+
 function _openLightbox(src) {
   const ov = document.createElement('div');
   ov.style.cssText = 'position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;';
@@ -186,10 +356,7 @@ export function createMultiAttachManager(container, {
       const card = document.createElement('div');
       card.className = 'hwm-img-card';
       card.dataset.existingId = img.id;
-      const annWrapperId = `hwm-ann-wrap-ex-${ei}`;
-      const annToolbarId = `hwm-ann-tb-ex-${ei}`;
-      const annCanvasId  = `hwm-ann-canvas-ex-${ei}`;
-      const displayUrl   = img.annotatedPhotoUrl || img.photoUrl;
+      const displayUrl = img.annotatedPhotoUrl || img.photoUrl;
       card.innerHTML = `
         <div class="hwm-img-thumb-wrap">
           <img src="${displayUrl}" class="hwm-img-thumb hwm-zoomable" style="cursor:zoom-in;">
@@ -199,60 +366,26 @@ export function createMultiAttachManager(container, {
           <button type="button" class="btn btn-ghost btn-sm hwm-toggle-ann-btn">✏ আঁকুন</button>
           <button type="button" class="hwm-remove-btn" title="সরান">✕</button>
         </div>
-        <div id="${annWrapperId}" class="hwm-ann-wrap hidden">
-          <div id="${annToolbarId}" style="margin-bottom:4px;"></div>
-          <div class="annotation-canvas-wrap"><canvas id="${annCanvasId}"></canvas></div>
-          <div style="display:flex;gap:6px;margin-top:6px;">
-            <button type="button" class="btn btn-secondary btn-sm hwm-save-ann-btn">✓ আঁকা সেভ</button>
-            <button type="button" class="btn btn-ghost btn-sm hwm-close-ann-btn">বন্ধ করুন</button>
-          </div>
-        </div>
       `;
 
       card.querySelector('.hwm-zoomable').addEventListener('click', () => _openLightbox(displayUrl));
 
-      card.querySelector('.hwm-toggle-ann-btn').addEventListener('click', async () => {
-        const wrap = card.querySelector(`#${annWrapperId}`);
-        if (wrap.classList.contains('hidden')) {
-          imgList.querySelectorAll('.hwm-ann-wrap:not(.hidden)').forEach(w => {
-            w.classList.add('hidden');
-            w.closest('.hwm-img-card')?.classList.remove('hwm-ann-open');
-          });
-          wrap.classList.remove('hidden');
-          card.classList.add('hwm-ann-open');
-          card.querySelector(`#${annToolbarId}`).innerHTML = '';
-          const canvas = card.querySelector(`#${annCanvasId}`);
-          await initAnnotation(canvas, displayUrl);
-          buildToolbar(annToolbarId);
-        } else {
-          wrap.classList.add('hidden');
-          card.classList.remove('hwm-ann-open');
-        }
-      });
-
-      card.querySelector('.hwm-save-ann-btn').addEventListener('click', async () => {
-        const blob = await getAnnotatedBlob();
-        if (!blob) return;
-        // push as new image upload (replaces old visually)
-        const thumb = card.querySelector('.hwm-img-thumb');
-        const newUrl = URL.createObjectURL(blob);
-        thumb.src = newUrl;
-        const annBadge = card.querySelector('.hwm-img-badge');
-        if (annBadge) annBadge.textContent = 'আঁকা'; else {
-          const badge = document.createElement('span');
-          badge.className = 'hwm-img-badge';
+      card.querySelector('.hwm-toggle-ann-btn').addEventListener('click', () => {
+        const currentUrl = card.querySelector('.hwm-img-thumb').src;
+        _openAnnotationOverlay(currentUrl, blob => {
+          const newUrl = URL.createObjectURL(blob);
+          card.querySelector('.hwm-img-thumb').src = newUrl;
+          let badge = card.querySelector('.hwm-img-badge');
+          if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'hwm-img-badge';
+            card.querySelector('.hwm-img-thumb-wrap').appendChild(badge);
+          }
           badge.textContent = 'আঁকা';
-          card.querySelector('.hwm-img-thumb-wrap').appendChild(badge);
-        }
-        const file = new File([blob], `annotated_${img.id}.jpg`, { type: 'image/jpeg' });
-        newImages.push({ file, annotatedBlob: null, previewUrl: newUrl, annCanvas: null, replacesExistingId: img.id });
-        card.querySelector(`#${annWrapperId}`).classList.add('hidden');
-        showToast('আঁকা সেভ হয়েছে ✓');
-      });
-
-      card.querySelector('.hwm-close-ann-btn').addEventListener('click', () => {
-        card.querySelector(`#${annWrapperId}`).classList.add('hidden');
-        card.classList.remove('hwm-ann-open');
+          const file = new File([blob], `annotated_${img.id}.jpg`, { type: 'image/jpeg' });
+          newImages.push({ file, annotatedBlob: null, previewUrl: newUrl, annCanvas: null, replacesExistingId: img.id });
+          showToast('আঁকা সেভ হয়েছে ✓');
+        });
       });
 
       card.querySelector('.hwm-remove-btn').addEventListener('click', async () => {
@@ -282,9 +415,6 @@ export function createMultiAttachManager(container, {
     const card = document.createElement('div');
     card.className = 'hwm-img-card hwm-img-card--new';
     card.dataset.newIdx = idx;
-    const annWrapperId = `hwm-ann-wrap-${idx}`;
-    const annToolbarId = `hwm-ann-tb-${idx}`;
-    const annCanvasId  = `hwm-ann-canvas-${idx}`;
     card.innerHTML = `
       <div class="hwm-img-thumb-wrap">
         <img src="${previewUrl}" class="hwm-img-thumb hwm-zoomable" style="cursor:zoom-in;">
@@ -294,54 +424,21 @@ export function createMultiAttachManager(container, {
         <button type="button" class="btn btn-ghost btn-sm hwm-toggle-ann-btn" data-idx="${idx}">✏ আঁকুন</button>
         <button type="button" class="hwm-remove-btn" data-idx="${idx}">✕</button>
       </div>
-      <div id="${annWrapperId}" class="hwm-ann-wrap hidden">
-        <div id="${annToolbarId}" style="margin-bottom:4px;"></div>
-        <div class="annotation-canvas-wrap"><canvas id="${annCanvasId}"></canvas></div>
-        <div style="display:flex;gap:6px;margin-top:6px;">
-          <button type="button" class="btn btn-secondary btn-sm hwm-save-ann-btn" data-idx="${idx}">✓ আঁকা সেভ</button>
-          <button type="button" class="btn btn-ghost btn-sm hwm-close-ann-btn" data-idx="${idx}">বন্ধ করুন</button>
-        </div>
-      </div>
     `;
 
     card.querySelector('.hwm-zoomable').addEventListener('click', () => _openLightbox(card.querySelector('.hwm-img-thumb').src));
 
-    card.querySelector('.hwm-toggle-ann-btn').addEventListener('click', async () => {
-      const wrap = card.querySelector(`#${annWrapperId}`);
-      if (wrap.classList.contains('hidden')) {
-        imgList.querySelectorAll('.hwm-ann-wrap:not(.hidden)').forEach(w => {
-          w.classList.add('hidden');
-          w.closest('.hwm-img-card')?.classList.remove('hwm-ann-open');
-        });
-        wrap.classList.remove('hidden');
-        card.classList.add('hwm-ann-open');
-        card.querySelector(`#${annToolbarId}`).innerHTML = '';
-        const canvas = card.querySelector(`#${annCanvasId}`);
-        await initAnnotation(canvas, previewUrl);
-        buildToolbar(annToolbarId);
-        entry.annCanvas = canvas;
-      } else {
-        wrap.classList.add('hidden');
-        card.classList.remove('hwm-ann-open');
-      }
-    });
-    card.querySelector('.hwm-save-ann-btn').addEventListener('click', async () => {
-      const saveBtn = card.querySelector('.hwm-save-ann-btn');
-      saveBtn.disabled = true;
-      saveBtn.textContent = '⏳ সেভ হচ্ছে…';
-      entry.annotatedBlob = await getAnnotatedBlob();
-      const savedEl = card.querySelector(`#hwm-ann-saved-${idx}`);
-      savedEl.classList.remove('hidden');
-      setTimeout(() => savedEl.classList.add('hidden'), 2000);
-      const thumb = card.querySelector('.hwm-img-thumb');
-      thumb.src = URL.createObjectURL(entry.annotatedBlob);
-      saveBtn.disabled = false;
-      saveBtn.textContent = '✓ আঁকা সেভ';
-      showToast('আঁকা সেভ হয়েছে ✓');
-    });
-    card.querySelector('.hwm-close-ann-btn').addEventListener('click', () => {
-      card.querySelector(`#${annWrapperId}`).classList.add('hidden');
-      card.classList.remove('hwm-ann-open');
+    card.querySelector('.hwm-toggle-ann-btn').addEventListener('click', () => {
+      const currentUrl = card.querySelector('.hwm-img-thumb').src;
+      _openAnnotationOverlay(currentUrl, async blob => {
+        entry.annotatedBlob = blob;
+        const newUrl = URL.createObjectURL(blob);
+        card.querySelector('.hwm-img-thumb').src = newUrl;
+        const savedEl = card.querySelector(`#hwm-ann-saved-${idx}`);
+        savedEl.classList.remove('hidden');
+        setTimeout(() => savedEl.classList.add('hidden'), 2000);
+        showToast('আঁকা সেভ হয়েছে ✓');
+      });
     });
     card.querySelector('.hwm-remove-btn[data-idx]').addEventListener('click', () => {
       newImages.splice(idx, 1);
