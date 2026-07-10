@@ -347,7 +347,7 @@ async function _openReviewScreen(container, hw) {
 
   function renderSubList(tab) {
     const list = tab === 'submitted' ? submitted : pending;
-    const el = document.getElementById('sub-list');
+    const el = content.querySelector('#sub-list');
     el.innerHTML = '';
     if (!list.length) {
       el.innerHTML = `<div class="empty-state"><div class="empty-title">কেউ নেই</div></div>`;
