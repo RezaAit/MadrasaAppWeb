@@ -1,4 +1,4 @@
-﻿const CACHE = 'huda-teacher-v16';
+﻿const CACHE = 'huda-teacher-v17';
 const STATIC = [
   '/teacher/',
   '/teacher/index.html',

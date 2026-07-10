@@ -83,13 +83,12 @@ function _renderHwCard(hw) {
         ${subCount === 0 ? `<button type="button" class="btn-hw-delete" data-del-id="${hw.id}">🗑 মুছুন</button>` : ''}
       </div>
       ${(() => {
-        const imgs  = (hw.photoAttachmentUrls || hw.PhotoAttachmentUrls || '').split(',').filter(Boolean).length;
-        const anns  = (hw.annotatedPhotoUrls || hw.AnnotatedPhotoUrls || '').split(',').filter(Boolean).length;
-        const imgCount = Math.max(imgs, anns);
-        const hasVoice = !!(hw.voiceAttachmentUrl || hw.VoiceAttachmentUrl || hw.voiceAttachmentUrls || hw.VoiceAttachmentUrls);
-        const hasPdf   = !!(hw.pdfAttachmentUrl  || hw.PdfAttachmentUrl);
-        const hasYt    = !!(hw.youtubeUrls || hw.YoutubeUrls);
-        const hasVideo = !!(hw.videoAttachmentUrls || hw.VideoAttachmentUrls);
+        const imgCount = (hw.instructionImages || hw.InstructionImages || []).length
+                       || (hw.instructionPhotoUrl || hw.InstructionPhotoUrl ? 1 : 0);
+        const hasVoice = (hw.voiceNotes || hw.VoiceNotes || []).length > 0 || !!(hw.voiceAttachmentUrl || hw.VoiceAttachmentUrl);
+        const hasPdf   = !!(hw.pdfAttachmentUrl || hw.PdfAttachmentUrl);
+        const hasYt    = (hw.youtubeLinks || hw.YoutubeLinks || []).length > 0;
+        const hasVideo = (hw.videos || hw.Videos || hw.videoAttachments || hw.VideoAttachments || []).length > 0;
         const parts = [];
         if (imgCount > 0) parts.push(`<span style="display:inline-flex;align-items:center;gap:3px;font-size:.72rem;color:#475569;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>${imgCount}টি ছবি</span>`);
         if (hasVoice) parts.push(`<span style="display:inline-flex;align-items:center;gap:3px;font-size:.72rem;color:#475569;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>ভয়েস</span>`);
