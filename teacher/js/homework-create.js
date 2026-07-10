@@ -64,47 +64,55 @@ function _renderHwCard(hw) {
   const sectionName = hw.SectionName ?? hw.sectionName ?? '';
   const subjectName = hw.subjectName ?? hw.SubjectName ?? '';
   const metaParts   = [sessionName, className, groupName, sectionName].filter(Boolean);
+  const isPublished = hw.status === 'Published';
+  const pct = totalCount > 0 ? Math.round((subCount / totalCount) * 100) : 0;
+
+  const imgCount   = (hw.instructionImages || hw.InstructionImages || []).length
+                   || (hw.instructionPhotoUrl || hw.InstructionPhotoUrl ? 1 : 0);
+  const voiceCount = (hw.instructionVoices || hw.InstructionVoices || hw.voiceNotes || hw.VoiceNotes || []).length
+                   || (hw.voiceAttachmentUrl || hw.VoiceAttachmentUrl ? 1 : 0);
+  const videoCount = (hw.instructionVideos || hw.InstructionVideos || hw.videos || hw.Videos || hw.videoAttachments || hw.VideoAttachments || []).length;
+  const ytCount    = (hw.youtubeLinks || hw.YoutubeLinks || []).length;
+  const pdfCount   = (hw.instructionPdfs || hw.InstructionPdfs || []).length
+                   || (hw.pdfAttachmentUrl || hw.PdfAttachmentUrl ? 1 : 0);
+
+  const _ic = (paths, stroke='currentColor') =>
+    `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="${stroke}" stroke-width="2.2" style="flex-shrink:0;display:block;">${paths}</svg>`;
+  const attachChips = [];
+  if (imgCount   > 0) attachChips.push(`<span class="hwc-attach-chip">${_ic('<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>')}${imgCount} ছবি</span>`);
+  if (voiceCount > 0) attachChips.push(`<span class="hwc-attach-chip">${_ic('<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/>')}${voiceCount} ভয়েস</span>`);
+  if (videoCount > 0) attachChips.push(`<span class="hwc-attach-chip">${_ic('<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>')}${videoCount} ভিডিও</span>`);
+  if (ytCount    > 0) attachChips.push(`<span class="hwc-attach-chip yt"><svg viewBox="0 0 24 24" width="11" height="11" fill="#dc2626" style="flex-shrink:0;display:block;"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.2v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.2 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zm-13.5 8.6V8.4l8.1 3.6-8.1 3.6z"/></svg>${ytCount} YouTube</span>`);
+  if (pdfCount   > 0) attachChips.push(`<span class="hwc-attach-chip">${_ic('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>')}${pdfCount} ফাইল</span>`);
+
   return `
-  <div class="list-item hw-review-item ${hw.status === 'Published' ? 'has-pending' : ''}" data-hw-id="${hw.id}" style="cursor:pointer;">
-    <div style="flex:1;min-width:0;">
-      <div class="list-item-title" style="font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:3px;">${hw.title}</div>
-      ${subjectName ? `<div style="font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:3px;">${subjectName}</div>` : ''}
-      ${metaParts.length ? `<div style="font-size:.78rem;font-weight:600;color:#334155;margin-bottom:4px;">${metaParts.join(' · ')}</div>` : ''}
-      <div style="font-size:.75rem;color:#64748b;font-weight:500;margin-bottom:5px;">
-        তৈরি: ${_fmtDateTime(hw.addDate ?? hw.AddDate)} &nbsp;|&nbsp; সীমা: ${_fmt(hw.dueDate ?? hw.DueDate)}
+  <div class="hw-review-item ${isPublished ? 'has-pending' : 'hw-draft'}" data-hw-id="${hw.id}" style="cursor:pointer;margin-bottom:10px;">
+    <div style="display:flex;align-items:flex-start;gap:6px;">
+      <div style="flex:1;min-width:0;">
+        <div class="hwc-title">${hw.title}</div>
+        ${subjectName ? `<span class="hwc-subject">${subjectName}</span>` : ''}
+        ${metaParts.length ? `<div class="hwc-meta">${metaParts.join(' · ')}</div>` : ''}
+        <div class="hwc-time">তৈরি: ${_fmtDateTime(hw.addDate ?? hw.AddDate)} &nbsp;·&nbsp; সীমা: ${_fmt(hw.dueDate ?? hw.DueDate)}</div>
+
+        <div class="hwc-status-row">
+          <span class="${isPublished ? 'hwc-badge-pub' : 'hwc-badge-draft'}">${isPublished ? '✓ প্রকাশিত' : '📝 খসড়া'}</span>
+          ${isPublished && totalCount > 0 ? `
+            <span class="hwc-count-sub">✓ ${subCount} জমা</span>
+            <span class="hwc-count-rem">✗ ${pendingCount} বাকি</span>
+            <span class="hwc-count-tot">মোট ${totalCount}</span>` : ''}
+          ${!isPublished ? `<button type="button" class="btn-hw-publish" data-pub-id="${hw.id}">▶ প্রকাশ করুন</button>` : ''}
+          ${subCount === 0 ? `<button type="button" class="btn-hw-delete" data-del-id="${hw.id}">🗑 মুছুন</button>` : ''}
+        </div>
+
+        ${isPublished && totalCount > 0 ? `
+        <div class="hwc-progress">
+          <div class="hwc-progress-fill" style="width:${pct}%;"></div>
+        </div>` : ''}
+
+        ${attachChips.length ? `<div class="hwc-attach-row">${attachChips.join('')}</div>` : ''}
       </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap;">
-        <span class="badge ${hw.status === 'Published' ? 'badge-submitted' : 'badge-pending'}">${hw.status === 'Published' ? '✓ প্রকাশিত' : '📝 খসড়া'}</span>
-        ${hw.status === 'Published' && totalCount > 0 ? `
-          <span style="font-size:.75rem;background:#dcfce7;color:#15803d;padding:3px 9px;border-radius:10px;font-weight:700;">✓ ${subCount} জমা</span>
-          <span style="font-size:.75rem;background:#fee2e2;color:#b91c1c;padding:3px 9px;border-radius:10px;font-weight:700;">✗ ${pendingCount} বাকি</span>
-          <span style="font-size:.75rem;color:#475569;font-weight:600;">মোট ${totalCount}</span>` : ''}
-        ${hw.status !== 'Published' ? `<button type="button" class="btn-hw-publish" data-pub-id="${hw.id}">▶ প্রকাশ করুন</button>` : ''}
-        ${subCount === 0 ? `<button type="button" class="btn-hw-delete" data-del-id="${hw.id}">🗑 মুছুন</button>` : ''}
-      </div>
-      ${(() => {
-        const imgCount   = (hw.instructionImages || hw.InstructionImages || []).length
-                         || (hw.instructionPhotoUrl || hw.InstructionPhotoUrl ? 1 : 0);
-        const voiceCount = (hw.instructionVoices || hw.InstructionVoices || hw.voiceNotes || hw.VoiceNotes || []).length
-                         || (hw.voiceAttachmentUrl || hw.VoiceAttachmentUrl ? 1 : 0);
-        const videoCount = (hw.instructionVideos || hw.InstructionVideos || hw.videos || hw.Videos || hw.videoAttachments || hw.VideoAttachments || []).length;
-        const ytCount    = (hw.youtubeLinks || hw.YoutubeLinks || []).length;
-        const pdfCount   = (hw.instructionPdfs || hw.InstructionPdfs || []).length
-                         || (hw.pdfAttachmentUrl || hw.PdfAttachmentUrl ? 1 : 0);
-        const _chip = (color, svg, label) =>
-          `<span style="display:inline-flex;align-items:center;gap:4px;font-size:.72rem;color:${color};line-height:1;padding:2px 0;">${svg}<span style="line-height:1;">${label}</span></span>`;
-        const _svg = (paths, color='currentColor', fill='none') =>
-          `<svg viewBox="0 0 24 24" width="13" height="13" fill="${fill}" stroke="${color}" stroke-width="2" style="flex-shrink:0;display:block;">${paths}</svg>`;
-        const parts = [];
-        if (imgCount   > 0) parts.push(_chip('#475569', _svg('<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>'), `${imgCount}টি ছবি`));
-        if (voiceCount > 0) parts.push(_chip('#475569', _svg('<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/>'), `${voiceCount}টি ভয়েস`));
-        if (videoCount > 0) parts.push(_chip('#475569', _svg('<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>'), `${videoCount}টি ভিডিও`));
-        if (ytCount    > 0) parts.push(_chip('#dc2626', `<svg viewBox="0 0 24 24" width="13" height="13" fill="#dc2626" style="flex-shrink:0;display:block;"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.2v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.2 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zm-13.5 8.6V8.4l8.1 3.6-8.1 3.6z"/></svg>`, `${ytCount}টি YouTube`));
-        if (pdfCount   > 0) parts.push(_chip('#475569', _svg('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>'), `${pdfCount}টি ফাইল`));
-        return parts.length ? `<div style="display:flex;align-items:center;gap:10px;margin-top:5px;flex-wrap:wrap;">${parts.join('')}</div>` : '';
-      })()}
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#94a3b8" stroke-width="2" style="flex-shrink:0;margin-top:4px;"><polyline points="9 18 15 12 9 6"/></svg>
     </div>
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-light);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
   </div>`;
 }
 
