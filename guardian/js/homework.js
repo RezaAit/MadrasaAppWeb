@@ -853,13 +853,13 @@ function _renderInstructionMedia(hw) {
           ? `<div class="hw-instr-yt-wrap"><iframe class="hw-instr-yt" src="https://www.youtube.com/embed/${vid}" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div>`
           : `<a href="${url}" target="_blank" rel="noopener" class="hw-instr-youtube">YouTube ভিডিও দেখুন</a>`;
       }).join('') : ''}
-      ${pdfs.length ? pdfs.map(p => _instrFileCard(_full(p.pdfUrl || p.PdfUrl))).join('') : ''}
+      ${pdfs.length ? pdfs.map(p => _instrFileCard(_full(p.pdfUrl || p.PdfUrl), p.fileSize || p.FileSize || null)).join('') : ''}
       ${hasLegacyPdf ? _instrFileCard(_full(hw.pdfAttachmentUrl)) : ''}
     </div>`;
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
-function _instrFileCard(url) {
+function _instrFileCard(url, fileSize) {
   const fname = url.split('/').pop() || 'ফাইল';
   const ext = (fname.split('.').pop() || 'pdf').toLowerCase();
   const extUp = ext.toUpperCase();
@@ -868,9 +868,13 @@ function _instrFileCard(url) {
     : (ext === 'xls' || ext === 'xlsx') ? { bg:'#f0fdf4', border:'#86efac', tc:'#16a34a', ic:'#16a34a' }
     : (ext === 'ppt' || ext === 'pptx') ? { bg:'#fff7ed', border:'#fdba74', tc:'#ea580c', ic:'#ea580c' }
     : { bg:'#f8fafc', border:'#cbd5e1', tc:'#475569', ic:'#475569' };
+  const sizeStr = fileSize ? _fmtSize(fileSize) : '';
   return `<a href="${url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:10px;padding:9px 10px;background:${cfg.bg};border:1.5px solid ${cfg.border};border-radius:9px;margin-bottom:6px;text-decoration:none;">
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="${cfg.ic}" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-    <span style="font-size:.8rem;color:#1e293b;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${fname.length > 32 ? fname.slice(0,29)+'…' : fname}</span>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:.8rem;color:#1e293b;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${fname.length > 32 ? fname.slice(0,29)+'…' : fname}</div>
+      ${sizeStr ? `<div style="font-size:.68rem;color:#64748b;margin-top:1px;">${sizeStr}</div>` : ''}
+    </div>
     <span style="font-size:.7rem;font-weight:700;color:${cfg.tc};background:${cfg.border};padding:2px 6px;border-radius:4px;flex-shrink:0;">${extUp}</span>
   </a>`;
 }
