@@ -295,11 +295,17 @@ function openSubmitScreen(mainContainer, hw, child, all) {
           </div>
         </div>
         <div class="hw-option-body-wrap" id="hw-photo-wrap">
-          <div class="hw-dropzone" id="hw-dropzone">
-            <input type="file" id="hw-photo-input" accept="image/*" capture="environment" style="display:none;">
-            <div class="hw-dropzone-icon">📷</div>
-            <div class="hw-dropzone-text">ছবি বেছে নিন বা এখানে ফেলুন</div>
-            <button class="hw-dropzone-btn" onclick="document.getElementById('hw-photo-input').click()">ছবি বেছে নিন</button>
+          <input type="file" id="hw-photo-gallery-input" accept="image/*" style="display:none;">
+          <input type="file" id="hw-photo-cam-input" accept="image/*" capture="environment" style="display:none;">
+          <div class="hw-pick-row" id="hw-photo-pick-row">
+            <button type="button" class="hw-pick-btn hw-pick-gallery" id="hw-photo-gallery-btn">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span>গ্যালারি</span>
+            </button>
+            <button type="button" class="hw-pick-btn hw-pick-camera" id="hw-photo-cam-btn">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              <span>ক্যামেরা</span>
+            </button>
           </div>
           <div id="hw-photo-preview" class="hw-photo-preview hidden"></div>
         </div>
@@ -393,18 +399,14 @@ function openSubmitScreen(mainContainer, hw, child, all) {
     });
   });
 
-  // Dropzone drag-and-drop
-  const dropzone = sheetBody.querySelector('#hw-dropzone');
-  dropzone?.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('hw-dropzone--over'); });
-  dropzone?.addEventListener('dragleave', () => dropzone.classList.remove('hw-dropzone--over'));
-  dropzone?.addEventListener('drop', e => {
-    e.preventDefault(); dropzone.classList.remove('hw-dropzone--over');
-    const file = e.dataTransfer.files[0];
-    if (file?.type.startsWith('image/')) _handlePrimaryPhoto(file, sheetBody);
+  // Gallery / Camera buttons
+  sheetBody.querySelector('#hw-photo-gallery-btn')?.addEventListener('click', () => sheetBody.querySelector('#hw-photo-gallery-input').click());
+  sheetBody.querySelector('#hw-photo-cam-btn')?.addEventListener('click', () => sheetBody.querySelector('#hw-photo-cam-input').click());
+  sheetBody.querySelector('#hw-photo-gallery-input')?.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) _handlePrimaryPhoto(file, sheetBody);
   });
-
-  // Photo input
-  sheetBody.querySelector('#hw-photo-input')?.addEventListener('change', e => {
+  sheetBody.querySelector('#hw-photo-cam-input')?.addEventListener('change', e => {
     const file = e.target.files[0];
     if (file) _handlePrimaryPhoto(file, sheetBody);
   });
@@ -426,11 +428,14 @@ function openSubmitScreen(mainContainer, hw, child, all) {
         </button>
       </div>`;
     preview.classList.remove('hidden');
-    sb.querySelector('#hw-dropzone').classList.add('hidden');
+    sb.querySelector('#hw-photo-pick-row').classList.add('hidden');
     sb.querySelector('#hw-photo-remove')?.addEventListener('click', () => {
       primaryPhotoFile = null; annotatedBlob = null; currentAnnotatedUrl = null;
       preview.innerHTML = ''; preview.classList.add('hidden');
-      sb.querySelector('#hw-dropzone').classList.remove('hidden');
+      sb.querySelector('#hw-photo-pick-row').classList.remove('hidden');
+      // reset file inputs so same file can be re-picked
+      sb.querySelector('#hw-photo-gallery-input').value = '';
+      sb.querySelector('#hw-photo-cam-input').value = '';
     });
     sb.querySelector('#hw-annotate-btn')?.addEventListener('click', () => {
       const srcUrl = currentAnnotatedUrl || url;
