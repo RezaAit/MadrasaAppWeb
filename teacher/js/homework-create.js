@@ -71,7 +71,7 @@ function _renderHwCard(hw) {
       ${subjectName ? `<div style="font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:3px;">${subjectName}</div>` : ''}
       ${metaParts.length ? `<div style="font-size:.78rem;font-weight:600;color:#334155;margin-bottom:4px;">${metaParts.join(' · ')}</div>` : ''}
       <div style="font-size:.75rem;color:#64748b;font-weight:500;margin-bottom:5px;">
-        তৈরি: ${_fmt(hw.addDate ?? hw.AddDate)} &nbsp;|&nbsp; সীমা: ${_fmt(hw.dueDate ?? hw.DueDate)}
+        তৈরি: ${_fmtDateTime(hw.addDate ?? hw.AddDate)} &nbsp;|&nbsp; সীমা: ${_fmt(hw.dueDate ?? hw.DueDate)}
       </div>
       <div style="display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap;">
         <span class="badge ${hw.status === 'Published' ? 'badge-submitted' : 'badge-pending'}">${hw.status === 'Published' ? '✓ প্রকাশিত' : '📝 খসড়া'}</span>
@@ -91,13 +91,17 @@ function _renderHwCard(hw) {
         const ytCount    = (hw.youtubeLinks || hw.YoutubeLinks || []).length;
         const pdfCount   = (hw.instructionPdfs || hw.InstructionPdfs || []).length
                          || (hw.pdfAttachmentUrl || hw.PdfAttachmentUrl ? 1 : 0);
+        const _chip = (color, svg, label) =>
+          `<span style="display:inline-flex;align-items:center;gap:4px;font-size:.72rem;color:${color};line-height:1;padding:2px 0;">${svg}<span style="line-height:1;">${label}</span></span>`;
+        const _svg = (paths, color='currentColor', fill='none') =>
+          `<svg viewBox="0 0 24 24" width="13" height="13" fill="${fill}" stroke="${color}" stroke-width="2" style="flex-shrink:0;display:block;">${paths}</svg>`;
         const parts = [];
-        if (imgCount   > 0) parts.push(`<span style="display:inline-flex;align-items:center;gap:3px;font-size:.72rem;color:#475569;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>${imgCount}টি ছবি</span>`);
-        if (voiceCount > 0) parts.push(`<span style="display:inline-flex;align-items:center;gap:3px;font-size:.72rem;color:#475569;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>${voiceCount}টি ভয়েস</span>`);
-        if (videoCount > 0) parts.push(`<span style="display:inline-flex;align-items:center;gap:3px;font-size:.72rem;color:#475569;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>${videoCount}টি ভিডিও</span>`);
-        if (ytCount    > 0) parts.push(`<span style="display:inline-flex;align-items:center;gap:3px;font-size:.72rem;color:#dc2626;"><svg viewBox="0 0 24 24" width="12" height="12" fill="#dc2626"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.2v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.2 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zm-13.5 8.6V8.4l8.1 3.6-8.1 3.6z"/></svg>${ytCount}টি YouTube</span>`);
-        if (pdfCount   > 0) parts.push(`<span style="display:inline-flex;align-items:center;gap:3px;font-size:.72rem;color:#475569;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>${pdfCount}টি ফাইল</span>`);
-        return parts.length ? `<div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">${parts.join('')}</div>` : '';
+        if (imgCount   > 0) parts.push(_chip('#475569', _svg('<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>'), `${imgCount}টি ছবি`));
+        if (voiceCount > 0) parts.push(_chip('#475569', _svg('<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/>'), `${voiceCount}টি ভয়েস`));
+        if (videoCount > 0) parts.push(_chip('#475569', _svg('<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>'), `${videoCount}টি ভিডিও`));
+        if (ytCount    > 0) parts.push(_chip('#dc2626', `<svg viewBox="0 0 24 24" width="13" height="13" fill="#dc2626" style="flex-shrink:0;display:block;"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.2v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.2 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zm-13.5 8.6V8.4l8.1 3.6-8.1 3.6z"/></svg>`, `${ytCount}টি YouTube`));
+        if (pdfCount   > 0) parts.push(_chip('#475569', _svg('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>'), `${pdfCount}টি ফাইল`));
+        return parts.length ? `<div style="display:flex;align-items:center;gap:10px;margin-top:5px;flex-wrap:wrap;">${parts.join('')}</div>` : '';
       })()}
     </div>
     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-light);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
@@ -664,6 +668,7 @@ function _openEditForm(container, hw) {
 }
 
 function _fmt(d) { return d ? new Date(d).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short' }) : '—'; }
+function _fmtDateTime(d) { if (!d) return '—'; const dt = new Date(d); return dt.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short' }) + ' ' + dt.toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' }); }
 function _fmtSize(bytes) { if (!bytes) return ''; if (bytes < 1024) return bytes + ' B'; if (bytes < 1024*1024) return (bytes/1024).toFixed(1)+' KB'; return (bytes/(1024*1024)).toFixed(1)+' MB'; }
 function _reactionEmoji(r) { return { Excellent: '🌟', Good: '✅', NeedsImprovement: '📈', Incomplete: '❌', StarWork: '⭐' }[r] || '📝'; }
 function _reactionLabel(r) { return { Excellent: 'অসাধারণ', Good: 'ভালো', NeedsImprovement: 'উন্নতি দরকার', Incomplete: 'অসম্পূর্ণ', StarWork: 'তারকা' }[r] || r; }
