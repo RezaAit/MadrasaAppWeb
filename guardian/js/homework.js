@@ -529,7 +529,7 @@ function showFeedbackDetail(hw) {
     content: `
       <div class="hw-sheet-wrap">
         <!-- Reaction hero -->
-        <div class="hw-feedback-hero" style="background:${rc.bg};">
+        <div class="hw-feedback-hero" style="background:${rc.bg};--hw-glow:${rc.color};">
           <div class="hw-feedback-emoji">${rc.emoji}</div>
           <div class="hw-feedback-label" style="color:${rc.color};">${rc.label}</div>
           <div class="hw-feedback-hw">${hw.title}</div>
