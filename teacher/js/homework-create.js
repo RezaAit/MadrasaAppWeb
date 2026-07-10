@@ -337,11 +337,50 @@ async function _openReviewScreen(container, hw) {
   const pending   = submissions.filter(s => s.status === 'Pending');
   const canEdit   = submitted.length === 0;
 
+  // ── Build teacher instruction attachment HTML ──────────────────
+  const instrImages  = (hw.instructionImages  || []).map(i => ({ photoUrl: _full(i.PhotoUrl ?? i.photoUrl), annotatedPhotoUrl: (i.AnnotatedPhotoUrl ?? i.annotatedPhotoUrl) ? _full(i.AnnotatedPhotoUrl ?? i.annotatedPhotoUrl) : null }));
+  if (!instrImages.length && hw.instructionPhotoUrl)
+    instrImages.push({ photoUrl: _full(hw.instructionPhotoUrl), annotatedPhotoUrl: hw.instructionAnnotatedPhotoUrl ? _full(hw.instructionAnnotatedPhotoUrl) : null });
+  const instrVoices  = (hw.instructionVoices || []).map(v => _full(v.VoiceUrl ?? v.voiceUrl));
+  if (!instrVoices.length && hw.voiceAttachmentUrl) instrVoices.push(_full(hw.voiceAttachmentUrl));
+  const instrVideos  = (hw.instructionVideos || []).map(v => _full(v.VideoUrl ?? v.videoUrl));
+  const instrYoutube = (hw.youtubeLinks      || []).map(y => y.YoutubeUrl ?? y.youtubeUrl);
+  const instrPdfs    = (hw.instructionPdfs   || []).map(p => _full(p.PdfUrl ?? p.pdfUrl));
+  if (!instrPdfs.length && hw.pdfAttachmentUrl) instrPdfs.push(_full(hw.pdfAttachmentUrl));
+
+  const hasInstr = instrImages.length || instrVoices.length || instrVideos.length || instrYoutube.length || instrPdfs.length || hw.description;
+
+  const instrHtml = hasInstr ? `
+    <div class="card mb-16" style="background:#f8fafc;border:1px solid #e2e8f0;">
+      <div style="font-size:.8rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">📋 শিক্ষকের নির্দেশনা</div>
+      ${hw.description ? `<div style="font-size:.88rem;color:#334155;margin-bottom:10px;line-height:1.6;">${hw.description}</div>` : ''}
+      ${instrImages.length ? `
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          ${instrImages.map(img => `<img src="${img.annotatedPhotoUrl || img.photoUrl}" data-zoom-instr style="width:90px;height:90px;object-fit:cover;border-radius:10px;cursor:zoom-in;border:1px solid #e2e8f0;">`).join('')}
+        </div>` : ''}
+      ${instrVoices.map(url => `<audio controls style="width:100%;margin-bottom:8px;" src="${url}"></audio>`).join('')}
+      ${instrVideos.map(url => `<video controls src="${url}" style="width:100%;border-radius:8px;background:#000;max-height:160px;margin-bottom:8px;"></video>`).join('')}
+      ${instrYoutube.map(url => {
+        const m = url.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+        const vid = m ? m[1] : null;
+        return `<a href="${url}" target="_blank" style="display:flex;align-items:center;gap:8px;padding:8px;background:#fee2e2;border-radius:8px;margin-bottom:6px;text-decoration:none;">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="#dc2626"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.2v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.2 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zm-13.5 8.6V8.4l8.1 3.6-8.1 3.6z"/></svg>
+          <span style="font-size:.8rem;color:#dc2626;font-weight:600;">YouTube ভিডিও দেখুন</span>
+        </a>`;
+      }).join('')}
+      ${instrPdfs.map(url => `<a href="${url}" target="_blank" style="display:flex;align-items:center;gap:8px;padding:8px;background:#fff;border:1px solid #fca5a5;border-radius:8px;margin-bottom:6px;text-decoration:none;">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#dc2626" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span style="font-size:.8rem;color:#dc2626;font-weight:600;">PDF দেখুন</span>
+      </a>`).join('')}
+    </div>` : '';
+
   content.innerHTML = `
     <div class="stat-grid mb-16">
       <div class="stat-card"><div class="stat-label">জমা দিয়েছে</div><div class="stat-value text-success">${submitted.length}</div></div>
       <div class="stat-card"><div class="stat-label">জমা দেয়নি</div><div class="stat-value text-danger">${pending.length}</div></div>
     </div>
+
+    ${instrHtml}
 
     ${canEdit ? `<button class="btn btn-secondary btn-full mb-16" id="hw-edit-btn" style="display:flex;align-items:center;justify-content:center;gap:6px;">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -354,6 +393,11 @@ async function _openReviewScreen(container, hw) {
     </div>
     <div id="sub-list"></div>
   `;
+
+  // instruction image zoom
+  content.querySelectorAll('img[data-zoom-instr]').forEach(img => {
+    img.addEventListener('click', () => _openLightbox(img.src));
+  });
 
   content.querySelector('#hw-edit-btn')?.addEventListener('click', () => {
     close();
@@ -414,10 +458,10 @@ async function _openReviewScreen(container, hw) {
     });
 
     // Reaction & save handlers
-    el.querySelectorAll('.reaction-btn').forEach(btn => {
+    el.querySelectorAll('.sub-reaction-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const detailId = btn.dataset.detailId;
-        el.querySelectorAll(`.reaction-btn[data-detail-id="${detailId}"]`).forEach(b => b.classList.remove('active'));
+        el.querySelectorAll(`.sub-reaction-btn[data-detail-id="${detailId}"]`).forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         const sub = submissions.find(s => String(s.id) === detailId);
         if (sub) sub.teacherReaction = btn.dataset.reaction;
