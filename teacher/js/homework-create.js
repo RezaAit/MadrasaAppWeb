@@ -390,11 +390,17 @@ async function _openReviewScreen(container, hw) {
       }).join('')}
       ${instrPdfs.map(url => {
         const fname = url.split('/').pop() || 'ফাইল';
-        const ext = (fname.split('.').pop() || '').toUpperCase();
-        return `<a href="${url}" target="_blank" style="display:flex;align-items:center;gap:8px;padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;text-decoration:none;">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#475569" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          <span style="font-size:.8rem;color:#334155;font-weight:600;">${fname.length > 30 ? fname.slice(0,27)+'…' : fname}</span>
-          <span style="font-size:.72rem;color:#94a3b8;margin-left:auto;">${ext}</span>
+        const ext = (fname.split('.').pop() || 'pdf').toLowerCase();
+        const extUp = ext.toUpperCase();
+        const cfg = ext === 'pdf' ? { bg:'#fff0f0', border:'#fca5a5', tc:'#dc2626', ic:'#dc2626' }
+          : (ext === 'doc' || ext === 'docx') ? { bg:'#eff6ff', border:'#93c5fd', tc:'#2563eb', ic:'#2563eb' }
+          : (ext === 'xls' || ext === 'xlsx') ? { bg:'#f0fdf4', border:'#86efac', tc:'#16a34a', ic:'#16a34a' }
+          : (ext === 'ppt' || ext === 'pptx') ? { bg:'#fff7ed', border:'#fdba74', tc:'#ea580c', ic:'#ea580c' }
+          : { bg:'#f8fafc', border:'#cbd5e1', tc:'#475569', ic:'#475569' };
+        return `<a href="${url}" target="_blank" style="display:flex;align-items:center;gap:10px;padding:9px 10px;background:${cfg.bg};border:1.5px solid ${cfg.border};border-radius:9px;margin-bottom:6px;text-decoration:none;">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="${cfg.ic}" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span style="font-size:.8rem;color:#1e293b;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${fname.length > 32 ? fname.slice(0,29)+'…' : fname}</span>
+          <span style="font-size:.7rem;font-weight:700;color:${cfg.tc};background:${cfg.border};padding:2px 6px;border-radius:4px;flex-shrink:0;">${extUp}</span>
         </a>`;
       }).join('')}
     </div>` : '';
