@@ -13,39 +13,8 @@ export async function loadNoticeModule(container, teacher) {
   container.innerHTML = `
     <style>
       /* ── History grouped list ── */
-      .nh-year-block { margin-bottom: 4px; }
-      .nh-year-header {
-        display: flex; align-items: center; gap: 8px;
-        padding: 10px 12px 6px;
-        cursor: pointer; user-select: none;
-      }
-      .nh-year-badge {
-        font-size: .8rem; font-weight: 800; color: #1e40af;
-        background: #dbeafe; border-radius: 8px; padding: 3px 10px;
-      }
-      .nh-year-line { flex: 1; height: 1px; background: #e2e8f0; }
-      .nh-chevron { color: #94a3b8; transition: transform .2s; flex-shrink: 0; }
-      .nh-year-block.open .nh-chevron { transform: rotate(180deg); }
-      .nh-year-body { display: none; }
-      .nh-year-block.open .nh-year-body { display: block; }
-
-      .nh-month-block { margin-bottom: 2px; }
-      .nh-month-header {
-        display: flex; align-items: center; gap: 8px;
-        padding: 7px 12px 5px 12px;
-        cursor: pointer; user-select: none;
-      }
-      .nh-month-dot { width: 7px; height: 7px; border-radius: 50%; background: #93c5fd; flex-shrink: 0; }
-      .nh-month-name { font-size: .78rem; font-weight: 700; color: #3b82f6; flex: 1; }
-      .nh-month-count { font-size: .7rem; color: #94a3b8; font-weight: 600; }
-      .nh-month-body { display: none; padding: 0 0 4px; }
-      .nh-month-block.open .nh-month-body { display: block; }
-
-      .nh-week-label {
-        font-size: .68rem; font-weight: 700; color: #cbd5e1;
-        text-transform: uppercase; letter-spacing: .07em;
-        padding: 6px 12px 2px 12px;
-      }
+      .nh-month-body { display: none; }
+      .nh-month-body.open { display: block; }
       /* RTE formatted content in card */
       .notice-card-content.rte-content { line-height: 1.6; }
       .notice-card-content.rte-content b, .notice-card-content.rte-content strong { font-weight: 700; }
@@ -119,21 +88,16 @@ async function _renderNoticeList(container) {
     </div>`;
   }
 
-  // Group: year → month → week
-  const chevronSvg = `<svg class="nh-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>`;
-
+  // Group: year → month
   const byYear = new Map();
   for (const n of notices) {
     const d = new Date(n.PublishDate ?? n.publishDate ?? Date.now());
     const yr = d.getFullYear();
     const mo = d.getMonth();
-    const week = Math.ceil(d.getDate() / 7);
     if (!byYear.has(yr)) byYear.set(yr, new Map());
     const byMonth = byYear.get(yr);
-    if (!byMonth.has(mo)) byMonth.set(mo, new Map());
-    const byWeek = byMonth.get(mo);
-    if (!byWeek.has(week)) byWeek.set(week, []);
-    byWeek.get(week).push(n);
+    if (!byMonth.has(mo)) byMonth.set(mo, []);
+    byMonth.get(mo).push(n);
   }
 
   const now = new Date();
@@ -142,49 +106,55 @@ async function _renderNoticeList(container) {
   for (const yr of sortedYears) {
     const isCurrentYear = yr === now.getFullYear();
     const byMonth = byYear.get(yr);
-    const totalYear = [...byMonth.values()].reduce((s, wm) => s + [...wm.values()].reduce((a, arr) => a + arr.length, 0), 0);
+    const totalYear = [...byMonth.values()].reduce((s, arr) => s + arr.length, 0);
     let monthsHtml = '';
     const sortedMonths = [...byMonth.keys()].sort((a, b) => b - a);
     for (const mo of sortedMonths) {
       const isCurrentMonth = isCurrentYear && mo === now.getMonth();
-      const byWeek = byMonth.get(mo);
-      const totalMonth = [...byWeek.values()].reduce((s, arr) => s + arr.length, 0);
-      let weeksHtml = '';
-      const sortedWeeks = [...byWeek.keys()].sort((a, b) => b - a);
-      for (const wk of sortedWeeks) {
-        const items = byWeek.get(wk);
-        weeksHtml += `<div class="nh-week-label">${wk} সপ্তাহ</div>` + items.map(_noticeCardHtml).join('');
-      }
+      const items = byMonth.get(mo);
       monthsHtml += `
-        <div class="nh-month-block${isCurrentMonth ? ' open' : ''}">
-          <div class="nh-month-header">
-            <div class="nh-month-dot"></div>
-            <span class="nh-month-name">${MONTHS_BN[mo]}</span>
-            <span class="nh-month-count">${totalMonth}টি</span>
+        <div class="gh-month-header nh-month-header${isCurrentMonth ? '' : ''}">
+          <div class="gh-month-left" style="flex-direction:row;align-items:center;gap:6px;">
+            <span class="gh-month-name">${MONTHS_BN[mo]}</span>
+            <span class="gh-month-sub" style="margin-top:0;">${items.length}টি</span>
           </div>
-          <div class="nh-month-body">${weeksHtml}</div>
-        </div>`;
+          <svg class="gh-month-chevron${isCurrentMonth ? ' open' : ''}" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="gh-month-body nh-month-body${isCurrentMonth ? ' open' : ''}" style="padding:8px 12px;">${items.map(_noticeCardHtml).join('')}</div>`;
     }
     html += `
-      <div class="nh-year-block${isCurrentYear ? ' open' : ''}">
-        <div class="nh-year-header">
-          <span class="nh-year-badge">${yr}</span>
-          <div class="nh-year-line"></div>
-          <span style="font-size:.7rem;color:#94a3b8;font-weight:600;">${totalYear}টি</span>
-          ${chevronSvg}
+      <div class="gh-year-group nh-year-block">
+        <div class="gh-year-header${isCurrentYear ? '' : ' gh-closed'}">
+          <span class="gh-year-title">${yr} সাল</span>
+          <div class="gh-year-right">
+            <span class="gh-year-meta">${totalYear}টি নোটিশ</span>
+            <svg class="gh-year-chevron${isCurrentYear ? ' open' : ''}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
         </div>
-        <div class="nh-year-body">${monthsHtml}</div>
+        <div class="gh-year-body"${isCurrentYear ? '' : ' style="display:none;"'}>${monthsHtml}</div>
       </div>`;
   }
 
   list.innerHTML = html;
 
-  // Toggle accordion
-  list.querySelectorAll('.nh-year-header').forEach(hdr => {
-    hdr.addEventListener('click', () => hdr.closest('.nh-year-block').classList.toggle('open'));
+  // Toggle accordion — year
+  list.querySelectorAll('.gh-year-header').forEach(hdr => {
+    hdr.addEventListener('click', () => {
+      const body = hdr.nextElementSibling;
+      const open = body.style.display !== 'none';
+      body.style.display = open ? 'none' : '';
+      hdr.querySelector('.gh-year-chevron').classList.toggle('open', !open);
+      hdr.classList.toggle('gh-closed', open);
+    });
   });
+  // Toggle accordion — month
   list.querySelectorAll('.nh-month-header').forEach(hdr => {
-    hdr.addEventListener('click', () => hdr.closest('.nh-month-block').classList.toggle('open'));
+    hdr.addEventListener('click', () => {
+      const body = hdr.nextElementSibling;
+      const open = body.classList.contains('open');
+      body.classList.toggle('open', !open);
+      hdr.querySelector('.gh-month-chevron').classList.toggle('open', !open);
+    });
   });
 
   list.querySelectorAll('[data-lightbox]').forEach(el => {
