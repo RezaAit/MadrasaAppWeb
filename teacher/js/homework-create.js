@@ -360,13 +360,33 @@ async function _openReviewScreen(container, hw) {
         </div>` : ''}
       ${instrVoices.map(url => `<audio controls style="width:100%;margin-bottom:8px;" src="${url}"></audio>`).join('')}
       ${instrVideos.map(url => `<video controls src="${url}" style="width:100%;border-radius:8px;background:#000;max-height:160px;margin-bottom:8px;"></video>`).join('')}
-      ${instrYoutube.map(url => {
-        const m = url.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+      ${instrYoutube.map((url, ytIdx) => {
+        const m = url.match(/(?:v=|youtu\.be\/|shorts\/)([A-Za-z0-9_-]{11})/);
         const vid = m ? m[1] : null;
-        return `<a href="${url}" target="_blank" style="display:flex;align-items:center;gap:8px;padding:8px;background:#fee2e2;border-radius:8px;margin-bottom:6px;text-decoration:none;">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="#dc2626"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.2v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.2 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zm-13.5 8.6V8.4l8.1 3.6-8.1 3.6z"/></svg>
-          <span style="font-size:.8rem;color:#dc2626;font-weight:600;">YouTube ভিডিও দেখুন</span>
-        </a>`;
+        const thumb = vid ? `https://img.youtube.com/vi/${vid}/mqdefault.jpg` : null;
+        const uid = `yt-instr-${Date.now()}-${ytIdx}`;
+        return `<div style="margin-bottom:8px;border-radius:10px;overflow:hidden;border:1px solid #fecaca;">
+          <div id="${uid}-preview" style="position:relative;background:#000;cursor:pointer;" onclick="
+            var p=document.getElementById('${uid}-preview');
+            var f=document.getElementById('${uid}-frame');
+            p.style.display='none';
+            f.style.display='block';
+            f.querySelector('iframe').src='https://www.youtube.com/embed/${vid}?autoplay=1';
+          ">
+            ${thumb ? `<img src="${thumb}" style="width:100%;display:block;aspect-ratio:16/9;object-fit:cover;">` : `<div style="aspect-ratio:16/9;background:#1e293b;"></div>`}
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+              <div style="width:56px;height:56px;border-radius:50%;background:rgba(220,38,38,0.9);display:flex;align-items:center;justify-content:center;">
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="#fff"><polygon points="10,8 18,12 10,16"/></svg>
+              </div>
+            </div>
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:6px 10px;background:linear-gradient(transparent,rgba(0,0,0,0.7));">
+              <span style="font-size:.75rem;color:#fff;font-weight:600;">▶ YouTube ভিডিও</span>
+            </div>
+          </div>
+          <div id="${uid}-frame" style="display:none;aspect-ratio:16/9;background:#000;">
+            <iframe width="100%" height="100%" style="border:none;display:block;" allow="autoplay;encrypted-media" allowfullscreen></iframe>
+          </div>
+        </div>`;
       }).join('')}
       ${instrPdfs.map(url => {
         const fname = url.split('/').pop() || 'ফাইল';
