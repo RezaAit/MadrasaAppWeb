@@ -576,6 +576,31 @@ function showFeedbackDetail(hw) {
   sheetBody.querySelectorAll('.hw-zoomable').forEach(img => {
     img.addEventListener('click', () => _openImageZoom(img.dataset.full));
   });
+  // Particle burst on open
+  const hero = sheetBody.querySelector('.hw-feedback-hero');
+  if (hero) {
+    const colors = {
+      Excellent: ['#f59e0b','#fcd34d','#fef08a','#f97316'],
+      StarWork:  ['#eab308','#fde047','#fef9c3','#f59e0b'],
+      Good:      ['#16a34a','#4ade80','#bbf7d0','#22c55e'],
+      NeedsImprovement: ['#ea580c','#fb923c','#fed7aa','#f97316'],
+      Incomplete:['#dc2626','#f87171','#fecaca','#ef4444'],
+    };
+    const palette = colors[fb.reaction] || ['#6366f1','#a78bfa','#c4b5fd'];
+    const container = document.createElement('div');
+    container.className = 'rxn-particles';
+    for (let i = 0; i < 14; i++) {
+      const p = document.createElement('div');
+      p.className = 'rxn-particle';
+      const angle = (i / 14) * 360;
+      const dist = 50 + Math.random() * 35;
+      const rad = angle * Math.PI / 180;
+      p.style.cssText = `background:${palette[i%palette.length]};--dx:${(Math.cos(rad)*dist).toFixed(1)}px;--dy:${(Math.sin(rad)*dist).toFixed(1)}px;animation-delay:${(Math.random()*80).toFixed(0)}ms;width:${5+Math.random()*4|0}px;height:${5+Math.random()*4|0}px;`;
+      container.appendChild(p);
+    }
+    hero.appendChild(container);
+    setTimeout(() => container.remove(), 900);
+  }
 }
 
 // ── Instruction media renderer ─────────────────────────────────────────────

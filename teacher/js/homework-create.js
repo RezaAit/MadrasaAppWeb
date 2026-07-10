@@ -478,6 +478,7 @@ async function _openReviewScreen(container, hw) {
         btn.classList.add('active');
         const sub = submissions.find(s => String(s.id) === detailId);
         if (sub) sub.teacherReaction = btn.dataset.reaction;
+        _reactionBurst(btn);
       });
     });
 
@@ -626,3 +627,42 @@ function _openEditForm(container, hw) {
 function _fmt(d) { return d ? new Date(d).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short' }) : '—'; }
 function _reactionEmoji(r) { return { Excellent: '🌟', Good: '✅', NeedsImprovement: '📈', Incomplete: '❌', StarWork: '⭐' }[r] || '📝'; }
 function _reactionLabel(r) { return { Excellent: 'অসাধারণ', Good: 'ভালো', NeedsImprovement: 'উন্নতি দরকার', Incomplete: 'অসম্পূর্ণ', StarWork: 'তারকা' }[r] || r; }
+
+function _reactionBurst(btn) {
+  const colors = {
+    Excellent: ['#f59e0b','#fcd34d','#fef08a','#f97316'],
+    StarWork:  ['#eab308','#fde047','#fef9c3','#f59e0b'],
+    Good:      ['#16a34a','#4ade80','#bbf7d0','#22c55e'],
+    NeedsImprovement: ['#ea580c','#fb923c','#fed7aa','#f97316'],
+    Incomplete:['#dc2626','#f87171','#fecaca','#ef4444'],
+  };
+  const r = btn.dataset.reaction;
+  const palette = colors[r] || ['#6366f1','#a78bfa','#c4b5fd','#818cf8'];
+
+  // Re-trigger bounce by removing + re-adding active class
+  const emoji = btn.querySelector('.sub-reaction-emoji');
+  if (emoji) { emoji.style.animation = 'none'; requestAnimationFrame(() => { emoji.style.animation = ''; }); }
+
+  // Remove old particles
+  btn.querySelectorAll('.rxn-particles').forEach(p => p.remove());
+
+  const container = document.createElement('div');
+  container.className = 'rxn-particles';
+  const count = 10;
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'rxn-particle';
+    const angle = (i / count) * 360;
+    const dist = 28 + Math.random() * 18;
+    const rad = angle * Math.PI / 180;
+    p.style.cssText = `
+      background:${palette[i % palette.length]};
+      --dx:${(Math.cos(rad)*dist).toFixed(1)}px;
+      --dy:${(Math.sin(rad)*dist).toFixed(1)}px;
+      animation-delay:${(Math.random()*60).toFixed(0)}ms;
+    `;
+    container.appendChild(p);
+  }
+  btn.appendChild(container);
+  setTimeout(() => container.remove(), 700);
+}

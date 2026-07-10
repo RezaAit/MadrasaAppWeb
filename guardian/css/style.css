@@ -697,9 +697,46 @@ html, body {
 .hw-feedback-hero {
   border-radius: 20px; padding: 28px 20px; text-align: center;
   display: flex; flex-direction: column; align-items: center; gap: 8px;
+  position: relative; overflow: visible;
 }
-.hw-feedback-emoji { font-size: 3.5rem; }
-.hw-feedback-label { font-size: 1.25rem; font-weight: 900; }
+.hw-feedback-emoji {
+  font-size: 3.5rem; display: inline-block;
+  animation: fb-emoji-enter .55s cubic-bezier(.36,.07,.19,.97) both;
+}
+@keyframes fb-emoji-enter {
+  0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+  50%  { transform: scale(1.4) rotate(8deg); opacity: 1; }
+  70%  { transform: scale(.9) rotate(-4deg); }
+  85%  { transform: scale(1.15) rotate(2deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.hw-feedback-label {
+  font-size: 1.25rem; font-weight: 900;
+  animation: fb-label-enter .4s .25s ease both;
+}
+@keyframes fb-label-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* particles shared */
+.rxn-particles { position: absolute; top: 40%; left: 50%; pointer-events: none; }
+.rxn-particle {
+  position: absolute; width: 6px; height: 6px; border-radius: 50%;
+  animation: rxn-particle-fly .6s ease-out forwards; opacity: 0;
+}
+@keyframes rxn-particle-fly {
+  0%   { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx),var(--dy)) scale(0); opacity: 0; }
+}
+/* hw-reaction-badge glow */
+.hw-reaction-badge {
+  animation: badge-pop .35s .1s cubic-bezier(.36,.07,.19,.97) both;
+}
+@keyframes badge-pop {
+  0%   { transform: scale(.7); opacity: 0; }
+  60%  { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
 .hw-feedback-hw    { font-size: .82rem; color: #64748b; background: rgba(0,0,0,.06); padding: 4px 12px; border-radius: 999px; }
 .hw-feedback-section { background: #fff; border: 1.5px solid #f1f5f9; border-radius: 16px; padding: 14px 16px; }
 .hw-feedback-section--instruction { background: #fafafa; }
