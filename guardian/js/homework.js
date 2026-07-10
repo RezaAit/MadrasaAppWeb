@@ -175,7 +175,10 @@ function _hwCard(h) {
         <div class="hw-card-title">${h.title}</div>
         <div class="hw-card-bottom">
           <div class="hw-teacher"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${h.teacherName ?? '—'}</div>
-          <div class="hw-due"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>জমা: ${_fmt(h.submittedAt)}</div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
+            <div class="hw-due"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>জমা: ${_fmt(h.submittedAt)}</div>
+            ${h.dueDate ? `<div class="hw-due" style="color:#dc2626;font-weight:600;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>সীমা: ${_fmt(h.dueDate)}</div>` : ''}
+          </div>
         </div>
         ${fb ? `<div class="hw-card-cta hw-card-cta--review"><span>মতামত দেখুন</span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>` : ''}
       </div>
@@ -530,6 +533,8 @@ function showFeedbackDetail(hw) {
           <div class="hw-feedback-emoji">${rc.emoji}</div>
           <div class="hw-feedback-label" style="color:${rc.color};">${rc.label}</div>
           <div class="hw-feedback-hw">${hw.title}</div>
+          ${hw.subject ? `<div style="font-size:.78rem;font-weight:700;color:${rc.color};opacity:.8;margin-top:4px;">${hw.subject}</div>` : ''}
+          ${hw.dueDate ? `<div style="font-size:.72rem;color:${rc.color};opacity:.6;margin-top:2px;">সীমা: ${_fmt(hw.dueDate)}</div>` : ''}
         </div>
 
         ${fb.note ? `

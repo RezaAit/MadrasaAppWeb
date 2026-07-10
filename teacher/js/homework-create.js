@@ -374,7 +374,20 @@ async function _openReviewScreen(container, hw) {
       </a>`).join('')}
     </div>` : '';
 
+  const subjectName = hw.subjectName ?? hw.SubjectName ?? '';
+  const dueDate     = hw.dueDate    ?? hw.DueDate    ?? '';
+  const addDate     = hw.addDate    ?? hw.AddDate    ?? '';
+
   content.innerHTML = `
+    ${subjectName || dueDate ? `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px;">
+      ${subjectName ? `<span style="font-size:.9rem;font-weight:700;color:var(--primary);">${subjectName}</span>` : ''}
+      <div style="display:flex;gap:10px;font-size:.78rem;color:#64748b;">
+        ${addDate ? `<span>তৈরি: ${_fmt(addDate)}</span>` : ''}
+        ${dueDate ? `<span style="font-weight:700;color:#dc2626;">সীমা: ${_fmt(dueDate)}</span>` : ''}
+      </div>
+    </div>` : ''}
+
     <div class="stat-grid mb-16">
       <div class="stat-card"><div class="stat-label">জমা দিয়েছে</div><div class="stat-value text-success">${submitted.length}</div></div>
       <div class="stat-card"><div class="stat-label">জমা দেয়নি</div><div class="stat-value text-danger">${pending.length}</div></div>
