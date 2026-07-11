@@ -7,7 +7,6 @@
 /* ── Page wrapper ─────────────────────────────────────────────────────────── */
 #screen-login {
   background: var(--lg-cream);
-  display: flex;
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
@@ -15,6 +14,9 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0;
+}
+#screen-login.active {
+  display: flex;
 }
 
 .lg-root {
