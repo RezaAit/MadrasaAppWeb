@@ -187,6 +187,9 @@ function renderShell() {
   const dropdown = document.getElementById('thb-dropdown');
   threeDot.addEventListener('click', (e) => {
     e.stopPropagation();
+    const rect = threeDot.getBoundingClientRect();
+    dropdown.style.top = (rect.bottom + 6) + 'px';
+    dropdown.style.right = (window.innerWidth - rect.right) + 'px';
     dropdown.classList.toggle('open');
   });
   dropdown.addEventListener('click', (e) => e.stopPropagation());
