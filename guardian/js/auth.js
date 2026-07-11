@@ -99,7 +99,20 @@ export function initLogin() {
     try {
       const res = await requestOtp('0' + phone.replace(/^0/, ''));
       if (res.httpStatusCode === 429) {
-        _showPhoneError(res.message || 'অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন।');
+        const wait = res.retryAfter || res.waitSeconds || 60;
+        let secs = wait;
+        _showPhoneError(`${secs} সেকেন্ড পর আবার চেষ্টা করুন`);
+        sendOtpBtn.disabled = true;
+        const iv = setInterval(() => {
+          secs--;
+          if (secs <= 0) {
+            clearInterval(iv);
+            _hidePhoneError();
+            sendOtpBtn.disabled = false;
+          } else {
+            _showPhoneError(`${secs} সেকেন্ড পর আবার চেষ্টা করুন`);
+          }
+        }, 1000);
         _setBtnLoading(sendOtpBtn, false, 'OTP পাঠাও');
         return;
       }

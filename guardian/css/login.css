@@ -9,10 +9,8 @@
   background: var(--lg-cream);
   justify-content: center;
   align-items: flex-start;
-  min-height: 100vh;
-  max-height: 100vh;
-  overflow-y: auto;
-  overflow-x: hidden;
+  height: 100vh;
+  overflow: hidden;
   padding: 0;
 }
 #screen-login.active {
@@ -22,12 +20,17 @@
 .lg-root {
   width: 100%;
   max-width: 420px;
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background: var(--lg-cream);
   position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
+.lg-root::-webkit-scrollbar { display: none; }
 
 /* ── Header ───────────────────────────────────────────────────────────────── */
 .lg-header {

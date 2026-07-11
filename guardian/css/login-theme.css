@@ -3,11 +3,11 @@
  * Change these variables to re-theme the entire login screen.
  */
 :root {
-  --lg-deep:        #1d4ed8;   /* header gradient start — matches --primary-dark */
-  --lg-mid:         #2563eb;   /* header gradient mid   — matches --primary */
-  --lg-light:       #3b82f6;   /* header gradient end   — matches --primary-light */
-  --lg-gold:        #D4AF37;   /* accent / lattice / border rings — matches --accent */
-  --lg-gold-soft:   #f0dfa0;   /* sub-label text in header */
+  --lg-deep:        #0f2460;   /* header gradient start */
+  --lg-mid:         #1e3a8a;   /* header gradient mid — matches dashboard header */
+  --lg-light:       #2952a3;   /* header gradient end */
+  --lg-gold:        #D4AF37;   /* accent — matches --accent */
+  --lg-gold-soft:   #e8d49a;   /* sub-label text in header */
   --lg-cream:       #FAFAFA;   /* page background — matches --bg */
   --lg-ink:         #111827;   /* dark text — matches --text-main */
   --lg-muted:       #4B5563;   /* secondary text — matches --text-muted */
