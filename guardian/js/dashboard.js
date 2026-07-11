@@ -12,33 +12,41 @@ import { loadNotices } from './notice.js';
 // ── Slot (fuel-station) animation ────────────────────────────────────────
 export function slotAnimate(el, numStr, prefix = '', suffix = '') {
   const digits = [...String(numStr)];
-  el.style.cssText += 'display:inline-flex;align-items:flex-end;overflow:hidden;vertical-align:bottom;';
+  el.style.cssText += 'display:inline-flex;align-items:center;overflow:visible;vertical-align:middle;';
   el.innerHTML = '';
   if (prefix) {
     const p = document.createElement('span');
+    p.style.cssText = 'display:inline-block;';
     p.textContent = prefix;
     el.appendChild(p);
   }
   digits.forEach((ch, i) => {
     if (isNaN(parseInt(ch))) {
-      const s = document.createElement('span'); s.textContent = ch; el.appendChild(s); return;
+      const s = document.createElement('span');
+      s.style.cssText = 'display:inline-block;';
+      s.textContent = ch;
+      el.appendChild(s);
+      return;
     }
     const d = parseInt(ch);
     const col = document.createElement('span');
-    col.style.cssText = 'display:inline-block;overflow:hidden;height:1.2em;line-height:1.2em;';
+    col.style.cssText = 'display:inline-block;overflow:hidden;height:1.1em;line-height:1.1em;vertical-align:middle;';
     const inner = document.createElement('span');
     inner.style.cssText = 'display:block;';
     let frames = '';
-    for (let n = 0; n <= d; n++) frames += `<span style="display:block;height:1.2em;line-height:1.2em;">${n}</span>`;
+    for (let n = 0; n <= d; n++) frames += `<span style="display:block;height:1.1em;line-height:1.1em;text-align:center;">${n}</span>`;
     inner.innerHTML = frames;
     col.appendChild(inner);
     el.appendChild(col);
     setTimeout(() => {
-      inner.style.cssText = `display:block;transition:transform 1.4s cubic-bezier(.22,.68,0,1.2);transform:translateY(-${d * 1.2}em);`;
-    }, 60 + i * 80);
+      inner.style.cssText = `display:block;transition:transform 2.2s cubic-bezier(.22,.68,0,1.1);transform:translateY(-${d * 1.1}em);`;
+    }, 80 + i * 100);
   });
   if (suffix) {
-    const s = document.createElement('span'); s.textContent = suffix; el.appendChild(s);
+    const s = document.createElement('span');
+    s.style.cssText = 'display:inline-block;';
+    s.textContent = suffix;
+    el.appendChild(s);
   }
 }
 

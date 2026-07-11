@@ -90,7 +90,7 @@ export async function loadAttendance(container, child) {
   // Progress bar animate
   setTimeout(() => {
     container.querySelectorAll('.progress-bar-fill').forEach(bar => {
-      bar.style.transition = 'width 1.4s cubic-bezier(.4,0,.2,1)';
+      bar.style.transition = 'width 2.2s cubic-bezier(.4,0,.2,1)';
       bar.style.width = bar.dataset.target + '%';
     });
   }, 100);
