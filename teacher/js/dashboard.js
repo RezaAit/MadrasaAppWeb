@@ -204,8 +204,11 @@ async function loadDashboardModule(container) {
         <div class="dash-greeting-date">${dateStr}</div>
         <div class="dash-greeting-title">${greeting} 👋</div>
       </div>
-      <div style="padding:16px;display:flex;flex-direction:column;gap:10px;" id="dash-cards">
-        ${Array(6).fill('<div class="skeleton skeleton-card" style="height:72px;border-radius:16px;"></div>').join('')}
+      <div class="dash-grid" id="dash-cards" style="min-height:420px;">
+        ${Array(4).fill('<div class="skeleton skeleton-card" style="height:110px;border-radius:20px;"></div>').join('')}
+        <div class="skeleton skeleton-card dash-card--wide" style="height:68px;border-radius:20px;grid-column:1/-1;"></div>
+        <div class="skeleton skeleton-card" style="height:110px;border-radius:20px;"></div>
+        <div class="skeleton skeleton-card" style="height:110px;border-radius:20px;"></div>
       </div>
     </div>`;
 
@@ -229,60 +232,61 @@ async function loadDashboardModule(container) {
 
   document.getElementById('dash-cards').innerHTML = `
     <div class="dash-card dash-card-blue" data-nav="attendance">
-      <div class="dash-icon dash-icon-blue">${_attIcon(24)}</div>
-      <div style="flex:1;min-width:0;">
-        <div class="dash-label">শ্রেণি উপস্থিতি</div>
-        <div class="dash-value"><span data-count-up="${ctSec}">${ctSec}</span><span class="dash-value-unit">সেকশন</span></div>
+      <div>
+        <div class="dash-label">উপস্থিতি</div>
+        <div class="dash-value" data-count-up="${ctSec}">${ctSec}</div>
+        <span class="dash-value-unit">সেকশন</span>
       </div>
-      ${arrow}
+      <div style="position:absolute;bottom:14px;right:14px;opacity:.6;">${_attIcon(22)}</div>
     </div>
 
     <div class="dash-card dash-card-amber" data-nav="homework">
-      <div class="dash-icon dash-icon-amber">${_hwIcon(24)}</div>
-      <div style="flex:1;min-width:0;">
+      <div>
         <div class="dash-label">হোমওয়ার্ক</div>
-        <div class="dash-value"><span data-count-up="${hwList.length}">${hwList.length}</span><span class="dash-value-unit">টি</span></div>
-        ${hwPending > 0 ? `<div class="dash-sub dash-sub-amber">⏳ ${hwPending} প্রকাশিত</div>` : `<div class="dash-sub dash-sub-gray">কোনো বাকি নেই</div>`}
+        <div class="dash-value" data-count-up="${hwList.length}">${hwList.length}</div>
+        <span class="dash-value-unit">টি মোট</span>
       </div>
-      ${arrow}
+      ${hwPending > 0 ? `<div class="dash-sub dash-sub-amber">⏳ ${hwPending} প্রকাশিত</div>` : ''}
+      <div style="position:absolute;bottom:14px;right:14px;opacity:.6;">${_hwIcon(22)}</div>
     </div>
 
     <div class="dash-card dash-card-purple" data-nav="leave">
-      <div class="dash-icon dash-icon-purple">${_leaveIcon(24)}</div>
-      <div style="flex:1;min-width:0;">
+      <div>
         <div class="dash-label">ছুটির আবেদন</div>
-        <div class="dash-value"><span data-count-up="${leaves}">${leaves}</span><span class="dash-value-unit">টি</span></div>
-        ${leaves > 0 ? `<div class="dash-sub dash-sub-amber">⏳ অপেক্ষমান</div>` : `<div class="dash-sub dash-sub-green">✓ সব মিটমাট</div>`}
+        <div class="dash-value" data-count-up="${leaves}">${leaves}</div>
+        <span class="dash-value-unit">অপেক্ষমান</span>
       </div>
-      ${arrow}
-    </div>
-
-    <div class="dash-card dash-card-red" data-nav="fees">
-      <div class="dash-icon dash-icon-red">${_feesIcon(24)}</div>
-      <div style="flex:1;min-width:0;">
-        <div class="dash-label">ফি বকেয়া</div>
-        <div class="dash-value"><span data-count-up="${dueStudents}">${dueStudents > 0 ? dueStudents : '০'}</span><span class="dash-value-unit">শিক্ষার্থী</span></div>
-        ${totalDue > 0 ? `<div class="dash-sub dash-sub-red">৳${totalDue.toLocaleString()}</div>` : `<div class="dash-sub dash-sub-green">✓ কোনো বকেয়া নেই</div>`}
-      </div>
-      ${arrow}
+      ${leaves === 0 ? `<div class="dash-sub dash-sub-green">✓ মিটমাট</div>` : ''}
+      <div style="position:absolute;bottom:14px;right:14px;opacity:.6;">${_leaveIcon(22)}</div>
     </div>
 
     <div class="dash-card dash-card-green" data-nav="marks">
-      <div class="dash-icon dash-icon-green">${_marksIcon(24)}</div>
-      <div style="flex:1;min-width:0;">
+      <div>
         <div class="dash-label">নম্বর এন্ট্রি</div>
-        <div class="dash-value"><span data-count-up="${subjectSec}">${subjectSec}</span><span class="dash-value-unit">বিষয়</span></div>
+        <div class="dash-value" data-count-up="${subjectSec}">${subjectSec}</div>
+        <span class="dash-value-unit">বিষয়</span>
       </div>
-      ${arrow}
+      <div style="position:absolute;bottom:14px;right:14px;opacity:.6;">${_marksIcon(22)}</div>
     </div>
 
-    <div class="dash-card dash-card-blue" data-nav="notice">
-      <div class="dash-icon dash-icon-blue">${_noticeIcon(24)}</div>
+    <div class="dash-card dash-card-red dash-card--wide" data-nav="fees">
+      <div class="dash-icon dash-icon-red">${_feesIcon(22)}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="dash-label">ফি বকেয়া</div>
+        <div style="display:flex;align-items:baseline;gap:6px;">
+          <div class="dash-value" data-count-up="${dueStudents > 0 ? dueStudents : 0}">${dueStudents > 0 ? dueStudents : '০'}</div>
+          <span class="dash-value-unit" style="display:inline;margin:0;">শিক্ষার্থী</span>
+        </div>
+      </div>
+      ${totalDue > 0 ? `<div class="dash-sub dash-sub-red" style="white-space:nowrap;">৳${totalDue.toLocaleString()}</div>` : `<div class="dash-sub dash-sub-green">✓ বকেয়া নেই</div>`}
+    </div>
+
+    <div class="dash-card dash-card-blue dash-card--wide" data-nav="notice">
+      <div class="dash-icon dash-icon-blue">${_noticeIcon(22)}</div>
       <div style="flex:1;min-width:0;">
         <div class="dash-label">নোটিশ</div>
-        <div class="dash-value" style="font-size:1rem;font-weight:700;color:#2563eb;letter-spacing:0;">তৈরি করুন</div>
+        <div style="font-size:.95rem;font-weight:700;color:#1e40af;margin-top:2px;">নতুন নোটিশ তৈরি করুন →</div>
       </div>
-      ${arrow}
     </div>
   `;
 
