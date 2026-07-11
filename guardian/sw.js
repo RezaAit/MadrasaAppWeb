@@ -1,4 +1,4 @@
-const CACHE = 'huda-guardian-v22';
+const CACHE = 'huda-guardian-v23';
 const STATIC = [
   '/guardian/',
   '/guardian/index.html',

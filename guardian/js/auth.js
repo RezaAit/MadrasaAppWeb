@@ -145,6 +145,7 @@ export function initLogin() {
         localStorage.setItem('guardian_data', JSON.stringify(guardianData));
         localStorage.setItem('guardian_phone', guardianPhone);
         window.dispatchEvent(new CustomEvent('login-success', { detail: guardianData }));
+        return; // don't restore button — navigating away
       } else {
         _showOtpError(res.message || 'ভুল OTP, আবার চেষ্টা করুন');
       }
