@@ -62,11 +62,11 @@ export function settleContent(container, direction = 'forward') {
       ? 'translateX(-16px)'
       : 'translateY(14px)';
     el.style.transition = 'none';
-    const delay = Math.min(i * 45, 320);
+    const delay = Math.min(i * 80, 500);
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        el.style.transition = `opacity 320ms cubic-bezier(0.22,1,0.36,1) ${delay}ms,
-                               transform 380ms cubic-bezier(0.34,1.56,0.64,1) ${delay}ms`;
+        el.style.transition = `opacity 600ms cubic-bezier(0.22,1,0.36,1) ${delay}ms,
+                               transform 650ms cubic-bezier(0.34,1.2,0.64,1) ${delay}ms`;
         el.style.opacity = '1';
         el.style.transform = 'translateY(0) translateX(0)';
       });
@@ -190,13 +190,13 @@ export function initCountUp(container = document) {
 export function crossfadeIn(container) {
   if (!container) return;
   container.style.opacity = '0';
-  container.style.transform = 'scale(0.98)';
+  container.style.transform = 'translateY(18px) scale(0.97)';
   container.style.transition = 'none';
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      container.style.transition = 'opacity 280ms ease, transform 320ms cubic-bezier(0.22,1,0.36,1)';
+      container.style.transition = 'opacity 600ms ease, transform 650ms cubic-bezier(0.22,1,0.36,1)';
       container.style.opacity = '1';
-      container.style.transform = 'scale(1)';
+      container.style.transform = 'translateY(0) scale(1)';
     });
   });
 }

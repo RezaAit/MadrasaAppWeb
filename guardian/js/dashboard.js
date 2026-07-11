@@ -322,11 +322,16 @@ function showStudentProfile(openSection = null) {
   if (idEl) idEl.textContent = child.studentInsID ? `🎓 ${child.studentInsID}` : '';
 
   const avatarEl = document.getElementById('profile-avatar');
+  avatarEl.style.cssText += 'opacity:0;transform:scale(.7) translateY(12px);transition:opacity .7s ease,transform .7s cubic-bezier(.34,1.2,.64,1);';
   if (child.photoUrl) {
     avatarEl.innerHTML = `<img src="${child.photoUrl}" alt="${child.fullName}">`;
   } else {
     avatarEl.textContent = child.fullName.slice(0, 1);
   }
+  requestAnimationFrame(() => setTimeout(() => {
+    avatarEl.style.opacity = '1';
+    avatarEl.style.transform = 'scale(1) translateY(0)';
+  }, 80));
 
   // Info chips — class, section, group, roll
   const chipsEl = document.getElementById('profile-chips');
