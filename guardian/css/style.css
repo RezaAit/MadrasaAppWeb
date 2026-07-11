@@ -1065,16 +1065,14 @@ html, body {
 .grade-chip.F { background: #FEE2E2; color: #DC2626; }
 
 /* ─── Profile scroll wrapper ──────────────────────────────────────────────── */
-#screen-profile {
-  height: 100dvh;
-  overflow: hidden;
-}
 .profile-scroll {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   min-height: 0;
+  scrollbar-width: none;
 }
+.profile-scroll::-webkit-scrollbar { display: none; }
 
 /* ─── Profile nav tabs (inside blue hero) ────────────────────────────────── */
 .profile-nav {

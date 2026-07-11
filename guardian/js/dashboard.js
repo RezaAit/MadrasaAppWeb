@@ -349,7 +349,10 @@ function initProfileNav(openSection = null) {
   const navBtns = document.querySelectorAll('.profile-nav-btn');
 
   // Sliding indicator — reinit each time profile opens
-  if (navEl) navEl._indicatorAttached = false;
+  if (navEl) {
+    navEl._indicatorAttached = false;
+    navEl.querySelector('.tab-indicator')?.remove();
+  }
   const { moveTo } = initTabIndicator(navEl, { autoWire: false });
 
   // Remove old listeners by replacing each button with a clone
@@ -359,11 +362,19 @@ function initProfileNav(openSection = null) {
   });
   const freshBtns = document.querySelectorAll('.profile-nav-btn');
 
+  function scrollTabToCenter(btn) {
+    const navRect = navEl.getBoundingClientRect();
+    const btnRect = btn.getBoundingClientRect();
+    const offset = btnRect.left - navRect.left + navEl.scrollLeft - (navRect.width / 2) + (btnRect.width / 2);
+    navEl.scrollTo({ left: offset, behavior: 'smooth' });
+  }
+
   freshBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       freshBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       moveTo(btn);
+      scrollTabToCenter(btn);
       loadSection(btn.dataset.section);
     });
   });
@@ -378,7 +389,7 @@ function initProfileNav(openSection = null) {
   // Position indicator and scroll active tab into view
   requestAnimationFrame(() => {
     moveTo(activeBtn);
-    activeBtn?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    if (activeBtn) scrollTabToCenter(activeBtn);
   });
 
   // Load section
