@@ -182,20 +182,22 @@ function renderShell() {
   // Position indicator on initial active tab after layout renders
   requestAnimationFrame(() => moveIndicator(nav.querySelector('.main-nav-btn.active')));
 
-  // Three-dot drawer
+  // Three-dot toggle
   const threeDot = document.getElementById('thb-three-dot');
-  const dropdown = document.getElementById('thb-dropdown');
-  const scrim = document.getElementById('thb-scrim');
-  const openDrawer = () => { dropdown.classList.add('open'); scrim.classList.add('open'); };
-  const closeDrawer = () => { dropdown.classList.remove('open'); scrim.classList.remove('open'); };
-  threeDot.addEventListener('click', (e) => { e.stopPropagation(); openDrawer(); });
-  scrim.addEventListener('click', closeDrawer);
+  const actions = document.getElementById('thb-actions');
+  const closeDrawer = () => actions.classList.remove('open');
+  threeDot.addEventListener('click', () => actions.classList.toggle('open'));
 
   document.getElementById('teacher-logout-btn').addEventListener('click', () => { closeDrawer(); logout(); });
 
   document.getElementById('teacher-refresh-btn').addEventListener('click', () => {
     closeDrawer();
     navigateTo(state.activeModule || 'dashboard');
+  });
+
+  // Close on outside tap
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#thb-three-dot') && !e.target.closest('#thb-actions')) closeDrawer();
   });
 
   // Avatar → profile
