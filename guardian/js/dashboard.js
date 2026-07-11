@@ -263,9 +263,8 @@ function renderChildSelector() {
     const dot = child.todayAttendance === 'Present' ? '#22C55E' : '#EF4444';
     const initials = child.fullName.slice(0, 1);
     const card = document.createElement('div');
-    card.className = 'child-card card-lift';
-    card.style.cssText = 'opacity:0;transform:translateY(40px) scale(.96);transition:opacity .8s ease,transform .8s cubic-bezier(.22,.68,0,1.05);';
-    setTimeout(() => { card.style.opacity='1'; card.style.transform='translateY(0) scale(1)'; }, 150 + idx * 250);
+    card.className = 'child-card card-lift child-card-anim';
+    card.style.animationDelay = (150 + idx * 280) + 'ms';
     const avatarHtml = child.photoUrl
       ? `<img src="${child.photoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
       : initials;

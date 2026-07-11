@@ -239,6 +239,16 @@ html, body {
   color: #fff !important;
 }
 
+/* Child card entrance animation */
+@keyframes childCardIn {
+  from { opacity: 0; transform: translateY(50px) scale(.94); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);   }
+}
+.child-card-anim {
+  opacity: 0;
+  animation: childCardIn .9s cubic-bezier(.22,.68,0,1.05) both;
+}
+
 /* Guardian header layout */
 .gh-logo {
   width: 36px; height: 36px; border-radius: 8px;
