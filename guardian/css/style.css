@@ -329,6 +329,7 @@ html, body {
 .exam-pill-tabs {
   display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;
   scrollbar-width: none; margin-bottom: 14px;
+  scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
 }
 .exam-pill-tabs::-webkit-scrollbar { display: none; }
 .exam-pill-btn {

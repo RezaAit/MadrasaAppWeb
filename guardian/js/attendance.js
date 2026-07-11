@@ -338,7 +338,7 @@ export async function loadExam(container, child) {
     return;
   }
 
-  container.innerHTML = `<div style="padding:16px;" id="exam-wrap">
+  container.innerHTML = `<div style="padding:16px 10px;" id="exam-wrap">
     ${grandResults.length > 1 ? `
       <div class="exam-pill-tabs" id="exam-tabs">
         ${grandResults.map((g,i) => `<button class="exam-pill-btn${i===0?' active':''}" data-idx="${i}">${g.ExamName}</button>`).join('')}
@@ -352,6 +352,7 @@ export async function loadExam(container, child) {
       btn.addEventListener('click', () => {
         container.querySelectorAll('.exam-pill-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+        btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         const body = document.getElementById('exam-result-body');
         body.style.opacity = '0'; body.style.transform = 'translateY(10px)';
         setTimeout(() => {
