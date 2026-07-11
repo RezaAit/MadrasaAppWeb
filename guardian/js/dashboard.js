@@ -137,21 +137,7 @@ export async function init() {
   const savedData = localStorage.getItem('guardian_data');
 
   window.addEventListener('login-success', async e => {
-    const incoming = e.detail;
-    // If API already gave us children, use them; otherwise fetch full profile
-    if (incoming?.children?.length) {
-      state.guardian = incoming;
-    } else {
-      // verifyOtp may not always return children — fetch full profile
-      state.guardian = incoming;
-      try {
-        const phone = incoming?.phone || localStorage.getItem('guardian_phone') || '';
-        const profileRes = await getUserDetails(phone);
-        if (!profileRes.HasError && profileRes.results) {
-          state.guardian = { ...incoming, ...profileRes.results, phone: incoming.phone };
-        }
-      } catch (_) {}
-    }
+    state.guardian = e.detail;
     await loadDashboard();
   });
 

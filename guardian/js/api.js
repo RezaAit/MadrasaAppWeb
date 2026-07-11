@@ -23,38 +23,41 @@ export async function verifyOtp(phone, otp) {
     body: JSON.stringify({ phoneNumber: phone, userType: 'Guardian', otp }),
   });
   const data = await r.json();
-  if (data.httpStatusCode === 200 && data.results?.token) {
-    const token = data.results.token;
+  const token = data.results?.token || (data.httpStatusCode === 200 ? data.token : null);
+  if (token) {
     // Fetch full guardian profile with children
-    const profileRes = await fetch(`${BASE_URL}/api/Sbook/GetUserDetails/${phone}/Guardian`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const profile = await profileRes.json();
-    const guardian = profile.results || {};
+    let guardian = {};
+    try {
+      const profileRes = await fetch(`${BASE_URL}/api/Sbook/GetUserDetails/${phone}/Guardian`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const profile = await profileRes.json();
+      guardian = profile.results || {};
+      // Normalize children fields to match app expectations
+      if (guardian.children) {
+        guardian.children = guardian.children.map(c => ({
+          studentIID:      c.studentIID,
+          studentInsID:    c.studentInsID,
+          fullName:        c.fullName,
+          nameBangla:      c.nameBangla,
+          className:       c.class,
+          section:         c.section,
+          group:           c.group,
+          roll:            c.rollNo,
+          photoUrl:        c.photoUrl || null,
+          avatarColor:     '#1a6b4a',
+          todayAttendance: 'Unknown',
+          homeworkPending: 0,
+          feesDue:         0,
+          noticeUnread:    0,
+          hasUpcomingExam: false,
+        }));
+      }
+    } catch (_) {}
     guardian.token = token;
-    // Normalize children fields to match app expectations
-    if (guardian.children) {
-      guardian.children = guardian.children.map(c => ({
-        studentIID:      c.studentIID,
-        studentInsID:    c.studentInsID,
-        fullName:        c.fullName,
-        nameBangla:      c.nameBangla,
-        className:       c.class,
-        section:         c.section,
-        group:           c.group,
-        roll:            c.rollNo,
-        photoUrl:        c.photoUrl || null,
-        avatarColor:     '#1a6b4a',
-        todayAttendance: 'Unknown',
-        homeworkPending: 0,
-        feesDue:         0,
-        noticeUnread:    0,
-        hasUpcomingExam: false,
-      }));
-    }
     return { success: true, token, guardian };
   }
-  return { success: false, message: data.message };
+  return { success: false, message: data.message || 'OTP যাচাই ব্যর্থ হয়েছে' };
 }
 
 export async function getUserDetails(phone) {
