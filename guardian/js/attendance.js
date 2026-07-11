@@ -1,5 +1,5 @@
 import { getAttendanceHistory, getAttendanceFullHistory, getExamResults, getExamRoutine } from './api.js';
-import { showToast } from './dashboard.js';
+import { showToast, slotAnimate } from './dashboard.js';
 import { attachRippleAll, attachRipple } from '../../shared/js/ripple.js';
 
 // ── Attendance ─────────────────────────────────────────────────────────────
@@ -79,40 +79,12 @@ export async function loadAttendance(container, child) {
     </div>
   `;
 
-  // Fuel-station slot animation
-  function slotAnimate(el, target, suffix) {
-    const str = String(Math.round(target));
-    el.style.cssText += 'display:inline-flex;align-items:flex-end;overflow:hidden;vertical-align:bottom;';
-    el.innerHTML = '';
-    [...str].forEach((digit, i) => {
-      const col = document.createElement('span');
-      col.style.cssText = 'display:inline-block;overflow:hidden;height:1.2em;line-height:1.2em;';
-      const inner = document.createElement('span');
-      inner.style.cssText = 'display:block;';
-      const delay = i * 80;
-      const d = parseInt(digit);
-      let frames = '';
-      for (let n = 0; n <= d; n++) frames += `<span style="display:block;height:1.2em;line-height:1.2em;">${n}</span>`;
-      inner.innerHTML = frames;
-      col.appendChild(inner);
-      el.appendChild(col);
-      setTimeout(() => {
-        const totalH = d * 1.2;
-        inner.style.cssText = `display:block;transition:transform 1.4s cubic-bezier(.22,.68,0,1.2);transform:translateY(-${totalH}em);`;
-      }, 60 + delay);
-    });
-    if (suffix) {
-      const s = document.createElement('span');
-      s.textContent = suffix;
-      el.appendChild(s);
-    }
-  }
-
+  // Slot animation on stats
   container.querySelectorAll('.count-up').forEach(el => {
     const target = parseFloat(el.dataset.target) || 0;
     const suffix = el.dataset.suffix || '';
     el.textContent = '';
-    slotAnimate(el, target, suffix);
+    slotAnimate(el, String(Math.round(target)), '', suffix);
   });
 
   // Progress bar animate

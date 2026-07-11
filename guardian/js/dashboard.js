@@ -9,6 +9,39 @@ import { loadHomework } from './homework.js';
 import { loadFees } from './fees.js';
 import { loadNotices } from './notice.js';
 
+// ── Slot (fuel-station) animation ────────────────────────────────────────
+export function slotAnimate(el, numStr, prefix = '', suffix = '') {
+  const digits = [...String(numStr)];
+  el.style.cssText += 'display:inline-flex;align-items:flex-end;overflow:hidden;vertical-align:bottom;';
+  el.innerHTML = '';
+  if (prefix) {
+    const p = document.createElement('span');
+    p.textContent = prefix;
+    el.appendChild(p);
+  }
+  digits.forEach((ch, i) => {
+    if (isNaN(parseInt(ch))) {
+      const s = document.createElement('span'); s.textContent = ch; el.appendChild(s); return;
+    }
+    const d = parseInt(ch);
+    const col = document.createElement('span');
+    col.style.cssText = 'display:inline-block;overflow:hidden;height:1.2em;line-height:1.2em;';
+    const inner = document.createElement('span');
+    inner.style.cssText = 'display:block;';
+    let frames = '';
+    for (let n = 0; n <= d; n++) frames += `<span style="display:block;height:1.2em;line-height:1.2em;">${n}</span>`;
+    inner.innerHTML = frames;
+    col.appendChild(inner);
+    el.appendChild(col);
+    setTimeout(() => {
+      inner.style.cssText = `display:block;transition:transform 1.4s cubic-bezier(.22,.68,0,1.2);transform:translateY(-${d * 1.2}em);`;
+    }, 60 + i * 80);
+  });
+  if (suffix) {
+    const s = document.createElement('span'); s.textContent = suffix; el.appendChild(s);
+  }
+}
+
 // ── Global state ─────────────────────────────────────────────────────────
 export let state = {
   guardian: null,
@@ -311,24 +344,30 @@ async function _loadQuickStats(child) {
   const totalPresent = attData.totalPresent ?? 0;
   const totalSchool  = (attData.days || []).filter(d => d.dayType === 'R').length;
   const attEl = document.getElementById('qs-attendance');
-  if (attEl) attEl.textContent = totalSchool ? `${totalPresent}/${totalSchool}` : '—';
+  if (attEl) {
+    if (totalSchool) slotAnimate(attEl, `${totalPresent}/${totalSchool}`);
+    else attEl.textContent = '—';
+  }
 
   // Homework pending
   const hwList = Array.isArray(hwRes?.results) ? hwRes.results : [];
   const pending = hwList.filter(h => !h.isSubmitted && !h.IsSubmitted).length;
   const hwEl = document.getElementById('qs-homework');
-  if (hwEl) hwEl.textContent = pending;
+  if (hwEl) slotAnimate(hwEl, String(pending));
 
   // Fees due
   const due = dueRes?.results?.dueAmount ?? 0;
   const feesEl = document.getElementById('qs-fees');
-  if (feesEl) feesEl.textContent = due > 0 ? `৳${due.toLocaleString()}` : '০';
+  if (feesEl) {
+    if (due > 0) slotAnimate(feesEl, String(due.toLocaleString()), '৳');
+    else feesEl.textContent = '০';
+  }
 
   // Notices unread
   const notices = Array.isArray(noticeRes?.results) ? noticeRes.results : [];
   const unread = notices.filter(n => !n.isRead).length;
   const noticeEl = document.getElementById('qs-notice');
-  if (noticeEl) noticeEl.textContent = unread;
+  if (noticeEl) slotAnimate(noticeEl, String(unread));
 
   // Dashboard notification badge
   const badge = document.getElementById('dash-notif-badge');
