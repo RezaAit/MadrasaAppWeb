@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="bn" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0b2e4d">
+  <title>মাদরাসাতুল হুদা — App Install করুন</title>
+  <link rel="icon" type="image/png" href="/images/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Baloo+Da+2:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --deep:   #0b2e4d;
+      --mid:    #134f7c;
+      --light:  #1c6fa8;
+      --gold:   #c9a24b;
+      --gold-s: #e8d8ac;
+      --cream:  #f7f9fb;
+      --ink:    #0e1a24;
+      --muted:  #6b7680;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Hind Siliguri', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Header ── */
+    .header {
+      width: 100%;
+      background: linear-gradient(160deg, var(--deep) 0%, var(--mid) 55%, var(--light) 100%);
+      padding: max(48px, calc(env(safe-area-inset-top) + 20px)) 24px 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 15% 20%, rgba(201,162,75,0.12) 0, transparent 40%),
+        radial-gradient(circle at 85% 75%, rgba(201,162,75,0.09) 0, transparent 45%);
+      pointer-events: none;
+    }
+    .lattice {
+      position: absolute;
+      top: -40px; right: -55px;
+      width: 220px; height: 220px;
+      opacity: 0.12;
+      background-image:
+        repeating-linear-gradient(45deg,  var(--gold) 0 1.5px, transparent 1.5px 24px),
+        repeating-linear-gradient(-45deg, var(--gold) 0 1.5px, transparent 1.5px 24px);
+      pointer-events: none;
+    }
+    .lattice2 {
+      position: absolute;
+      bottom: -55px; left: -45px;
+      width: 180px; height: 180px;
+      opacity: 0.08;
+      background-image:
+        repeating-linear-gradient(45deg,  var(--gold) 0 1.5px, transparent 1.5px 24px),
+        repeating-linear-gradient(-45deg, var(--gold) 0 1.5px, transparent 1.5px 24px);
+      pointer-events: none;
+    }
+
+    .logo-wrap {
+      position: relative;
+      z-index: 2;
+      width: 92px; height: 92px;
+      border-radius: 24px;
+      background: radial-gradient(circle at 30% 30%, #fff, #f2ede0);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 12px 32px -8px rgba(0,0,0,0.45), 0 0 0 3px rgba(201,162,75,0.4);
+      margin-bottom: 18px;
+      overflow: hidden;
+      animation: floatY 5s ease-in-out infinite;
+    }
+    .logo-wrap img { width: 70%; height: 70%; object-fit: contain; }
+    @keyframes floatY {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-6px); }
+    }
+
+    .header h1 {
+      position: relative; z-index: 2;
+      font-family: 'Baloo Da 2', 'Hind Siliguri', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.5;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    }
+    .header-sub {
+      position: relative; z-index: 2;
+      margin-top: 8px;
+      font-size: .78rem;
+      color: var(--gold-s);
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Card ── */
+    .card {
+      width: calc(100% - 40px);
+      max-width: 400px;
+      background: #fff;
+      border-radius: 22px;
+      padding: 28px 24px 24px;
+      box-shadow: 0 20px 48px -18px rgba(11,46,77,0.30), 0 0 0 1px rgba(11,46,77,0.04);
+      margin-top: -50px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .app-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .app-icon {
+      width: 60px; height: 60px;
+      border-radius: 16px;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px -4px rgba(11,46,77,0.25);
+    }
+    .app-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .app-info h2 {
+      font-family: 'Baloo Da 2', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 3px;
+    }
+    .app-info p {
+      font-size: .75rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .features {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .feature-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 1rem;
+    }
+    .fi-blue  { background: #eff6ff; }
+    .fi-green { background: #f0fdf4; }
+    .fi-amber { background: #fffbeb; }
+    .fi-rose  { background: #fff1f2; }
+    .feature-text strong {
+      display: block;
+      font-size: .84rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 2px;
+    }
+    .feature-text span {
+      font-size: .74rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* ── Install Button ── */
+    #install-btn {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-family: 'Hind Siliguri', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(135deg, var(--mid) 0%, var(--deep) 100%);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      box-shadow: 0 14px 28px -10px rgba(11,46,77,0.52);
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s, opacity .15s;
+      letter-spacing: 0.3px;
+    }
+    #install-btn:active { transform: translateY(2px); box-shadow: 0 8px 18px -8px rgba(11,46,77,0.45); }
+    #install-btn:disabled { opacity: .5; cursor: not-allowed; pointer-events: none; box-shadow: none; }
+    #install-btn svg { flex-shrink: 0; }
+
+    /* ── States ── */
+    #state-waiting { display: none; text-align: center; padding: 10px 0 4px; }
+    #state-waiting p { font-size: .8rem; color: var(--muted); line-height: 1.6; }
+    #state-waiting a { color: var(--mid); font-weight: 600; text-decoration: none; }
+
+    #state-installed { display: none; text-align: center; padding: 6px 0; }
+    #state-installed .check { font-size: 2.2rem; margin-bottom: 8px; }
+    #state-installed p { font-size: .85rem; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+    #open-app-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, var(--mid), var(--deep));
+      color: #fff; border: none; border-radius: 12px;
+      padding: 13px 28px;
+      font-family: 'Hind Siliguri', sans-serif;
+      font-size: .95rem; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 10px 24px -8px rgba(11,46,77,0.45);
+    }
+
+    .divider {
+      height: 1px; background: #ecebe3;
+      margin: 20px 0;
+    }
+
+    .manual-steps {
+      display: none;
+    }
+    .manual-steps h3 {
+      font-size: .8rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .step-num {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--deep);
+      color: #fff;
+      font-size: .7rem;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .step p { font-size: .78rem; color: var(--ink); line-height: 1.5; }
+    .step b { color: var(--mid); }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 20px;
+      font-size: .7rem;
+      color: #b7b2a2;
+    }
+    .footer-note b { color: var(--mid); }
+
+    /* ── Already installed (standalone mode) ── */
+    body.is-standalone #state-installed { display: block; }
+    body.is-standalone #install-btn    { display: none; }
+    body.is-standalone #state-waiting  { display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="lattice"></div>
+    <div class="lattice2"></div>
+    <div class="logo-wrap">
+      <img src="/images/logo.png" alt="লোগো">
+    </div>
+    <h1>মাদরাসাতুল হুদা আল-ইসলামিয়া<br>আস-সালাফিয়া</h1>
+    <p class="header-sub">অভিভাবক পোর্টাল — Guardian App</p>
+  </div>
+
+  <div class="card">
+
+    <div class="app-row">
+      <div class="app-icon">
+        <img src="/images/icon-192.png" alt="App Icon">
+      </div>
+      <div class="app-info">
+        <h2>হুদা গার্ডিয়ান App</h2>
+        <p>সন্তানের উপস্থিতি, হোমওয়ার্ক,<br>ফি ও নোটিশ এক জায়গায়</p>
+      </div>
+    </div>
+
+    <div class="features">
+      <div class="feature-item">
+        <div class="feature-icon fi-blue">📅</div>
+        <div class="feature-text">
+          <strong>উপস্থিতি ট্র্যাক করুন</strong>
+          <span>প্রতিদিনের উপস্থিতি ও অনুপস্থিতির রেকর্ড দেখুন</span>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon fi-green">📖</div>
+        <div class="feature-text">
+          <strong>হোমওয়ার্ক দেখুন</strong>
+          <span>প্রতিদিনের হোমওয়ার্ক ও জমা দেওয়ার অবস্থা</span>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon fi-amber">💳</div>
+        <div class="feature-text">
+          <strong>ফি পরিশোধ</strong>
+          <span>বকেয়া ফি ও পেমেন্ট ইতিহাস দেখুন</span>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon fi-rose">🔔</div>
+        <div class="feature-text">
+          <strong>নোটিশ ও ঘোষণা</strong>
+          <span>মাদরাসার সকল নোটিশ সরাসরি আপনার কাছে</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Install button -->
+    <button id="install-btn" disabled>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      প্রস্তুত হচ্ছে…
+    </button>
+
+    <!-- Waiting for prompt -->
+    <div id="state-waiting">
+      <p>আপনার ব্রাউজার install prompt দিচ্ছে না।<br>
+      নিচের ধাপ অনুসরণ করুন অথবা সরাসরি<br>
+      <a href="/guardian/">App খুলুন</a> এবং browser menu থেকে install করুন।</p>
+    </div>
+
+    <!-- Already installed -->
+    <div id="state-installed">
+      <div class="check">✅</div>
+      <p>App ইতিমধ্যে install হয়ে গেছে!<br>হোম স্ক্রিন থেকে খুলুন।</p>
+      <button id="open-app-btn" onclick="location.href='/guardian/'">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        App খুলুন
+      </button>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Manual steps (always visible as fallback) -->
+    <div class="manual-steps" id="manual-steps">
+      <h3>ম্যানুয়ালি Install করুন</h3>
+      <div id="steps-android" style="display:none;">
+        <div class="step"><div class="step-num">১</div><p>Chrome browser-এ <b>⋮ (তিন ডট)</b> মেনু চাপুন</p></div>
+        <div class="step"><div class="step-num">২</div><p><b>"Add to Home screen"</b> বা <b>"Install app"</b> চাপুন</p></div>
+        <div class="step"><div class="step-num">৩</div><p><b>"Install"</b> বা <b>"Add"</b> চাপুন — হয়ে গেল!</p></div>
+      </div>
+      <div id="steps-ios" style="display:none;">
+        <div class="step"><div class="step-num">১</div><p>Safari browser-এ নিচের <b>শেয়ার বোতাম (□↑)</b> চাপুন</p></div>
+        <div class="step"><div class="step-num">২</div><p><b>"Add to Home Screen"</b> বিকল্পটি বেছে নিন</p></div>
+        <div class="step"><div class="step-num">৩</div><p>উপরে <b>"Add"</b> চাপুন — হয়ে গেল!</p></div>
+      </div>
+    </div>
+
+    <p class="footer-note">Powered by <b>HELIX</b> · sbook.com.bd</p>
+  </div>
+
+<script>
+  const installBtn   = document.getElementById('install-btn');
+  const stateWaiting = document.getElementById('state-waiting');
+  const manualSteps  = document.getElementById('manual-steps');
+
+  // Detect standalone (already installed)
+  if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+    document.body.classList.add('is-standalone');
+  }
+
+  // Detect iOS
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isAndroid = /android/i.test(navigator.userAgent);
+
+  // Show manual steps for iOS (no beforeinstallprompt support)
+  if (isIOS) {
+    manualSteps.style.display = 'block';
+    document.getElementById('steps-ios').style.display = 'block';
+    installBtn.style.display = 'none';
+  }
+
+  let deferredPrompt = null;
+
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+
+    installBtn.disabled = false;
+    installBtn.innerHTML = `
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      App Install করুন`;
+  });
+
+  // If no prompt after 4s, show fallback
+  setTimeout(() => {
+    if (!deferredPrompt && !isIOS && !document.body.classList.contains('is-standalone')) {
+      stateWaiting.style.display = 'block';
+      installBtn.style.display = 'none';
+      manualSteps.style.display = 'block';
+      if (isAndroid) document.getElementById('steps-android').style.display = 'block';
+    }
+  }, 4000);
+
+  installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    if (outcome === 'accepted') {
+      installBtn.disabled = true;
+      installBtn.textContent = 'Installing…';
+    }
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    installBtn.style.display = 'none';
+    stateWaiting.style.display = 'none';
+    document.getElementById('state-installed').style.display = 'block';
+    manualSteps.style.display = 'none';
+  });
+</script>
+
+</body>
+</html>
