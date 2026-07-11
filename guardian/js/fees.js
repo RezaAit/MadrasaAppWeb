@@ -1,5 +1,5 @@
 ﻿import { getFeesInfo, getReceiptDetails, getStudentDue } from './api.js';
-import { showToast } from './dashboard.js';
+import { showToast, slotAnimate } from './dashboard.js';
 import { attachRippleAll, attachRipple } from '../../shared/js/ripple.js';
 
 const BN_MONTHS = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
@@ -51,12 +51,12 @@ export async function loadFees(container, child) {
         <div style="display:grid;grid-template-columns:1fr 1fr;">
           <div id="fees-paid-stat" style="padding:18px 16px;text-align:center;border-right:1px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s;">
             <div style="font-size:.72rem;color:var(--text-muted);font-weight:600;margin-bottom:4px;">মোট পরিশোধিত</div>
-            <div style="font-size:1.55rem;font-weight:800;color:#1E3A5F;">৳${totalPaid.toLocaleString()}</div>
+            <div id="fees-paid-num" style="font-size:1.55rem;font-weight:800;color:#1E3A5F;">৳0</div>
             <div style="font-size:.72rem;color:var(--text-muted);margin-top:3px;">${history.length}টি পেমেন্ট</div>
           </div>
           <div id="fees-due-stat" style="padding:18px 16px;text-align:center;background:${dueAmount > 0 ? 'rgba(226,19,110,0.07)' : '#f0fdf4'};cursor:${dueAmount > 0 ? 'pointer' : 'default'};-webkit-tap-highlight-color:transparent;transition:background .15s;">
             <div style="font-size:.72rem;color:${dueAmount > 0 ? '#E2136E' : '#16a34a'};font-weight:600;margin-bottom:4px;">বকেয়া</div>
-            <div style="font-size:1.55rem;font-weight:800;color:${dueAmount > 0 ? '#E2136E' : '#16a34a'};">৳${dueAmount.toLocaleString()}</div>
+            <div id="fees-due-num" style="font-size:1.55rem;font-weight:800;color:${dueAmount > 0 ? '#E2136E' : '#16a34a'};">৳0</div>
             <div style="font-size:.72rem;color:${dueAmount > 0 ? '#E2136E' : '#16a34a'};margin-top:3px;opacity:.8;">${dueAmount > 0 ? '👆 পরিশোধ করুন' : '✓ পরিশোধিত'}</div>
           </div>
         </div>
@@ -97,6 +97,12 @@ export async function loadFees(container, child) {
       }
     </div>
   `;
+
+  // Slot animation on stat numbers
+  const paidNumEl = container.querySelector('#fees-paid-num');
+  const dueNumEl  = container.querySelector('#fees-due-num');
+  if (paidNumEl) slotAnimate(paidNumEl, String(totalPaid.toLocaleString()), '৳');
+  if (dueNumEl)  slotAnimate(dueNumEl,  String(dueAmount.toLocaleString()),  '৳');
 
   // Stats card clicks
   container.querySelector('#fees-paid-stat')?.addEventListener('click', () => {
