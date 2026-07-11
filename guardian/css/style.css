@@ -248,6 +248,16 @@ html, body {
 .gh-madrasa-name {
   font-size: .78rem; font-weight: 700; color: #fff;
   line-height: 1.3; margin: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.gh-marquee-inner {
+  display: inline-block;
+  animation: gh-marquee 14s linear infinite;
+}
+@keyframes gh-marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 .gh-avatar {
   width: 46px; height: 46px; border-radius: 50%;

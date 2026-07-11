@@ -184,13 +184,27 @@ async function loadDashboard() {
     if (!res.HasError) state.guardian = res.results;
   }
 
-  // Populate header user info
+  // Populate header user info with entrance animation
   const hdrName = document.getElementById('hdr-guardian-name');
-  if (hdrName) hdrName.textContent = state.guardian?.name || 'অভিভাবক';
+  if (hdrName) {
+    hdrName.textContent = state.guardian?.name || 'অভিভাবক';
+    hdrName.style.cssText += 'opacity:0;transform:translateY(10px);transition:opacity .6s ease,transform .6s ease;';
+    requestAnimationFrame(() => setTimeout(() => {
+      hdrName.style.opacity = '1';
+      hdrName.style.transform = 'translateY(0)';
+    }, 100));
+  }
   const hdrPhone = document.getElementById('hdr-guardian-phone');
   if (hdrPhone) {
     const ph = state.guardian?.phone || localStorage.getItem('guardian_phone') || '';
-    if (ph) hdrPhone.textContent = `📱 ${ph}`;
+    if (ph) {
+      hdrPhone.textContent = `📱 ${ph}`;
+      hdrPhone.style.cssText += 'opacity:0;transform:translateY(8px);transition:opacity .6s ease,transform .6s ease;';
+      requestAnimationFrame(() => setTimeout(() => {
+        hdrPhone.style.opacity = '1';
+        hdrPhone.style.transform = 'translateY(0)';
+      }, 220));
+    }
   }
 
 
