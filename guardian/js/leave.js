@@ -137,7 +137,6 @@ function renderHistory(container, all, child, guardian) {
         const card = document.createElement('div');
         card.className = 'lv-card fade-in';
         card.innerHTML = `
-          <div class="lv-card-accent" style="background:${statusColor};"></div>
           <div class="lv-card-body">
             <div class="lv-card-header">
               <div>
