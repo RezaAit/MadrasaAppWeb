@@ -79,28 +79,49 @@ export async function loadAttendance(container, child) {
     </div>
   `;
 
-  // Count-up animation
+  // Fuel-station slot animation
+  function slotAnimate(el, target, suffix) {
+    const str = String(Math.round(target));
+    el.style.cssText += 'display:inline-flex;align-items:flex-end;overflow:hidden;vertical-align:bottom;';
+    el.innerHTML = '';
+    [...str].forEach((digit, i) => {
+      const col = document.createElement('span');
+      col.style.cssText = 'display:inline-block;overflow:hidden;height:1.2em;line-height:1.2em;';
+      const inner = document.createElement('span');
+      inner.style.cssText = 'display:block;';
+      const delay = i * 80;
+      const d = parseInt(digit);
+      let frames = '';
+      for (let n = 0; n <= d; n++) frames += `<span style="display:block;height:1.2em;line-height:1.2em;">${n}</span>`;
+      inner.innerHTML = frames;
+      col.appendChild(inner);
+      el.appendChild(col);
+      setTimeout(() => {
+        const totalH = d * 1.2;
+        inner.style.cssText = `display:block;transition:transform 1.4s cubic-bezier(.22,.68,0,1.2);transform:translateY(-${totalH}em);`;
+      }, 60 + delay);
+    });
+    if (suffix) {
+      const s = document.createElement('span');
+      s.textContent = suffix;
+      el.appendChild(s);
+    }
+  }
+
   container.querySelectorAll('.count-up').forEach(el => {
     const target = parseFloat(el.dataset.target) || 0;
     const suffix = el.dataset.suffix || '';
-    const duration = 800;
-    const start = performance.now();
-    function tick(now) {
-      const t = Math.min((now - start) / duration, 1);
-      const ease = 1 - Math.pow(1 - t, 3);
-      el.textContent = Math.round(target * ease) + suffix;
-      if (t < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
+    el.textContent = '';
+    slotAnimate(el, target, suffix);
   });
 
   // Progress bar animate
-  requestAnimationFrame(() => {
+  setTimeout(() => {
     container.querySelectorAll('.progress-bar-fill').forEach(bar => {
-      bar.style.transition = 'width .8s cubic-bezier(.4,0,.2,1)';
+      bar.style.transition = 'width 1.4s cubic-bezier(.4,0,.2,1)';
       bar.style.width = bar.dataset.target + '%';
     });
-  });
+  }, 100);
 
   // Expand/collapse
   container.querySelectorAll('.year-header').forEach(hdr => {
