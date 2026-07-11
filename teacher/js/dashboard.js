@@ -183,6 +183,14 @@ function renderShell() {
 
   document.getElementById('teacher-logout-btn').addEventListener('click', logout);
 
+  // Refresh button
+  document.getElementById('teacher-refresh-btn').addEventListener('click', () => {
+    const btn = document.getElementById('teacher-refresh-btn');
+    btn.classList.add('spinning');
+    btn.addEventListener('animationend', () => btn.classList.remove('spinning'), { once: true });
+    navigateTo(state.activeModule || 'dashboard');
+  });
+
   // Avatar → profile
   document.getElementById('teacher-initials').style.cursor = 'pointer';
   document.getElementById('teacher-initials').addEventListener('click', () => navigateTo('profile'));
