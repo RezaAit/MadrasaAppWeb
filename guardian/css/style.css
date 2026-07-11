@@ -289,8 +289,8 @@ html, body {
 .gh-action-logout { background: rgba(239,68,68,.25); border-color: rgba(239,68,68,.4); }
 .gh-action-logout:active { background: rgba(239,68,68,.4); }
 .gh-three-dot {
-  background: rgba(255,255,255,.15);
-  border: 1px solid rgba(255,255,255,.25);
+  background: transparent;
+  border: none;
   color: #fff; border-radius: 10px;
   width: 38px; height: 38px;
   display: flex; align-items: center; justify-content: center;
