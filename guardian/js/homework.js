@@ -169,6 +169,33 @@ function _hwCard(h) {
   const reactionConfig = fb ? _reactionConfig(fb.reaction) : null;
   const isLocked = !!h.editLockedAt;
   const isSeen = !!h.seenAt;
+
+  // Attachment count
+  const sub = h.submission;
+  const photoCount = (sub?.primaryImageUrl ? 1 : 0) + (sub?.annotatedPhotoUrl ? 1 : 0) + (sub?.images?.length || 0);
+  const fileCount  = sub?.files?.length || 0;
+  const videoCount = (sub?.videoNoteUrl ? 1 : 0) + (sub?.videos?.length || 0) + (sub?.youtubeUrls?.length || 0);
+  const voiceCount = sub?.voiceNoteUrl ? 1 : 0;
+  const attachParts = [];
+  if (photoCount) attachParts.push(`📷 ${photoCount}`);
+  if (fileCount)  attachParts.push(`📄 ${fileCount}`);
+  if (videoCount) attachParts.push(`🎬 ${videoCount}`);
+  if (voiceCount) attachParts.push(`🎤 ${voiceCount}`);
+  const attachBadge = attachParts.length
+    ? `<span style="font-size:.65rem;color:#475569;background:#f1f5f9;border-radius:6px;padding:2px 6px;">${attachParts.join(' · ')}</span>`
+    : '';
+
+  // Submitted time (date + time)
+  const submittedTime = h.submittedAt
+    ? new Date(h.submittedAt).toLocaleString('bn-BD', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true })
+    : '—';
+
+  // Countdown timer (only if not locked and submitted)
+  const countdownId = `hw-cd-${h.id}`;
+  const countdownHtml = (!isLocked && !fb && h.submittedAt)
+    ? `<span id="${countdownId}" style="font-size:.65rem;font-weight:700;color:#ea580c;"></span>`
+    : '';
+
   const seenLabel = isSeen
     ? `<span style="display:inline-flex;align-items:center;gap:3px;font-size:.68rem;color:#2563eb;font-weight:600;">
         <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#2563eb" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -176,6 +203,22 @@ function _hwCard(h) {
     : `<span style="display:inline-flex;align-items:center;gap:3px;font-size:.68rem;color:#94a3b8;font-weight:600;">
         <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#94a3b8" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         অপেক্ষায়</span>`;
+
+  // Start countdown ticker after render
+  if (!isLocked && !fb && h.submittedAt) {
+    const lockAt = new Date(h.submittedAt).getTime() + 30 * 60 * 1000;
+    requestAnimationFrame(function tick() {
+      const el = document.getElementById(countdownId);
+      if (!el) return;
+      const left = lockAt - Date.now();
+      if (left <= 0) { el.textContent = '⏰ সময় শেষ'; return; }
+      const m = Math.floor(left / 60000);
+      const s = Math.floor((left % 60000) / 1000);
+      el.textContent = `⏱ ${m}:${String(s).padStart(2,'0')} বাকি`;
+      setTimeout(tick, 1000);
+    });
+  }
+
   return `
     <div class="hw-card hw-card--submitted ${fb ? 'hw-card--reviewed' : ''}" data-hw-id="${h.id}" style="--hw-accent:${style.accent};--hw-bg:${style.bg};margin-bottom:8px;">
       <div class="hw-card-stripe"></div>
@@ -189,10 +232,15 @@ function _hwCard(h) {
         <div class="hw-card-bottom">
           <div class="hw-teacher"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${h.teacherName ?? '—'}</div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
-            <div class="hw-due"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>জমা: ${_fmt(h.submittedAt)}</div>
+            <div class="hw-due"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>জমা: ${submittedTime}</div>
             ${h.dueDate ? `<div class="hw-due" style="color:#dc2626;font-weight:600;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>সীমা: ${_fmt(h.dueDate)}</div>` : ''}
           </div>
         </div>
+        ${attachParts.length || countdownHtml ? `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+          ${attachBadge}
+          ${countdownHtml}
+        </div>` : ''}
         ${!fb ? `<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,.06);">
           ${seenLabel}
           ${!isLocked ? `<span style="font-size:.68rem;color:#16a34a;font-weight:600;">✏ সম্পাদনা করুন</span>` : `<span style="font-size:.68rem;color:#94a3b8;">🔒 লক হয়েছে</span>`}
@@ -664,7 +712,9 @@ function showSubmittedView(mainContainer, hw, child, all) {
           </div>
           <div style="flex:1;">
             <div style="font-weight:700;color:#15803d;font-size:.95rem;">জমা হয়েছে</div>
-            <div style="font-size:.78rem;color:#4ade80;">${isSeen ? '👁 শিক্ষক দেখেছেন' : 'শিক্ষক শীঘ্রই রিভিউ করবেন'}</div>
+            <div style="font-size:.78rem;color:#166534;">${hw.submittedAt ? new Date(hw.submittedAt).toLocaleString('bn-BD', { day:'numeric', month:'short', hour:'numeric', minute:'2-digit', hour12:true }) : ''}</div>
+            <div style="font-size:.75rem;color:#4ade80;margin-top:2px;">${isSeen ? '👁 শিক্ষক দেখেছেন' : 'শিক্ষক শীঘ্রই রিভিউ করবেন'}</div>
+            ${!isLocked && hw.submittedAt ? `<div id="hw-sheet-cd" style="font-size:.72rem;font-weight:700;color:#ea580c;margin-top:2px;"></div>` : ''}
           </div>
           ${!isLocked
             ? `<button id="hw-edit-submit-btn" style="background:#2563eb;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;">
@@ -734,6 +784,23 @@ function showSubmittedView(mainContainer, hw, child, all) {
     fullHeight: true,
   });
   open();
+
+  // Countdown in sheet
+  if (!isLocked && hw.submittedAt) {
+    const cdEl = sheetBody.querySelector('#hw-sheet-cd');
+    if (cdEl) {
+      const lockAt = new Date(hw.submittedAt).getTime() + 30 * 60 * 1000;
+      (function tick() {
+        const left = lockAt - Date.now();
+        if (left <= 0) { cdEl.textContent = '⏰ সম্পাদনার সময় শেষ'; return; }
+        const m = Math.floor(left / 60000);
+        const s = Math.floor((left % 60000) / 1000);
+        cdEl.textContent = `⏱ সম্পাদনার সুযোগ: ${m}:${String(s).padStart(2,'0')} বাকি`;
+        setTimeout(tick, 1000);
+      })();
+    }
+  }
+
   sheetBody.querySelectorAll('.hw-zoomable').forEach(img => {
     img.addEventListener('click', () => _openImageZoom(img.dataset.full));
   });
