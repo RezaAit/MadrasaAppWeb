@@ -264,8 +264,8 @@ function renderChildSelector() {
     const initials = child.fullName.slice(0, 1);
     const card = document.createElement('div');
     card.className = 'child-card card-lift';
-    card.style.cssText = 'opacity:0;transform:translateY(22px);transition:opacity .5s ease,transform .5s cubic-bezier(.22,.68,0,1.1);';
-    setTimeout(() => { card.style.opacity='1'; card.style.transform='translateY(0)'; }, 80 + idx * 130);
+    card.style.cssText = 'opacity:0;transform:translateY(40px) scale(.96);transition:opacity .8s ease,transform .8s cubic-bezier(.22,.68,0,1.05);';
+    setTimeout(() => { card.style.opacity='1'; card.style.transform='translateY(0) scale(1)'; }, 150 + idx * 250);
     const avatarHtml = child.photoUrl
       ? `<img src="${child.photoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
       : initials;
