@@ -37,6 +37,7 @@
   position: relative;
   background: linear-gradient(160deg, var(--lg-deep) 0%, var(--lg-mid) 55%, var(--lg-light) 100%);
   padding: 48px 24px 70px;
+  padding-top: max(48px, calc(env(safe-area-inset-top) + 16px));
   overflow: hidden;
   flex-shrink: 0;
 }
