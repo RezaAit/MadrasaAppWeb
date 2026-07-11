@@ -99,8 +99,8 @@ export async function loadHomework(container, child) {
       const hw = all.find(h => String(h.id) === String(card.dataset.hwId));
       if (!hw) return;
       if (hw.status === 'Pending') openSubmitScreen(container, hw, child, all);
-      else if (hw.teacherFeedback) showFeedbackDetail(hw);
-      else if (hw.status === 'Submitted') showSubmittedView(hw);
+      else if (hw.status === 'Reviewed') showFeedbackDetail(hw);
+      else if (hw.status === 'Submitted') showSubmittedView(container, hw, child, all);
     });
   });
 }
@@ -146,9 +146,12 @@ function _renderPending(list) {
               <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               ${h.teacherName ?? '—'}
             </div>
-            <div class="hw-due">
-              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              ${_fmt(h.dueDate)}
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
+              <div class="hw-due">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                ${_fmt(h.dueDate)}
+              </div>
+              ${h.dueTime ? `<div class="hw-due" style="color:#7c3aed;font-weight:600;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${_fmtTime(h.dueTime)}</div>` : ''}
             </div>
           </div>
           <div class="hw-card-cta">
@@ -164,6 +167,15 @@ function _hwCard(h) {
   const style = _subjectStyle(h.subject);
   const fb = h.teacherFeedback;
   const reactionConfig = fb ? _reactionConfig(fb.reaction) : null;
+  const isLocked = !!h.editLockedAt;
+  const isSeen = !!h.seenAt;
+  const seenLabel = isSeen
+    ? `<span style="display:inline-flex;align-items:center;gap:3px;font-size:.68rem;color:#2563eb;font-weight:600;">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#2563eb" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        শিক্ষক দেখেছেন</span>`
+    : `<span style="display:inline-flex;align-items:center;gap:3px;font-size:.68rem;color:#94a3b8;font-weight:600;">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#94a3b8" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        অপেক্ষায়</span>`;
   return `
     <div class="hw-card hw-card--submitted ${fb ? 'hw-card--reviewed' : ''}" data-hw-id="${h.id}" style="--hw-accent:${style.accent};--hw-bg:${style.bg};margin-bottom:8px;">
       <div class="hw-card-stripe"></div>
@@ -181,6 +193,10 @@ function _hwCard(h) {
             ${h.dueDate ? `<div class="hw-due" style="color:#dc2626;font-weight:600;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>সীমা: ${_fmt(h.dueDate)}</div>` : ''}
           </div>
         </div>
+        ${!fb ? `<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,.06);">
+          ${seenLabel}
+          ${!isLocked ? `<span style="font-size:.68rem;color:#16a34a;font-weight:600;">✏ সম্পাদনা করুন</span>` : `<span style="font-size:.68rem;color:#94a3b8;">🔒 লক হয়েছে</span>`}
+        </div>` : ''}
         ${fb ? `<div class="hw-card-cta hw-card-cta--review"><span>মতামত দেখুন</span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>` : ''}
       </div>
     </div>`;
@@ -623,26 +639,40 @@ function _showSuccessScreen(sheetBody, close, hw, mainContainer, child, all) {
 }
 
 // ── Submitted view (no feedback yet) ─────────────────────────────────────
-function showSubmittedView(hw) {
+function showSubmittedView(mainContainer, hw, child, all) {
   const sub = hw.submission;
+  const isLocked = !!hw.editLockedAt;
+  const isSeen = !!hw.seenAt;
+  const lockMsg = hw.editLockReason === 'teacher_seen' ? 'শিক্ষক দেখে ফেলেছেন'
+    : hw.editLockReason === 'due_time' ? 'সময়সীমা শেষ'
+    : hw.editLockReason === 'timeout' ? '৩০ মিনিট পার হয়েছে'
+    : null;
+
   const allPhotos = [];
   if (sub?.primaryImageUrl) allPhotos.push(sub.primaryImageUrl);
   if (sub?.annotatedPhotoUrl) allPhotos.push(sub.annotatedPhotoUrl);
   (sub?.images || []).forEach(u => allPhotos.push(u));
 
-  const { open, body: sheetBody } = createBottomSheet({
+  const { open, body: sheetBody, close } = createBottomSheet({
     id: 'hw-submitted-sheet',
     title: 'জমা দেওয়া হয়েছে',
     content: `
       <div class="hw-sheet-wrap">
-        <div style="display:flex;align-items:center;gap:10px;background:#f0fdf4;border-radius:14px;padding:14px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:10px;background:#f0fdf4;border-radius:14px;padding:14px;margin-bottom:12px;">
           <div style="width:40px;height:40px;background:#16a34a;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
-          <div>
+          <div style="flex:1;">
             <div style="font-weight:700;color:#15803d;font-size:.95rem;">জমা হয়েছে</div>
-            <div style="font-size:.8rem;color:#4ade80;">শিক্ষক শীঘ্রই রিভিউ করবেন</div>
+            <div style="font-size:.78rem;color:#4ade80;">${isSeen ? '👁 শিক্ষক দেখেছেন' : 'শিক্ষক শীঘ্রই রিভিউ করবেন'}</div>
           </div>
+          ${!isLocked
+            ? `<button id="hw-edit-submit-btn" style="background:#2563eb;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                সম্পাদনা
+              </button>`
+            : `<div style="text-align:center;font-size:.7rem;color:#94a3b8;background:#f1f5f9;padding:6px 10px;border-radius:8px;">🔒 ${lockMsg || 'লক'}</div>`
+          }
         </div>
 
         <div style="font-weight:700;font-size:.85rem;color:#0f172a;margin-bottom:6px;">${hw.subject} · ${hw.title}</div>
@@ -706,6 +736,11 @@ function showSubmittedView(hw) {
   open();
   sheetBody.querySelectorAll('.hw-zoomable').forEach(img => {
     img.addEventListener('click', () => _openImageZoom(img.dataset.full));
+  });
+  sheetBody.querySelector('#hw-edit-submit-btn')?.addEventListener('click', () => {
+    close();
+    // reopen as Pending so user can re-submit
+    openSubmitScreen(mainContainer, { ...hw, status: 'Pending' }, child, all);
   });
 }
 
@@ -1048,6 +1083,15 @@ async function _openAnnotationOverlay(imageUrl, onSave) {
 function _fmt(d) {
   if (!d) return '—';
   return new Date(d).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function _fmtTime(t) {
+  if (!t) return '';
+  // t is "HH:MM:SS" or "HH:MM"
+  const [h, m] = t.split(':').map(Number);
+  const ampm = h < 12 ? 'AM' : 'PM';
+  const h12 = h % 12 || 12;
+  return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
 }
 
 function _reactionConfig(r) {

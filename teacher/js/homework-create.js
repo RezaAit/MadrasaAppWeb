@@ -210,7 +210,10 @@ function _openCreateForm(container, teacher) {
       </div>
       <div class="form-group mb-12">
         <label class="form-label">শেষ তারিখ *</label>
-        <input type="date" class="form-input" id="hw-due">
+        <div style="display:flex;gap:8px;">
+          <input type="date" class="form-input" id="hw-due" style="flex:1;">
+          <input type="time" class="form-input" id="hw-due-time" style="width:130px;" placeholder="সময় (ঐচ্ছিক)">
+        </div>
       </div>
       <div class="form-group mb-12">
         <label class="form-label">বিবরণ</label>
@@ -265,6 +268,7 @@ function _openCreateForm(container, teacher) {
   sheetBody.querySelector('#submit-hw-btn')?.addEventListener('click', async () => {
     const title   = sheetBody.querySelector('#hw-title').value.trim();
     const dueDate = sheetBody.querySelector('#hw-due').value;
+    const dueTime = sheetBody.querySelector('#hw-due-time').value || null;
     const sectionIdx = sectionSelect.value;
 
     if (!sectionIdx && sectionIdx !== '0') { showToast('ক্লাস ও বিষয় বেছে নিন', 'error'); return; }
@@ -282,7 +286,7 @@ function _openCreateForm(container, teacher) {
     const createRes = await createHomework({
       VersionId: sec.versionId, SessionId: sec.sessionId, BranchId: sec.branchId, ShiftId: sec.shiftId,
       ClassId: sec.classId, GroupId: sec.groupId, SectionId: sec.sectionId, SubjectId: sec.subjectId,
-      Title: title, Description: description, DueDate: dueDate,
+      Title: title, Description: description, DueDate: dueDate, DueTime: dueTime,
     });
 
     if (createRes.HasError || !createRes.results?.id) {
