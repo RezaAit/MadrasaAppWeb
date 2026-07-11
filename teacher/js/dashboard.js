@@ -182,24 +182,19 @@ function renderShell() {
   // Position indicator on initial active tab after layout renders
   requestAnimationFrame(() => moveIndicator(nav.querySelector('.main-nav-btn.active')));
 
-  // Three-dot menu
+  // Three-dot drawer
   const threeDot = document.getElementById('thb-three-dot');
   const dropdown = document.getElementById('thb-dropdown');
-  threeDot.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const rect = threeDot.getBoundingClientRect();
-    dropdown.style.top = (rect.bottom + 6) + 'px';
-    dropdown.style.right = 'auto';
-    dropdown.style.left = Math.max(8, rect.right - 170) + 'px';
-    dropdown.classList.toggle('open');
-  });
-  dropdown.addEventListener('click', (e) => e.stopPropagation());
-  document.addEventListener('click', () => dropdown.classList.remove('open'));
+  const scrim = document.getElementById('thb-scrim');
+  const openDrawer = () => { dropdown.classList.add('open'); scrim.classList.add('open'); };
+  const closeDrawer = () => { dropdown.classList.remove('open'); scrim.classList.remove('open'); };
+  threeDot.addEventListener('click', (e) => { e.stopPropagation(); openDrawer(); });
+  scrim.addEventListener('click', closeDrawer);
 
-  document.getElementById('teacher-logout-btn').addEventListener('click', logout);
+  document.getElementById('teacher-logout-btn').addEventListener('click', () => { closeDrawer(); logout(); });
 
   document.getElementById('teacher-refresh-btn').addEventListener('click', () => {
-    dropdown.classList.remove('open');
+    closeDrawer();
     navigateTo(state.activeModule || 'dashboard');
   });
 
