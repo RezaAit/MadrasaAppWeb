@@ -64,7 +64,7 @@ function _renderHwCard(hw) {
   const sectionName = hw.SectionName ?? hw.sectionName ?? '';
   const subjectName = hw.subjectName ?? hw.SubjectName ?? '';
   const metaParts   = [sessionName, className, groupName, sectionName].filter(Boolean);
-  const isPublished = hw.status === 'Published';
+  const isPublished = (hw.status ?? hw.Status) === 'Published';
   const pct = totalCount > 0 ? Math.round((subCount / totalCount) * 100) : 0;
 
   const imgCount   = (hw.instructionImages || hw.InstructionImages || []).length
@@ -213,7 +213,7 @@ function _openCreateForm(container, teacher) {
       <!-- ── Multiple attachments (images, voice, video, YouTube, PDF) ── -->
       <div id="hwc-multi-attach-wrap" class="mb-12"></div>
 
-      <button class="btn btn-primary btn-full btn-lg" id="submit-hw-btn">হোমওয়ার্ক প্রকাশ করুন</button>
+      <button class="btn btn-primary btn-full btn-lg" id="submit-hw-btn">হোমওয়ার্ক সংরক্ষণ করুন</button>
     </div>
   `;
 
@@ -270,7 +270,7 @@ function _openCreateForm(container, teacher) {
       : (sheetBody.querySelector('#hw-desc-fallback')?.value || '');
 
     const btn = sheetBody.querySelector('#submit-hw-btn');
-    btn.disabled = true; btn.textContent = 'তৈরি হচ্ছে...';
+    btn.disabled = true; btn.textContent = 'সংরক্ষণ হচ্ছে...';
 
     const createRes = await createHomework({
       VersionId: sec.versionId, SessionId: sec.sessionId, BranchId: sec.branchId, ShiftId: sec.shiftId,
@@ -280,7 +280,7 @@ function _openCreateForm(container, teacher) {
 
     if (createRes.HasError || !createRes.results?.id) {
       showToast(createRes.message || 'হোমওয়ার্ক তৈরি ব্যর্থ হয়েছে', 'error');
-      btn.disabled = false; btn.textContent = 'হোমওয়ার্ক প্রকাশ করুন';
+      btn.disabled = false; btn.textContent = 'হোমওয়ার্ক সংরক্ষণ করুন';
       return;
     }
 
@@ -293,22 +293,14 @@ function _openCreateForm(container, teacher) {
       const upRes = await uploadHomeworkMultiAttachments(hwId, { images, annotated, voices, videos, youtubeUrls, pdfs });
       if (upRes?.HasError) {
         showToast(upRes.message || 'সংযুক্তি আপলোড ব্যর্থ হয়েছে', 'error');
-        btn.disabled = false; btn.textContent = 'হোমওয়ার্ক প্রকাশ করুন';
+        btn.disabled = false; btn.textContent = 'হোমওয়ার্ক সংরক্ষণ করুন';
         return;
       }
     }
 
-    btn.textContent = 'প্রকাশ হচ্ছে...';
-    const pubRes = await publishHomework(hwId);
-
-    if (!pubRes.HasError) {
-      showToast('হোমওয়ার্ক প্রকাশিত হয়েছে ✓', 'success');
-      close();
-      _reloadList(container);
-    } else {
-      showToast(pubRes.message || 'প্রকাশ করতে ত্রুটি হয়েছে (খসড়া হিসেবে সংরক্ষিত আছে)', 'error');
-      btn.disabled = false; btn.textContent = 'হোমওয়ার্ক প্রকাশ করুন';
-    }
+    showToast('হোমওয়ার্ক খসড়া হিসেবে সংরক্ষিত হয়েছে ✓', 'success');
+    close();
+    _reloadList(container);
   });
 }
 
