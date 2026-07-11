@@ -40,7 +40,7 @@ export async function loadAttendance(container, child) {
     <div class="p-16">
 
       <!-- Today + Rate row -->
-      <div class="stat-grid mb-16 stagger-in">
+      <div class="stat-grid mb-16">
         <div class="stat-card" style="text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;">
           <div class="stat-label mb-4">আজকের উপস্থিতি</div>
           <div style="font-size:.7rem;color:var(--text-muted);margin-bottom:8px;">${now.toLocaleDateString('bn-BD',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
@@ -213,14 +213,14 @@ function _yearGroup(yearData, now) {
 
   return `
     <div class="gh-year-group">
-      <div class="gh-year-header year-header${isCurrentYear ? '' : ' gh-closed'}">
+      <div class="gh-year-header year-header gh-closed">
         <span class="gh-year-title">${yearData.year} সাল</span>
         <div class="gh-year-right">
           <span class="gh-year-meta">✓ ${totalPresent} &nbsp; ✗ ${totalAbsent}</span>
-          <svg class="gh-year-chevron year-chevron${isCurrentYear ? ' open' : ''}" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          <svg class="gh-year-chevron year-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
       </div>
-      <div class="gh-year-body year-body"${isCurrentYear ? '' : ' style="display:none;"'}>
+      <div class="gh-year-body year-body" style="display:none;">
         ${monthRows}
       </div>
     </div>
@@ -243,9 +243,9 @@ function _monthGroup(month, now, isCurrentYear) {
           <span class="gh-month-name">${month.label}</span>
           ${subParts ? `<span class="gh-month-sub" style="margin-top:0;">${subParts}</span>` : ''}
         </div>
-        <svg class="gh-month-chevron month-chevron${isCurrentMonth ? ' open' : ''}" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        <svg class="gh-month-chevron month-chevron" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
-      <div class="gh-month-body month-body${isCurrentMonth ? ' open' : ''}">
+      <div class="gh-month-body month-body">
         ${weekRows}
       </div>
     </div>
