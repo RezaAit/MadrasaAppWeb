@@ -205,13 +205,22 @@ function _hwCard(h) {
         অপেক্ষায়</span>`;
 
   // Start countdown ticker after render
+  const editRowId = `hw-editrow-${h.id}`;
   if (!isLocked && !fb && h.submittedAt) {
     const lockAt = new Date(h.submittedAt).getTime() + 30 * 60 * 1000;
     requestAnimationFrame(function tick() {
       const el = document.getElementById(countdownId);
       if (!el) return;
       const left = lockAt - Date.now();
-      if (left <= 0) { el.textContent = '⏰ সময় শেষ'; return; }
+      if (left <= 0) {
+        el.textContent = '⏰ সময় শেষ';
+        // Lock the edit button in the bottom row
+        const row = document.getElementById(editRowId);
+        if (row) row.innerHTML = `
+          ${seenLabel}
+          <span style="font-size:.68rem;color:#94a3b8;">🔒 লক হয়েছে</span>`;
+        return;
+      }
       const m = Math.floor(left / 60000);
       const s = Math.floor((left % 60000) / 1000);
       el.textContent = `⏱ ${m}:${String(s).padStart(2,'0')} বাকি`;
@@ -233,7 +242,7 @@ function _hwCard(h) {
           <div class="hw-teacher"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${h.teacherName ?? '—'}</div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
             <div class="hw-due"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>জমা: ${submittedTime}</div>
-            ${h.dueDate ? `<div class="hw-due" style="color:#dc2626;font-weight:600;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>সীমা: ${_fmt(h.dueDate)}</div>` : ''}
+            ${h.dueDate ? `<div class="hw-due" style="color:#dc2626;font-weight:600;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>সীমা: ${_fmtDeadline(h.dueDate, h.dueTime)}</div>` : ''}
           </div>
         </div>
         ${attachParts.length || countdownHtml ? `
@@ -241,7 +250,7 @@ function _hwCard(h) {
           ${attachBadge}
           ${countdownHtml}
         </div>` : ''}
-        ${!fb ? `<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,.06);">
+        ${!fb ? `<div id="${editRowId}" style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,.06);">
           ${seenLabel}
           ${!isLocked ? `<span style="font-size:.68rem;color:#16a34a;font-weight:600;">✏ সম্পাদনা করুন</span>` : `<span style="font-size:.68rem;color:#94a3b8;">🔒 লক হয়েছে</span>`}
         </div>` : ''}
@@ -1159,6 +1168,13 @@ function _fmtTime(t) {
   const ampm = h < 12 ? 'AM' : 'PM';
   const h12 = h % 12 || 12;
   return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+
+function _fmtDeadline(dueDate, dueTime) {
+  if (!dueDate) return '—';
+  const dateStr = new Date(dueDate).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', year: 'numeric' });
+  const timeStr = dueTime ? _fmtTime(dueTime) : '১২:০০ AM';
+  return `${dateStr}, ${timeStr}`;
 }
 
 function _reactionConfig(r) {
