@@ -212,7 +212,7 @@ function _openCreateForm(container, teacher) {
         <label class="form-label">শেষ তারিখ *</label>
         <div style="display:flex;gap:8px;">
           <input type="date" class="form-input" id="hw-due" style="flex:1;">
-          <input type="time" class="form-input" id="hw-due-time" style="width:130px;" placeholder="সময় (ঐচ্ছিক)">
+          <input type="time" class="form-input" id="hw-due-time" style="width:130px;" value="00:00">
         </div>
       </div>
       <div class="form-group mb-12">
