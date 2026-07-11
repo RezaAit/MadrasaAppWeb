@@ -358,8 +358,8 @@ async function _openReviewScreen(container, hw) {
   if (!instrVoices.length && hw.voiceAttachmentUrl) instrVoices.push(_full(hw.voiceAttachmentUrl));
   const instrVideos  = (hw.instructionVideos || []).map(v => _full(v.VideoUrl ?? v.videoUrl));
   const instrYoutube = (hw.youtubeLinks      || []).map(y => y.YoutubeUrl ?? y.youtubeUrl);
-  const instrPdfs    = (hw.instructionPdfs   || []).map(p => _full(p.PdfUrl ?? p.pdfUrl));
-  if (!instrPdfs.length && hw.pdfAttachmentUrl) instrPdfs.push(_full(hw.pdfAttachmentUrl));
+  const instrPdfs    = (hw.instructionPdfs   || []).map(p => ({ pdfUrl: _full(p.PdfUrl ?? p.pdfUrl), fileSize: p.fileSize ?? p.FileSize ?? null }));
+  if (!instrPdfs.length && hw.pdfAttachmentUrl) instrPdfs.push({ pdfUrl: _full(hw.pdfAttachmentUrl), fileSize: null });
 
   const hasInstr = instrImages.length || instrVoices.length || instrVideos.length || instrYoutube.length || instrPdfs.length || hw.description;
 
