@@ -3,13 +3,13 @@
  * Change these variables to re-theme the entire login screen.
  */
 :root {
-  --lg-deep:        #0f2460;   /* header gradient start */
-  --lg-mid:         #1e3a8a;   /* header gradient mid — matches dashboard header */
-  --lg-light:       #2952a3;   /* header gradient end */
-  --lg-gold:        #D4AF37;   /* accent — matches --accent */
-  --lg-gold-soft:   #e8d49a;   /* sub-label text in header */
-  --lg-cream:       #FAFAFA;   /* page background — matches --bg */
-  --lg-ink:         #111827;   /* dark text — matches --text-main */
-  --lg-muted:       #4B5563;   /* secondary text — matches --text-muted */
+  --lg-deep:        #0b2e4d;
+  --lg-mid:         #134f7c;
+  --lg-light:       #1c6fa8;
+  --lg-gold:        #c9a24b;
+  --lg-gold-soft:   #e8d8ac;
+  --lg-cream:       #f7f9fb;
+  --lg-ink:         #0e1a24;
+  --lg-muted:       #6b7680;
   --lg-card-radius: 22px;
 }
