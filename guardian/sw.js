@@ -1,7 +1,9 @@
-const CACHE = 'huda-guardian-v21';
+const CACHE = 'huda-guardian-v22';
 const STATIC = [
   '/guardian/',
   '/guardian/index.html',
+  '/guardian/css/login-theme.css',
+  '/guardian/css/login.css',
   '/guardian/css/style.css',
   '/guardian/js/dashboard.js',
   '/guardian/js/api.js',
