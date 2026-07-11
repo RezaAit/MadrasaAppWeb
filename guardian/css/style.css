@@ -325,6 +325,10 @@ html, body {
 }
 .gh-three-dot:active { background: rgba(255,255,255,.3); }
 
+/* ─── Leave Card ─────────────────────────────────────────────────────────── */
+.lv-card { margin: 10px; }
+.lv-content { padding: 5px; }
+
 /* ─── Profile Header — seamless blue continuation ─────────────────────────── */
 .profile-app-header {
   background: #1e3a8a !important;
