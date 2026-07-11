@@ -119,6 +119,22 @@ document.addEventListener('click', e => {
   if (e.target.closest('#clear-cache-btn') || e.target.closest('#clear-cache-btn-2')) {
     clearAllCache();
   }
+  if (e.target.closest('#logout-btn-2')) {
+    logout();
+  }
+});
+
+// Profile screen three-dot
+document.addEventListener('DOMContentLoaded', () => {
+  const dot2 = document.getElementById('gh-three-dot-2');
+  const act2 = document.getElementById('gh-actions-2');
+  if (dot2 && act2) {
+    dot2.addEventListener('click', () => act2.classList.toggle('open'));
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#gh-three-dot-2') && !e.target.closest('#gh-actions-2'))
+        act2.classList.remove('open');
+    });
+  }
 });
 
 async function loadDashboard() {
