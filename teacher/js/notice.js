@@ -1,6 +1,7 @@
 import { getTeacherNotices, createNotice, updateNotice, deleteNotice, getMySections } from './api.js';
 import { createFileUpload, openLightbox } from './file-upload.js';
 import { showToast } from './dashboard.js';
+import { showConfirm } from '../../shared/js/confirm-dialog.js';
 import { createBottomSheet } from '../../shared/js/bottom-sheet.js';
 import { attachRippleAll, attachRipple } from '../../shared/js/ripple.js';
 import { BASE_URL } from '../../shared/js/api-config.js';
@@ -173,7 +174,7 @@ async function _renderNoticeList(container) {
   list.querySelectorAll('.notice-delete-btn').forEach(btn => {
     btn.addEventListener('click', async e => {
       e.stopPropagation();
-      if (!confirm('এই নোটিশটি মুছে ফেলতে চান?')) return;
+      if (!await showConfirm('এই নোটিশটি মুছে ফেলতে চান?', { confirmText: 'মুছে ফেলুন', cancelText: 'বাতিল' })) return;
       const res = await deleteNotice(btn.dataset.id);
       if (!res.HasError) {
         showToast('নোটিশ মুছে ফেলা হয়েছে', 'success');

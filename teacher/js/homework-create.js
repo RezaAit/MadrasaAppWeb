@@ -1,4 +1,5 @@
 import { getHomeworkList, createHomework, updateHomework, publishHomework, deleteHomework, uploadHomeworkAttachments, uploadHomeworkMultiAttachments, deleteHomeworkAttachment, reviewHomework, submitReaction, getMySections } from './api.js';
+import { showConfirm } from '../../shared/js/confirm-dialog.js';
 import { showToast } from './dashboard.js';
 import { initAnnotation, buildToolbar, getAnnotatedBlob, openLightbox } from '../../shared/js/annotation.js';
 import { compressImage } from '../../shared/js/compress-image.js';
@@ -168,7 +169,7 @@ function _renderHwList(homeworks, container) {
   inner.querySelectorAll('.btn-hw-publish').forEach(btn => {
     btn.addEventListener('click', async e => {
       e.stopPropagation();
-      if (!confirm('এই হোমওয়ার্ক প্রকাশ করবেন?')) return;
+      if (!await showConfirm('এই হোমওয়ার্ক প্রকাশ করবেন?', { confirmText: 'প্রকাশ করুন', cancelText: 'বাতিল', danger: false })) return;
       btn.disabled = true; btn.textContent = '...';
       const res = await publishHomework(Number(btn.dataset.pubId));
       if (res.HasError) { showToast(res.message || 'প্রকাশ ব্যর্থ হয়েছে', 'error'); btn.disabled = false; btn.textContent = '▶ প্রকাশ করুন'; }
@@ -179,7 +180,7 @@ function _renderHwList(homeworks, container) {
   inner.querySelectorAll('.btn-hw-delete').forEach(btn => {
     btn.addEventListener('click', async e => {
       e.stopPropagation();
-      if (!confirm('এই হোমওয়ার্ক মুছে ফেলবেন? এটি আর ফেরানো যাবে না।')) return;
+      if (!await showConfirm('এই হোমওয়ার্ক মুছে ফেলবেন?\nএটি আর ফেরানো যাবে না।', { confirmText: 'মুছে ফেলুন', cancelText: 'বাতিল' })) return;
       btn.disabled = true; btn.textContent = '...';
       const res = await deleteHomework(Number(btn.dataset.delId));
       if (res.HasError) { showToast(res.message || 'মুছতে ব্যর্থ হয়েছে', 'error'); btn.disabled = false; btn.textContent = '🗑 মুছুন'; }

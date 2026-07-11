@@ -1,5 +1,6 @@
 import { getPendingLeaves, actionLeave, principalLeaveDecision, getMySections, getClassStudents, getLeaveTypes, teacherApplyLeave, teacherUpdateLeave, teacherDeleteLeave, checkLeaveCalendar } from './api.js';
 import { showToast } from './dashboard.js';
+import { showConfirm } from '../../shared/js/confirm-dialog.js';
 import { createBottomSheet } from '../../shared/js/bottom-sheet.js';
 import { createFileUpload, openLightbox, createRichEditor } from './file-upload.js';
 import { BASE_URL } from '../../shared/js/api-config.js';
@@ -267,7 +268,7 @@ export async function loadLeaveModule(container, teacher) {
     content.querySelectorAll('[data-delete-id]').forEach(btn => {
       btn.addEventListener('click', async () => {
         const id = btn.dataset.deleteId;
-        if (!confirm('এই আবেদনটি মুছে ফেলতে চান?')) return;
+        if (!await showConfirm('এই আবেদনটি মুছে ফেলতে চান?', { confirmText: 'মুছে ফেলুন', cancelText: 'বাতিল' })) return;
         btn.disabled = true; btn.style.opacity = '.5';
         const res = await teacherDeleteLeave(id);
         if (!res.HasError) {

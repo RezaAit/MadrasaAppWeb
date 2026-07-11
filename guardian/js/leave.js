@@ -1,5 +1,6 @@
 import { getLeaveHistory, applyLeave, getLeaveTypes, getLeaveAttachment, checkLeaveCalendar, guardianUpdateLeave, guardianDeleteLeave } from './api.js';
 import { showToast } from './dashboard.js';
+import { showConfirm } from '../../shared/js/confirm-dialog.js';
 import { createBottomSheet } from '../../shared/js/bottom-sheet.js';
 import { createFileUpload, openLightbox, createRichEditor } from '../../teacher/js/file-upload.js';
 import { BASE_URL } from '../../shared/js/api-config.js';
@@ -181,7 +182,7 @@ function renderHistory(container, all, child, guardian) {
       mBody.querySelectorAll('[data-delete-id]').forEach(btn => {
         btn.addEventListener('click', async () => {
           const lid = btn.dataset.deleteId;
-          if (!confirm('এই আবেদনটি মুছে ফেলতে চান?')) return;
+          if (!await showConfirm('এই আবেদনটি মুছে ফেলতে চান?', { confirmText: 'মুছে ফেলুন', cancelText: 'বাতিল' })) return;
           btn.disabled = true; btn.style.opacity = '.5';
           const res = await guardianDeleteLeave(lid);
           if (!res.HasError) {
