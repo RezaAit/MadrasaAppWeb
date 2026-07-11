@@ -259,11 +259,13 @@ function renderChildSelector() {
   if (!grid) return;
 
   grid.innerHTML = '';
-  state.children.forEach(child => {
+  state.children.forEach((child, idx) => {
     const dot = child.todayAttendance === 'Present' ? '#22C55E' : '#EF4444';
     const initials = child.fullName.slice(0, 1);
     const card = document.createElement('div');
-    card.className = 'child-card card-lift stagger-in';
+    card.className = 'child-card card-lift';
+    card.style.cssText = 'opacity:0;transform:translateY(22px);transition:opacity .5s ease,transform .5s cubic-bezier(.22,.68,0,1.1);';
+    setTimeout(() => { card.style.opacity='1'; card.style.transform='translateY(0)'; }, 80 + idx * 130);
     const avatarHtml = child.photoUrl
       ? `<img src="${child.photoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
       : initials;
