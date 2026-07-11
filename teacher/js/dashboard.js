@@ -189,6 +189,7 @@ function renderShell() {
     e.stopPropagation();
     dropdown.classList.toggle('open');
   });
+  dropdown.addEventListener('click', (e) => e.stopPropagation());
   document.addEventListener('click', () => dropdown.classList.remove('open'));
 
   document.getElementById('teacher-logout-btn').addEventListener('click', logout);
