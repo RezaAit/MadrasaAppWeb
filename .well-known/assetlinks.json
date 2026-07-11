@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "bd.com.sbook.madrasatulhudaap.twa",
+    "sha256_cert_fingerprints": [
+      "85:AC:9C:C2:21:73:00:C1:94:1B:88:FD:6A:A5:69:14:44:92:A4:FC:68:B6:5B:EA:7A:86:7F:B7:92:35:92:8B"
+    ]
+  }
+}]
