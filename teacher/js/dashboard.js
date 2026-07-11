@@ -182,13 +182,19 @@ function renderShell() {
   // Position indicator on initial active tab after layout renders
   requestAnimationFrame(() => moveIndicator(nav.querySelector('.main-nav-btn.active')));
 
+  // Three-dot menu
+  const threeDot = document.getElementById('thb-three-dot');
+  const dropdown = document.getElementById('thb-dropdown');
+  threeDot.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle('open');
+  });
+  document.addEventListener('click', () => dropdown.classList.remove('open'));
+
   document.getElementById('teacher-logout-btn').addEventListener('click', logout);
 
-  // Refresh button
   document.getElementById('teacher-refresh-btn').addEventListener('click', () => {
-    const btn = document.getElementById('teacher-refresh-btn');
-    btn.classList.add('spinning');
-    btn.addEventListener('animationend', () => btn.classList.remove('spinning'), { once: true });
+    dropdown.classList.remove('open');
     navigateTo(state.activeModule || 'dashboard');
   });
 
