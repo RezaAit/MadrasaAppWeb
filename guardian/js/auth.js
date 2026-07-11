@@ -99,20 +99,29 @@ export function initLogin() {
     try {
       const res = await requestOtp('0' + phone.replace(/^0/, ''));
       if (res.httpStatusCode === 429) {
-        const wait = res.retryAfter || res.waitSeconds || 60;
+        const wait = res.results?.remainingSeconds || 60;
         let secs = wait;
-        _showPhoneError(`${secs} সেকেন্ড পর আবার চেষ্টা করুন`);
-        sendOtpBtn.disabled = true;
-        const iv = setInterval(() => {
-          secs--;
-          if (secs <= 0) {
-            clearInterval(iv);
-            _hidePhoneError();
-            sendOtpBtn.disabled = false;
-          } else {
-            _showPhoneError(`${secs} সেকেন্ড পর আবার চেষ্টা করুন`);
-          }
-        }, 1000);
+        if (secs > 0) {
+          _showPhoneError(`${secs} সেকেন্ড পর আবার চেষ্টা করুন`);
+          sendOtpBtn.disabled = true;
+          const iv = setInterval(() => {
+            secs--;
+            if (secs <= 0) {
+              clearInterval(iv);
+              _hidePhoneError();
+              sendOtpBtn.disabled = false;
+            } else {
+              _showPhoneError(`${secs} সেকেন্ড পর আবার চেষ্টা করুন`);
+            }
+          }, 1000);
+        } else {
+          _showPhoneError(res.message || 'অনেকবার চেষ্টা করা হয়েছে। পরে আবার চেষ্টা করুন।');
+        }
+        _setBtnLoading(sendOtpBtn, false, 'OTP পাঠাও');
+        return;
+      }
+      if (res.httpStatusCode === 404) {
+        _showPhoneError(res.message || 'এই নম্বরটি নিবন্ধিত নয়।');
         _setBtnLoading(sendOtpBtn, false, 'OTP পাঠাও');
         return;
       }
