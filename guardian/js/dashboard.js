@@ -349,6 +349,7 @@ function initProfileNav(openSection = null) {
   const navBtns = document.querySelectorAll('.profile-nav-btn');
 
   // Sliding indicator — reinit each time profile opens
+  if (navEl) navEl._indicatorAttached = false;
   const { moveTo } = initTabIndicator(navEl, { autoWire: false });
 
   // Remove old listeners by replacing each button with a clone
