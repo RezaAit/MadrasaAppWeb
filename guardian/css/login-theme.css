@@ -1,0 +1,15 @@
+/*
+ * Login Screen — Theme Tokens
+ * Change these variables to re-theme the entire login screen.
+ */
+:root {
+  --lg-deep:        #0b2e4d;   /* header gradient start */
+  --lg-mid:         #134f7c;   /* header gradient mid   */
+  --lg-light:       #1c6fa8;   /* header gradient end   */
+  --lg-gold:        #c9a24b;   /* accent / lattice / border rings */
+  --lg-gold-soft:   #e8d8ac;   /* sub-label text in header */
+  --lg-cream:       #f7f9fb;   /* page background */
+  --lg-ink:         #0e1a24;   /* dark text */
+  --lg-muted:       #6b7680;   /* secondary text */
+  --lg-card-radius: 22px;
+}

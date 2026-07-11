@@ -14,8 +14,10 @@
   <title>মাদরাসাতুল হুদা আল-ইসলামিয়া — অভিভাবক পোর্টাল</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Baloo+Da+2:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/shared/css/common.css">
+  <link rel="stylesheet" href="/guardian/css/login-theme.css">
+  <link rel="stylesheet" href="/guardian/css/login.css">
   <link rel="stylesheet" href="/guardian/css/style.css">
 </head>
 <body>
@@ -23,84 +25,107 @@
 
   <!-- ═══════════════════════════════════════════════════════ LOGIN SCREEN -->
   <div id="screen-login" class="screen active">
-    <div class="ls-root">
+    <div class="lg-root">
 
-      <!-- hero -->
-      <div class="ls-hero">
-        <div class="ls-bubble ls-b1"></div>
-        <div class="ls-bubble ls-b2"></div>
-        <div class="ls-bubble ls-b3"></div>
-        <div class="ls-bubble ls-b4"></div>
-        <div class="ls-logo-wrap">
-          <img src="../images/logo.png" alt="logo" width="64" height="64">
+      <!-- Header with geometric lattice -->
+      <div class="lg-header">
+        <div class="lg-lattice"></div>
+        <div class="lg-lattice2"></div>
+        <div class="lg-brand">
+          <div class="lg-crest">
+            <img src="../images/logo.png" alt="মাদরাসা লোগো">
+          </div>
+          <div class="lg-inst-name">মাদরাসাতুল হুদা আল-ইসলামিয়া<br>আস-সালাফিয়া</div>
+          <div class="lg-inst-sub">
+            Guardian Portal
+            <span class="lg-dot"></span>
+            অভিভাবক পোর্টাল
+          </div>
         </div>
-        <h1 class="ls-hero-name">মাদরাসাতুল হুদা আল-ইসলামিয়া আস-সালাফিয়া</h1>
-        <p class="ls-hero-sub">Guardian Portal · অভিভাবক পোর্টাল</p>
       </div>
 
-      <!-- wave + card -->
-      <div class="ls-card-wrap">
-        <div class="ls-wave">
-          <svg viewBox="0 0 480 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0,56 L0,18 C80,48 160,4 240,22 C320,40 400,8 480,20 L480,56 Z" fill="#ffffff"/>
-          </svg>
+      <!-- Floating card -->
+      <div class="lg-card">
+
+        <!-- Step 1: Phone -->
+        <div id="phone-step">
+          <div class="lg-card-head">
+            <h1>লগইন করুন</h1>
+            <p>রেজিস্টার্ড মোবাইল নম্বর দিয়ে প্রবেশ করুন</p>
+          </div>
+
+          <!-- error banner -->
+          <div class="lg-error" id="phone-error" role="alert">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span id="phone-error-msg"></span>
+          </div>
+
+          <div class="lg-field" id="lg-phone-field">
+            <div class="lg-field-shell">
+              <div class="lg-prefix">+880</div>
+              <input type="tel" id="phone-input" inputmode="numeric" placeholder="1XXXXXXXXX" maxlength="10" class="lg-phone-input" autocomplete="tel">
+            </div>
+            <div class="lg-float-label">মোবাইল নম্বর</div>
+          </div>
+
+          <button class="lg-btn" id="send-otp-btn" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9 22 2Z"/></svg>
+            OTP পাঠান
+          </button>
+
+          <p class="lg-helper">OTP পেতে <b>৩০–৬০ সেকেন্ড</b> সময় লাগতে পারে</p>
+
+          <div class="lg-divider"><span></span><p>নিরাপত্তা</p><span></span></div>
+
+          <div class="lg-trust-row">
+            <div class="lg-trust-item"><span class="lg-ic">🔒</span><span>এনক্রিপ্টেড</span></div>
+            <div class="lg-trust-item"><span class="lg-ic">✅</span><span>যাচাইকৃত</span></div>
+            <div class="lg-trust-item"><span class="lg-ic">🛡️</span><span>নিরাপদ ডেটা</span></div>
+          </div>
         </div>
-        <div class="ls-card-body">
-          <div class="ls-card">
 
-            <!-- Step 1: Phone -->
-            <div id="phone-step" class="ls-step">
-              <p class="ls-card-title">লগইন করুন</p>
-              <p class="ls-card-sub">রেজিস্টার্ড মোবাইল নম্বর দিন</p>
-              <div class="lss-phone-row">
-                <div class="lss-flag">+880</div>
-                <input type="tel" id="phone-input" inputmode="numeric" placeholder="1XXXXXXXXX" maxlength="10" class="lss-phone-input">
-              </div>
-              <button class="lss-btn" id="send-otp-btn" disabled>
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                OTP পাঠান
+        <!-- Step 2: OTP -->
+        <div id="otp-step" style="display:none;" class="lg-otp-step">
+          <div class="lg-card-head">
+            <div class="lg-otp-header">
+              <h1>যাচাই কোড (OTP)</h1>
+              <button id="change-number" class="lg-change">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                পরিবর্তন
               </button>
             </div>
+            <p><span id="display-number" class="lg-otp-num"></span> নম্বরে পাঠানো ৬ সংখ্যার কোড</p>
+          </div>
 
-            <!-- Step 2: OTP -->
-            <div id="otp-step" class="ls-step" style="display:none;">
-              <div class="lss-otp-header">
-                <p class="ls-card-title">যাচাই কোড (OTP)</p>
-                <button id="change-number" class="lss-change">
-                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-                  পরিবর্তন
-                </button>
-              </div>
-              <p class="ls-card-sub"><span id="display-number" class="lss-otp-num"></span> নম্বরে পাঠানো ৬ সংখ্যার কোড</p>
-              <div class="otp-input-row">
-                <input type="tel" class="otp-box" inputmode="numeric" maxlength="1">
-                <input type="tel" class="otp-box" inputmode="numeric" maxlength="1">
-                <input type="tel" class="otp-box" inputmode="numeric" maxlength="1">
-                <input type="tel" class="otp-box" inputmode="numeric" maxlength="1">
-                <input type="tel" class="otp-box" inputmode="numeric" maxlength="1">
-                <input type="tel" class="otp-box" inputmode="numeric" maxlength="1">
-              </div>
-              <button class="lss-btn" id="verify-otp-btn">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                লগইন করুন
-              </button>
-              <p class="lss-hint" id="otp-resend-hint">SMS না আসলে কিছুক্ষণ অপেক্ষা করুন</p>
-            </div>
+          <!-- error banner -->
+          <div class="lg-error" id="otp-error" role="alert">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span id="otp-error-msg"></span>
+          </div>
 
-            <!-- footer -->
-            <div class="lss-footer">
-              <span>Powered by</span>
-              <strong>HELIX</strong>
-              <span class="lss-dot"></span>
-              <span>sbook.com.bd</span>
-            </div>
+          <div class="lg-otp-row">
+            <input type="tel" class="otp-box lg-otp-box" inputmode="numeric" maxlength="1" autocomplete="one-time-code">
+            <input type="tel" class="otp-box lg-otp-box" inputmode="numeric" maxlength="1">
+            <input type="tel" class="otp-box lg-otp-box" inputmode="numeric" maxlength="1">
+            <input type="tel" class="otp-box lg-otp-box" inputmode="numeric" maxlength="1">
+            <input type="tel" class="otp-box lg-otp-box" inputmode="numeric" maxlength="1">
+            <input type="tel" class="otp-box lg-otp-box" inputmode="numeric" maxlength="1">
+          </div>
 
-          </div><!-- /.ls-card -->
-        </div><!-- /.ls-card-body -->
-      </div><!-- /.ls-card-wrap -->
-      <div class="ls-white-space"></div>
+          <button class="lg-btn" id="verify-otp-btn">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            লগইন করুন
+          </button>
 
-    </div>
+          <p class="lg-hint" id="otp-resend-hint">SMS না আসলে কিছুক্ষণ অপেক্ষা করুন</p>
+        </div>
+
+        <!-- Powered by footer -->
+        <p class="lg-power">Powered by <b>HELIX</b> · sbook.com.bd</p>
+
+      </div><!-- /.lg-card -->
+
+    </div><!-- /.lg-root -->
   </div>
 
   <!-- ═══════════════════════════════════════════════════ DASHBOARD SCREEN -->
@@ -281,10 +306,25 @@
   document.addEventListener('DOMContentLoaded', function () {
     var inp = document.getElementById('phone-input');
     var btn = document.getElementById('send-otp-btn');
+    var field = document.getElementById('lg-phone-field');
     if (!inp) return;
+
     inp.addEventListener('input', function () {
       this.value = this.value.replace(/\D/g, '').slice(0, 10);
       btn.disabled = this.value.length !== 10;
+      // floating label: add filled class when has value
+      if (field) field.classList.toggle('lg-filled', this.value.length > 0);
+    });
+
+    // button ripple
+    btn.addEventListener('click', function (e) {
+      var r = document.createElement('span');
+      r.className = 'lg-ripple';
+      var rect = btn.getBoundingClientRect();
+      var size = Math.max(rect.width, rect.height);
+      r.style.cssText = 'width:'+size+'px;height:'+size+'px;left:'+(e.clientX-rect.left-size/2)+'px;top:'+(e.clientY-rect.top-size/2)+'px;';
+      btn.appendChild(r);
+      setTimeout(function(){ r.remove(); }, 600);
     });
   });
 </script>

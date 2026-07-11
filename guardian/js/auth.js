@@ -24,7 +24,7 @@ export function initLogin() {
   function _startCooldown() {
     let remaining = OTP_COOLDOWN_SEC;
     sendOtpBtn.disabled = true;
-    sendOtpBtn.textContent = `${remaining}s পর আবার পাঠান`;
+    sendOtpBtn.innerHTML = `<span class="lg-spinner"></span> ${remaining}s পর আবার পাঠান`;
     changeNum.disabled = true;
     _setHint(`OTP না আসলে ${remaining}s পর আবার চেষ্টা করুন`);
     _cooldownTimer = setInterval(() => {
@@ -34,16 +34,16 @@ export function initLogin() {
         _cooldownTimer = null;
         changeNum.disabled = false;
         if (_otpSendCount >= OTP_MAX_RESEND) {
-          sendOtpBtn.textContent = 'সীমা শেষ';
+          sendOtpBtn.innerHTML = 'সীমা শেষ';
           sendOtpBtn.disabled = true;
           _setHint('অনেকবার চেষ্টা করা হয়েছে। পরে আবার চেষ্টা করুন।');
         } else {
           sendOtpBtn.disabled = false;
-          sendOtpBtn.textContent = 'আবার পাঠাও';
+          sendOtpBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9 22 2Z"/></svg> আবার পাঠাও';
           _setHint('OTP না আসলে আবার পাঠাতে পারেন');
         }
       } else {
-        sendOtpBtn.textContent = `${remaining}s পর আবার পাঠান`;
+        sendOtpBtn.innerHTML = `<span class="lg-spinner"></span> ${remaining}s পর আবার পাঠান`;
         _setHint(`OTP না আসলে ${remaining}s পর আবার চেষ্টা করুন`);
       }
     }, 1000);
@@ -54,22 +54,53 @@ export function initLogin() {
     _cooldownTimer = null;
     _otpSendCount = 0;
     sendOtpBtn.disabled = false;
-    sendOtpBtn.textContent = 'OTP পাঠাও';
+    sendOtpBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9 22 2Z"/></svg> OTP পাঠান';
     changeNum.disabled = false;
+  }
+
+  function _showPhoneError(msg) {
+    const el = document.getElementById('phone-error');
+    const txt = document.getElementById('phone-error-msg');
+    if (el && txt) { txt.textContent = msg; el.classList.add('show'); }
+    else showToast(msg, 'error');
+  }
+  function _hidePhoneError() {
+    const el = document.getElementById('phone-error');
+    if (el) el.classList.remove('show');
+  }
+  function _showOtpError(msg) {
+    const el = document.getElementById('otp-error');
+    const txt = document.getElementById('otp-error-msg');
+    if (el && txt) { txt.textContent = msg; el.classList.add('show'); }
+    else showToast(msg, 'error');
+  }
+  function _hideOtpError() {
+    const el = document.getElementById('otp-error');
+    if (el) el.classList.remove('show');
+  }
+
+  function _setBtnLoading(btn, loading, defaultHtml) {
+    if (loading) {
+      btn._defaultHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="lg-spinner"></span> পাঠানো হচ্ছে...';
+    } else {
+      btn.innerHTML = btn._defaultHtml || defaultHtml;
+      btn.disabled = false;
+    }
   }
 
   sendOtpBtn.addEventListener('click', async () => {
     const phone = phoneInput.value.trim();
-    if (!phone || phone.length < 10) { showToast('সঠিক মোবাইল নম্বর দিন', 'error'); return; }
-    if (_otpSendCount >= OTP_MAX_RESEND) { showToast('বারবার OTP পাঠানো যাবে না। কিছুক্ষণ পর চেষ্টা করুন।', 'error'); return; }
-    sendOtpBtn.disabled = true;
-    sendOtpBtn.textContent = 'পাঠানো হচ্ছে...';
+    _hidePhoneError();
+    if (!phone || phone.length < 10) { _showPhoneError('সঠিক ১০ সংখ্যার মোবাইল নম্বর দিন'); return; }
+    if (_otpSendCount >= OTP_MAX_RESEND) { _showPhoneError('বারবার OTP পাঠানো যাবে না। কিছুক্ষণ পর চেষ্টা করুন।'); return; }
+    _setBtnLoading(sendOtpBtn, true);
     try {
       const res = await requestOtp('0' + phone.replace(/^0/, ''));
       if (res.httpStatusCode === 429) {
-        showToast(res.message || 'অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন।', 'error');
-        sendOtpBtn.disabled = false;
-        sendOtpBtn.textContent = 'OTP পাঠাও';
+        _showPhoneError(res.message || 'অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন।');
+        _setBtnLoading(sendOtpBtn, false, 'OTP পাঠাও');
         return;
       }
       if (res.httpStatusCode === 200 || res.success !== false) {
@@ -81,14 +112,12 @@ export function initLogin() {
         showToast('OTP পাঠানো হয়েছে', 'success');
         _startCooldown();
       } else {
-        showToast(res.message || 'ত্রুটি হয়েছে', 'error');
-        sendOtpBtn.disabled = false;
-        sendOtpBtn.textContent = 'OTP পাঠাও';
+        _showPhoneError(res.message || 'ত্রুটি হয়েছে, আবার চেষ্টা করুন');
+        _setBtnLoading(sendOtpBtn, false, 'OTP পাঠাও');
       }
     } catch {
-      showToast('সংযোগ সমস্যা', 'error');
-      sendOtpBtn.disabled = false;
-      sendOtpBtn.textContent = 'OTP পাঠাও';
+      _showPhoneError('সংযোগ সমস্যা। ইন্টারনেট চেক করুন।');
+      _setBtnLoading(sendOtpBtn, false, 'OTP পাঠাও');
     }
   });
 
@@ -101,10 +130,12 @@ export function initLogin() {
 
   verifyBtn.addEventListener('click', async () => {
     const otp = _getOtp();
-    if (!otp || otp.length < 4) { showToast('OTP লিখুন', 'error'); return; }
+    _hideOtpError();
+    if (!otp || otp.length < 4) { _showOtpError('OTP লিখুন'); return; }
     const phone = phoneInput.value.trim();
+    verifyBtn._defaultHtml = verifyBtn.innerHTML;
     verifyBtn.disabled = true;
-    verifyBtn.textContent = 'যাচাই হচ্ছে...';
+    verifyBtn.innerHTML = '<span class="lg-spinner"></span> যাচাই হচ্ছে...';
     try {
       const res = await verifyOtp('0' + phone.replace(/^0/, ''), otp);
       if (res.success !== false && res.token) {
@@ -115,11 +146,11 @@ export function initLogin() {
         localStorage.setItem('guardian_phone', guardianPhone);
         window.dispatchEvent(new CustomEvent('login-success', { detail: guardianData }));
       } else {
-        showToast(res.message || 'ভুল OTP', 'error');
+        _showOtpError(res.message || 'ভুল OTP, আবার চেষ্টা করুন');
       }
-    } catch { showToast('সংযোগ সমস্যা', 'error'); }
+    } catch { _showOtpError('সংযোগ সমস্যা। ইন্টারনেট চেক করুন।'); }
     verifyBtn.disabled = false;
-    verifyBtn.textContent = 'লগইন করো';
+    verifyBtn.innerHTML = verifyBtn._defaultHtml;
   });
 
   // OTP box navigation
