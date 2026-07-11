@@ -325,6 +325,109 @@ html, body {
 }
 .gh-three-dot:active { background: rgba(255,255,255,.3); }
 
+/* ─── Exam Tab ───────────────────────────────────────────────────────────── */
+.exam-pill-tabs {
+  display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;
+  scrollbar-width: none; margin-bottom: 14px;
+}
+.exam-pill-tabs::-webkit-scrollbar { display: none; }
+.exam-pill-btn {
+  flex-shrink: 0; padding: 7px 16px; border-radius: 20px; border: none;
+  font-size: .78rem; font-weight: 600; cursor: pointer;
+  background: #f1f5f9; color: #64748b;
+  transition: background .2s, color .2s, transform .2s;
+}
+.exam-pill-btn.active {
+  background: #1e3a8a; color: #fff;
+  box-shadow: 0 4px 12px rgba(30,58,138,.25);
+  transform: translateY(-1px);
+}
+.exam-result-card {
+  background: #fff; border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.07);
+  overflow: hidden; margin-bottom: 14px;
+}
+.exam-result-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px 18px; font-size: .8rem; font-weight: 700;
+  color: #fff; background: linear-gradient(135deg,#1e3a8a,#2563eb);
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.exam-header-icon { opacity: .85; }
+.exam-gpa-section {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 24px 18px 20px;
+}
+.exam-gpa-ring-wrap {
+  position: relative; width: 90px; height: 90px; margin-bottom: 14px;
+}
+.exam-gpa-inner {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.exam-gpa-value { font-size: 1.5rem; font-weight: 800; line-height: 1; }
+.exam-gpa-label { font-size: .65rem; color: #94a3b8; font-weight: 600; letter-spacing: .05em; margin-top: 2px; }
+.exam-promotion-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 18px; border-radius: 20px;
+  font-size: .82rem; font-weight: 700;
+}
+.exam-subjects-label, .exam-section-label {
+  font-size: .72rem; font-weight: 700; color: #94a3b8;
+  text-transform: uppercase; letter-spacing: .06em;
+  margin-bottom: 10px;
+}
+.exam-subjects-list {
+  background: #fff; border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.06);
+  overflow: hidden; margin-bottom: 14px;
+}
+.exam-subject-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; border-bottom: 1px solid #f1f5f9;
+  animation: childCardIn .5s ease both;
+}
+.exam-subject-row:last-child { border-bottom: none; }
+.exam-subject-info { flex: 1; min-width: 0; }
+.exam-subject-name { font-size: .83rem; font-weight: 600; color: #1e293b; }
+.exam-subject-bar-wrap {
+  height: 3px; background: #f1f5f9; border-radius: 2px; margin-top: 5px;
+}
+.exam-subject-bar { height: 100%; border-radius: 2px; transition: width 1s ease; }
+.exam-subject-scores {
+  display: flex; align-items: center; gap: 3px; flex-shrink: 0;
+}
+.exam-score-obtained { font-size: .88rem; font-weight: 700; color: #1e293b; }
+.exam-score-sep { font-size: .75rem; color: #cbd5e1; }
+.exam-score-total { font-size: .75rem; color: #94a3b8; }
+.exam-grade-chip {
+  margin-left: 6px; padding: 2px 8px; border-radius: 10px;
+  font-size: .72rem; font-weight: 700;
+}
+.exam-routine-list {
+  background: #fff; border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.06); overflow: hidden;
+}
+.exam-routine-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border-bottom: 1px solid #f1f5f9;
+  animation: childCardIn .5s ease both;
+}
+.exam-routine-row:last-child { border-bottom: none; }
+.exam-routine-date {
+  display: flex; flex-direction: column; align-items: center;
+  min-width: 44px; background: #f8fafc; border-radius: 10px;
+  padding: 6px 8px; flex-shrink: 0;
+}
+.exam-routine-day { font-size: .78rem; font-weight: 700; color: #1e3a8a; }
+.exam-routine-dayname { font-size: .6rem; color: #94a3b8; margin-top: 1px; }
+.exam-routine-subject { flex: 1; font-size: .83rem; font-weight: 600; color: #1e293b; }
+.exam-routine-time { font-size: .75rem; color: #64748b; flex-shrink: 0; }
+.exam-empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 40px 20px; color: #94a3b8;
+}
+
 /* ─── Leave Card ─────────────────────────────────────────────────────────── */
 .lv-card { margin: 10px; }
 .lv-content { padding: 5px; }
