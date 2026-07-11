@@ -189,7 +189,8 @@ function renderShell() {
     e.stopPropagation();
     const rect = threeDot.getBoundingClientRect();
     dropdown.style.top = (rect.bottom + 6) + 'px';
-    dropdown.style.right = (window.innerWidth - rect.right) + 'px';
+    dropdown.style.right = 'auto';
+    dropdown.style.left = Math.max(8, rect.right - 170) + 'px';
     dropdown.classList.toggle('open');
   });
   dropdown.addEventListener('click', (e) => e.stopPropagation());
