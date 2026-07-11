@@ -698,12 +698,20 @@ function _showSuccessScreen(sheetBody, close, hw, mainContainer, child, all) {
 // ── Submitted view (no feedback yet) ─────────────────────────────────────
 function showSubmittedView(mainContainer, hw, child, all) {
   const sub = hw.submission;
-  const isLocked = !!hw.editLockedAt;
   const isSeen = !!hw.seenAt;
-  const lockMsg = hw.editLockReason === 'teacher_seen' ? 'শিক্ষক দেখে ফেলেছেন'
+
+  // Determine lock state locally (frontend mirrors backend C→B→A chain)
+  let isLocked = !!hw.editLockedAt;
+  let lockMsg = hw.editLockReason === 'teacher_seen' ? 'শিক্ষক দেখে ফেলেছেন'
     : hw.editLockReason === 'due_time' ? 'সময়সীমা শেষ'
     : hw.editLockReason === 'timeout' ? '৩০ মিনিট পার হয়েছে'
     : null;
+
+  // If backend hasn't locked yet, check locally
+  if (!isLocked && hw.submittedAt) {
+    const lockAt = new Date(hw.submittedAt).getTime() + 30 * 60 * 1000;
+    if (Date.now() > lockAt) { isLocked = true; lockMsg = '৩০ মিনিট পার হয়েছে'; }
+  }
 
   const allPhotos = [];
   if (sub?.primaryImageUrl) allPhotos.push(sub.primaryImageUrl);
@@ -725,6 +733,7 @@ function showSubmittedView(mainContainer, hw, child, all) {
             <div style="font-size:.75rem;color:#4ade80;margin-top:2px;">${isSeen ? '👁 শিক্ষক দেখেছেন' : 'শিক্ষক শীঘ্রই রিভিউ করবেন'}</div>
             ${!isLocked && hw.submittedAt ? `<div id="hw-sheet-cd" style="font-size:.72rem;font-weight:700;color:#ea580c;margin-top:2px;"></div>` : ''}
           </div>
+          <div id="hw-sheet-edit-wrap">
           ${!isLocked
             ? `<button id="hw-edit-submit-btn" style="background:#2563eb;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;">
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -732,6 +741,7 @@ function showSubmittedView(mainContainer, hw, child, all) {
               </button>`
             : `<div style="text-align:center;font-size:.7rem;color:#94a3b8;background:#f1f5f9;padding:6px 10px;border-radius:8px;">🔒 ${lockMsg || 'লক'}</div>`
           }
+          </div>
         </div>
 
         <div style="font-weight:700;font-size:.85rem;color:#0f172a;margin-bottom:6px;">${hw.subject} · ${hw.title}</div>
@@ -797,11 +807,16 @@ function showSubmittedView(mainContainer, hw, child, all) {
   // Countdown in sheet
   if (!isLocked && hw.submittedAt) {
     const cdEl = sheetBody.querySelector('#hw-sheet-cd');
+    const editWrap = sheetBody.querySelector('#hw-sheet-edit-wrap');
     if (cdEl) {
       const lockAt = new Date(hw.submittedAt).getTime() + 30 * 60 * 1000;
       (function tick() {
         const left = lockAt - Date.now();
-        if (left <= 0) { cdEl.textContent = '⏰ সম্পাদনার সময় শেষ'; return; }
+        if (left <= 0) {
+          cdEl.textContent = '⏰ সম্পাদনার সময় শেষ';
+          if (editWrap) editWrap.innerHTML = `<div style="text-align:center;font-size:.7rem;color:#94a3b8;background:#f1f5f9;padding:6px 10px;border-radius:8px;">🔒 ৩০ মিনিট পার হয়েছে</div>`;
+          return;
+        }
         const m = Math.floor(left / 60000);
         const s = Math.floor((left % 60000) / 1000);
         cdEl.textContent = `⏱ সম্পাদনার সুযোগ: ${m}:${String(s).padStart(2,'0')} বাকি`;
