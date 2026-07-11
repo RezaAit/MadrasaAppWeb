@@ -129,7 +129,7 @@ function _noticeCardHtml(n) {
   const preview = _truncate(n.content, 80);
   const hasAttach = !!(n.attachmentUrl);
   return `
-  <div class="gh-row gn-notice-card${unread ? ' gn-unread' : ''} fade-in" data-notice-id="${id}" style="margin:0 8px; 8px 8px">
+  <div class="gh-row gn-notice-card${unread ? ' gn-unread' : ''} fade-in" data-notice-id="${id}" style="margin:8px 8px;">
     <div style="flex:1;min-width:0;">
       <div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;">
         <span style="font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:999px;background:${bg};color:${color};">${CAT_LABEL[cat] || cat}</span>
