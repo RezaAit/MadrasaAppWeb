@@ -10,6 +10,7 @@ import { loadFeesModule } from './fees.js';
 import { loadMarksModule } from './marks-entry.js';
 import { loadNoticeModule } from './notice.js';
 import { loadProfileModule } from './profile.js';
+import { initMotion, settleContent, crossfadeIn, initCountUp, markScrollReveal, spinLogo, initPullToRefresh } from '../../shared/js/motion.js';
 
 export let state = {
   teacher: null,
@@ -69,6 +70,11 @@ export function navigateTo(moduleKey) {
   const waveSep = document.querySelector('.thb-wave-sep');
   if (waveSep) waveSep.style.display = moduleKey === 'profile' ? 'none' : '';
   document.getElementById('__ext-fab')?.remove();
+
+  // Logo spin on tab switch
+  const logoEl = document.getElementById('teacher-initials');
+  if (logoEl) spinLogo(logoEl);
+
   const content = document.getElementById('main-content');
   content.innerHTML = _skeleton();
   switch (moduleKey) {
@@ -84,6 +90,8 @@ export function navigateTo(moduleKey) {
 }
 
 export async function init() {
+  initMotion();
+
   window.addEventListener('teacher-session-expired', () => {
     showScreen('screen-login');
     initLogin();
@@ -224,7 +232,7 @@ async function loadDashboardModule(container) {
       <div class="dash-icon dash-icon-blue">${_attIcon(26)}</div>
       <div style="flex:1;">
         <div class="dash-label">শ্রেণি উপস্থিতি</div>
-        <div class="dash-value">${ctSec}<span> সেকশন</span></div>
+        <div class="dash-value"><span data-count-up="${ctSec}" data-suffix=" সেকশন">${ctSec} সেকশন</span></div>
       </div>
       ${arrow}
     </div>
@@ -233,7 +241,7 @@ async function loadDashboardModule(container) {
       <div class="dash-icon dash-icon-amber">${_hwIcon(26)}</div>
       <div style="flex:1;">
         <div class="dash-label">হোমওয়ার্ক</div>
-        <div class="dash-value">${hwList.length}<span> টি</span></div>
+        <div class="dash-value"><span data-count-up="${hwList.length}" data-suffix=" টি">${hwList.length} টি</span></div>
       </div>
       ${arrow}
     </div>
@@ -242,7 +250,7 @@ async function loadDashboardModule(container) {
       <div class="dash-icon dash-icon-purple">${_leaveIcon(26)}</div>
       <div style="flex:1;">
         <div class="dash-label">ছুটির আবেদন</div>
-        <div class="dash-value">${leaves}<span> অপেক্ষমান</span></div>
+        <div class="dash-value"><span data-count-up="${leaves}" data-suffix=" অপেক্ষমান">${leaves} অপেক্ষমান</span></div>
       </div>
       ${arrow}
     </div>
@@ -280,6 +288,22 @@ async function loadDashboardModule(container) {
     card.addEventListener('click', () => navigateTo(card.dataset.nav));
   });
   attachRippleAll('.dash-card', container);
+
+  // Animate in + count-up + scroll reveal
+  const cardsEl = document.getElementById('dash-cards');
+  if (cardsEl) {
+    crossfadeIn(cardsEl);
+    settleContent(cardsEl);
+    initCountUp(cardsEl);
+    markScrollReveal(cardsEl);
+  }
+
+  // Pull-to-refresh on main-content scroll area
+  const scrollArea = document.getElementById('main-content');
+  initPullToRefresh(scrollArea, async () => {
+    const { loadDashboardModule: _ld } = await import('./dashboard.js').catch(() => ({}));
+    navigateTo('dashboard');
+  });
 }
 
 function _skeleton() {

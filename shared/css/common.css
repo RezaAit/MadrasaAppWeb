@@ -1187,3 +1187,226 @@ a { color: inherit; text-decoration: none; }
 .p-16   { padding: 16px; }
 .hidden { display: none !important; }
 .w-full { width: 100%; }
+
+/* ─── Premium Animation Layer ────────────────────────────────────────────── */
+
+/* 1. Tap feedback — native iOS/Android feel */
+.card-clickable,
+.list-item,
+.hw-review-item,
+.btn,
+.tab-btn,
+.reaction-btn,
+.att-btn,
+.profile-nav-btn,
+.main-nav-btn {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.card-clickable:active,
+.list-item:active,
+.hw-review-item:active {
+  transform: scale(0.975);
+  transition: transform 80ms ease;
+}
+
+/* 2. Button press — spring back */
+.btn:not(:disabled):active {
+  transform: scale(0.96);
+  transition: transform 80ms ease;
+}
+.btn:not(:disabled) {
+  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 200ms ease,
+              background 150ms ease;
+}
+
+/* 3. Page-level entrance — content slides up fresh */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: pageEnter 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* 4. Stagger — more children, smoother feel */
+.stagger-in > *:nth-child(1)  { animation-delay:  30ms; }
+.stagger-in > *:nth-child(2)  { animation-delay:  65ms; }
+.stagger-in > *:nth-child(3)  { animation-delay: 100ms; }
+.stagger-in > *:nth-child(4)  { animation-delay: 135ms; }
+.stagger-in > *:nth-child(5)  { animation-delay: 165ms; }
+.stagger-in > *:nth-child(6)  { animation-delay: 195ms; }
+.stagger-in > *:nth-child(7)  { animation-delay: 220ms; }
+.stagger-in > *:nth-child(8)  { animation-delay: 245ms; }
+.stagger-in > *:nth-child(n+9){ animation-delay: 265ms; }
+
+/* 5. Card hover lift — desktop/tablet feel */
+.hw-review-item:hover {
+  box-shadow: 0 6px 20px rgba(15,23,42,.10);
+  transform: translateY(-2px);
+  transition: box-shadow 220ms ease, transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 6. Bottom nav icon bounce on select */
+@keyframes navIconBounce {
+  0%   { transform: translateY(0) scale(1); }
+  35%  { transform: translateY(-5px) scale(1.18); }
+  65%  { transform: translateY(1px) scale(0.96); }
+  100% { transform: translateY(0) scale(1); }
+}
+.main-nav-btn.active svg,
+.main-nav-btn.active img {
+  animation: navIconBounce 400ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* 7. Toast — slide in from top with spring */
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-20px) scale(0.94); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+.toast.show {
+  animation: toastIn 300ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* 8. Badge pop — attention pulse */
+@keyframes badgePop {
+  0%   { transform: scale(0.6); opacity: 0; }
+  60%  { transform: scale(1.2); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+.badge-unread {
+  animation: badgePop 350ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* 9. Shimmer — faster, more premium */
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skeleton {
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+/* 10. Focus ring — clean keyboard navigation */
+.btn:focus-visible,
+.form-input:focus-visible,
+.form-select:focus-visible,
+.tab-btn:focus-visible {
+  outline: 2.5px solid var(--accent, #2563eb);
+  outline-offset: 2px;
+}
+
+/* 11. Image lazy-load fade */
+img[loading="lazy"] {
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+img[loading="lazy"].loaded {
+  opacity: 1;
+}
+
+/* 12. Checkbox check spring */
+.custom-check input:checked + .checkmark {
+  animation: checkSpring 280ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes checkSpring {
+  0%  { transform: scale(0.7); }
+  60% { transform: scale(1.15); }
+  100%{ transform: scale(1.08); }
+}
+
+/* 13. Toggle thumb spring */
+.toggle-switch input:checked ~ .toggle-track .toggle-thumb {
+  transition: transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 14. Empty state entrance */
+.empty-state {
+  animation: pageEnter 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 100ms;
+  opacity: 0;
+  animation-fill-mode: both;
+}
+
+/* 15. Bottom sheet handle pulse when dragging */
+.bs-handle:active {
+  background: var(--primary, #1e3a5f);
+  transform: scaleX(1.4);
+  transition: all 150ms ease;
+}
+
+/* 16. Input focus border glow */
+.form-input, .form-select, .form-textarea, .float-input {
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 100ms ease;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus, .float-input:focus {
+  transform: translateY(-1px);
+}
+
+/* 17. Section header fade-in on load */
+.section-header {
+  animation: pageEnter 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ─── Scroll Reveal ──────────────────────────────────────────────────────────── */
+.sr {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 360ms cubic-bezier(0.22, 1, 0.36, 1) var(--sr-delay, 0ms),
+              transform 420ms cubic-bezier(0.34, 1.4, 0.64, 1) var(--sr-delay, 0ms);
+}
+.sr.sr-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Pull-to-Refresh Indicator ──────────────────────────────────────────────── */
+.ptr-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  height: 0;
+  opacity: 0;
+  color: var(--primary, #1e3a5f);
+}
+.ptr-spinner {
+  transform-origin: center;
+}
+.ptr-loading .ptr-spinner {
+  animation: ptrSpin 700ms linear infinite;
+}
+@keyframes ptrSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Shake (error feedback) ─────────────────────────────────────────────────── */
+@keyframes motionShake {
+  0%   { transform: translateX(0); }
+  18%  { transform: translateX(-7px); }
+  36%  { transform: translateX(6px); }
+  54%  { transform: translateX(-4px); }
+  72%  { transform: translateX(3px); }
+  100% { transform: translateX(0); }
+}
+
+/* ─── Logo 3D spin setup ─────────────────────────────────────────────────────── */
+.ls-logo-wrap,
+.app-logo,
+[id*="logo"],
+.login-logo {
+  transform-style: preserve-3d;
+  perspective: 600px;
+  will-change: transform;
+}
+
+/* ─── Reduced motion — respect OS setting ────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .sr { opacity: 1 !important; transform: none !important; }
+}

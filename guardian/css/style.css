@@ -1052,8 +1052,13 @@ html, body {
   font-family: inherit;
 }
 .profile-nav-btn.active { color: #fff; font-weight: 700; }
-.profile-nav-btn svg { opacity: .6; transition: opacity 150ms; }
-.profile-nav-btn.active svg { opacity: 1; }
+.profile-nav-btn svg { opacity: .6; transition: opacity 200ms ease, transform 200ms ease; }
+.profile-nav-btn.active svg {
+  opacity: 1;
+  animation: navIconBounce 380ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.profile-nav-btn { transition: color 180ms ease; }
+.profile-nav-btn:active { transform: scale(0.92); transition: transform 80ms ease; }
 /* Tab indicator inside profile-nav must be white */
 .profile-nav .tab-indicator {
   background: #fff !important;

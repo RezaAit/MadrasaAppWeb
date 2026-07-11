@@ -2,6 +2,7 @@
 import { initLogin, checkAuth, logout } from './auth.js';
 import { attachRippleAll, attachRipple } from '../../shared/js/ripple.js';
 import { initTabIndicator } from '../../shared/js/tab-indicator.js';
+import { initMotion, settleContent, crossfadeIn, markScrollReveal, spinLogo, initPullToRefresh } from '../../shared/js/motion.js';
 import { loadAttendance, loadExam } from './attendance.js';
 import { loadGuardianLeave } from './leave.js';
 import { loadHomework } from './homework.js';
@@ -67,6 +68,7 @@ export const Icons = {
 
 // ── Init ──────────────────────────────────────────────────────────────────
 export async function init() {
+  initMotion();
   attachRippleAll('.btn, .profile-nav-btn');
 
   const token = localStorage.getItem('guardian_token');
@@ -391,6 +393,10 @@ function loadSection(section) {
   state.activeSection = section;
   sessionStorage.setItem('active_section', section);
 
+  // Logo spin on section switch
+  const logoEl = document.querySelector('.thb-avatar, .guardian-avatar, [id*="avatar"]');
+  if (logoEl) spinLogo(logoEl);
+
   const child = state.activeChild;
   switch (section) {
     case 'attendance': loadAttendance(content, child); break;
@@ -400,6 +406,14 @@ function loadSection(section) {
     case 'exam':       loadExam(content, child); break;
     case 'notice':     loadNotices(content, child);    break;
   }
+
+  // After a tick, settle whatever was rendered
+  setTimeout(() => {
+    crossfadeIn(content);
+    settleContent(content);
+    markScrollReveal(content);
+    initPullToRefresh(content, () => loadSection(section));
+  }, 50);
 }
 
 function _skeletonCards(n) {

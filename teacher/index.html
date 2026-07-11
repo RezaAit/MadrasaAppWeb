@@ -175,6 +175,26 @@
   document.addEventListener('DOMContentLoaded', init);
 </script>
 <script>
+  // Lazy image fade-in
+  document.addEventListener('DOMContentLoaded', () => {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('loaded'); obs.unobserve(e.target); } });
+    });
+    document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+      if (img.complete) img.classList.add('loaded'); else obs.observe(img);
+    });
+    // Re-observe dynamically added images
+    new MutationObserver(muts => {
+      muts.forEach(m => m.addedNodes.forEach(n => {
+        if (n.nodeType !== 1) return;
+        (n.matches?.('img[loading="lazy"]') ? [n] : [...n.querySelectorAll?.('img[loading="lazy"]') || []]).forEach(img => {
+          if (img.complete) img.classList.add('loaded'); else obs.observe(img);
+        });
+      }));
+    }).observe(document.body, { childList: true, subtree: true });
+  });
+</script>
+<script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/teacher/sw.js', { scope: '/teacher/' });
   }
