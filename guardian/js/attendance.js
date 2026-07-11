@@ -145,13 +145,9 @@ function _attendanceSkeleton() {
       @keyframes skeleton-shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
     </style>
     <div class="p-16">
-      <div class="card mb-16 text-center" style="padding:20px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;">
-        ${bar('120px', '12px')}
-        ${bar('100px', '26px', 20)}
-      </div>
       <div class="stat-grid mb-16" style="display:flex;gap:12px;">
-        <div class="stat-card" style="flex:1;display:flex;flex-direction:column;gap:8px;">${bar('70%', '10px')}${bar('40%', '22px')}${bar('60%', '9px')}</div>
-        <div class="stat-card" style="flex:1;display:flex;flex-direction:column;gap:8px;">${bar('70%', '10px')}${bar('40%', '22px')}${bar('60%', '9px')}</div>
+        <div class="stat-card" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 16px;">${bar('80px', '10px')}${bar('60px', '10px', 4)}${bar('90px', '26px', 20)}${bar('70%', '9px')}</div>
+        <div class="stat-card" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 16px;">${bar('70%', '10px')}${bar('40%', '30px')}${bar('60%', '9px')}</div>
       </div>
       <div class="card mb-16" style="padding:14px 16px;">${bar('100%', '8px', 99)}</div>
       <div class="mb-16">${bar('100%', '44px', 10)}</div>
