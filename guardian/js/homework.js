@@ -130,7 +130,7 @@ function _renderPending(list) {
       : `${daysLeft} দিন বাকি`;
 
     return `
-      <div class="hw-card hw-card--pending" data-hw-id="${h.id}" style="--hw-accent:${style.accent};--hw-bg:${style.bg}">
+      <div class="hw-card hw-card--pending" data-hw-id="${h.id}" style="background:${style.bg};border-color:${style.accent}33;">
         <div class="hw-card-inner">
           <div class="hw-card-top">
             <div class="hw-subject-chip">

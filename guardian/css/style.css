@@ -463,7 +463,7 @@ html, body {
 .hw-card {
   border-radius: 20px;
   border: 1.5px solid #e2e8f0;
-  background: var(--hw-bg, #f8fafc);
+  background: #f8fafc;
   cursor: pointer;
   display: flex;
   transition: transform 120ms ease, box-shadow 120ms ease;
