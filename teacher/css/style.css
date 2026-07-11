@@ -9,7 +9,7 @@
   --bg-card:       #ffffff;
   --border:        #e4e6ea;
   --radius-card:   16px;
-  --shadow-card:   0 1px 2px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+  --shadow-card:   0 1px 0 rgba(255,255,255,.9) inset, 0 2px 6px rgba(0,0,0,.07), 0 8px 20px rgba(0,0,0,.05);
 }
 
 /* ─── Global: Readability + Android feel ──────────────────────────────────── */
@@ -580,7 +580,7 @@ p, li { color: #334155; font-size: .95rem; line-height: 1.7; }
   padding: 12px 14px;
   background: #fff;
   border-radius: 14px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  box-shadow: 0 1px 0 rgba(255,255,255,.9) inset, 0 2px 6px rgba(0,0,0,.07), 0 8px 20px rgba(0,0,0,.05);
   border-left: 4px solid #e2e8f0;
   transition: border-color 200ms ease;
   position: relative;
@@ -999,12 +999,12 @@ p, li { color: #334155; font-size: .95rem; line-height: 1.7; }
 .notice-card {
   background: #fff; border-radius: 14px;
   border: 1px solid #e8edf2;
-  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  box-shadow: 0 1px 0 rgba(255,255,255,.9) inset, 0 2px 6px rgba(0,0,0,.07), 0 8px 20px rgba(0,0,0,.05);
   margin-bottom: 8px; overflow: hidden;
   transition: transform 120ms, box-shadow 120ms;
   -webkit-tap-highlight-color: transparent;
 }
-.notice-card:active { transform: scale(.985); box-shadow: none; }
+.notice-card:active { transform: scale(.985); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
 .notice-card-body { padding: 14px 14px 12px; }
 .notice-card-top {
   display: flex; align-items: center;

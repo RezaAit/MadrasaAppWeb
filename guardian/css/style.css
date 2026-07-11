@@ -190,7 +190,7 @@ html, body {
   border-radius: 16px;
   padding: 14px 16px;
   border: 1px solid var(--border);
-  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  box-shadow: 0 1px 0 rgba(255,255,255,.9) inset, 0 2px 6px rgba(0,0,0,.07), 0 8px 20px rgba(0,0,0,.05);
   cursor: pointer;
   transition: all var(--transition);
   position: relative;
@@ -467,9 +467,9 @@ html, body {
   cursor: pointer;
   display: flex;
   transition: transform 120ms ease, box-shadow 120ms ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+  box-shadow: 0 1px 0 rgba(255,255,255,.9) inset, 0 2px 6px rgba(0,0,0,.07), 0 8px 20px rgba(0,0,0,.05);
 }
-.hw-card:active { transform: scale(.985); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+.hw-card:active { transform: scale(.985); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
 .hw-card-inner { flex: 1; padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 8px; }
 .hw-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .hw-subject-chip {
@@ -1151,11 +1151,11 @@ html, body {
   flex-direction: row;
   overflow: hidden;
   border: none;
-  box-shadow: 0 2px 12px rgba(0,0,0,.07), 0 1px 3px rgba(0,0,0,.04);
+  box-shadow: 0 1px 0 rgba(255,255,255,.9) inset, 0 2px 6px rgba(0,0,0,.07), 0 8px 20px rgba(0,0,0,.05);
   transition: box-shadow 150ms, transform 120ms;
   -webkit-tap-highlight-color: transparent;
 }
-.lv-card:active { transform: scale(.985); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+.lv-card:active { transform: scale(.985); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
 
 /* Left vertical color stripe — native app style */
 .lv-card-accent {
@@ -1378,12 +1378,13 @@ html, body {
 
 /* Guardian notice cards */
 .gn-notice-card {
-  background: #fff; border-radius: 12px; overflow: hidden;
-  border: 1px solid #e8edf2; box-shadow: 0 1px 2px rgba(0,0,0,.05);
+  background: #fff; border-radius: 14px; overflow: hidden;
+  border: 1px solid #e8edf2;
+  box-shadow: 0 1px 0 rgba(255,255,255,.9) inset, 0 2px 6px rgba(0,0,0,.07), 0 8px 20px rgba(0,0,0,.05);
   transition: box-shadow 120ms, transform 100ms;
   -webkit-tap-highlight-color: transparent;
 }
-.gn-notice-card:active { transform: scale(.985); box-shadow: 0 0 0 rgba(0,0,0,0); }
+.gn-notice-card:active { transform: scale(.985); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
 .gn-notice-card.gn-unread { border-color: #bfdbfe; background: #fafcff; }
 
 /* Attachment image preview */
