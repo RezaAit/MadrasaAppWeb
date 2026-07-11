@@ -358,15 +358,14 @@ html, body {
   display: flex; flex-direction: column; align-items: center;
   padding: 24px 18px 20px;
 }
-.exam-gpa-ring-wrap {
-  position: relative; width: 90px; height: 90px; margin-bottom: 14px;
-}
-.exam-gpa-inner {
-  position: absolute; inset: 0;
+.exam-gpa-display {
+  width: 96px; height: 96px; border-radius: 50%;
+  border: 3px solid; margin-bottom: 14px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,.08);
 }
-.exam-gpa-value { font-size: 1.5rem; font-weight: 800; line-height: 1; }
-.exam-gpa-label { font-size: .65rem; color: #94a3b8; font-weight: 600; letter-spacing: .05em; margin-top: 2px; }
+.exam-gpa-value { font-size: 1.7rem; font-weight: 800; line-height: 1; }
+.exam-gpa-label { font-size: .62rem; color: #94a3b8; font-weight: 600; letter-spacing: .06em; margin-top: 3px; }
 .exam-promotion-badge {
   display: inline-flex; align-items: center; gap: 5px;
   padding: 6px 18px; border-radius: 20px;

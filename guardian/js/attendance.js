@@ -374,7 +374,6 @@ function _examBody(grand, subjects) {
 
   const gpaNum = parseFloat(gpa);
   const gpaColor = isNaN(gpaNum) ? '#64748b' : gpaNum >= 4.5 ? '#16a34a' : gpaNum >= 3.5 ? '#2563eb' : gpaNum >= 2.0 ? '#d97706' : '#dc2626';
-  const gpaArc = isNaN(gpaNum) ? 0 : Math.round((gpaNum / 5) * 251);
 
   return `
     <div class="exam-result-card">
@@ -383,17 +382,9 @@ function _examBody(grand, subjects) {
         ${examName}
       </div>
       <div class="exam-gpa-section">
-        <div class="exam-gpa-ring-wrap">
-          <svg viewBox="0 0 90 90" width="90" height="90">
-            <circle cx="45" cy="45" r="40" fill="none" stroke="#e2e8f0" stroke-width="7"/>
-            <circle cx="45" cy="45" r="40" fill="none" stroke="${gpaColor}" stroke-width="7"
-              stroke-dasharray="${gpaArc} 251" stroke-dashoffset="63" stroke-linecap="round"
-              style="transition:stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1)"/>
-          </svg>
-          <div class="exam-gpa-inner">
-            <span class="exam-gpa-value" style="color:${gpaColor}">${gpa}</span>
-            <span class="exam-gpa-label">GPA</span>
-          </div>
+        <div class="exam-gpa-display" style="border-color:${gpaColor}40;background:${gpaColor}08;">
+          <span class="exam-gpa-value" style="color:${gpaColor}">${gpa}</span>
+          <span class="exam-gpa-label">GPA</span>
         </div>
         ${promotion ? `
         <div class="exam-promotion-badge" style="background:${pColor}18;color:${pColor};border:1px solid ${pColor}30;">
