@@ -58,6 +58,22 @@ export let state = {
   activeSection: 'attendance',
 };
 
+// ── Lightbox ──────────────────────────────────────────────────────────────
+function openLightbox(src, alt = '') {
+  const lb = document.getElementById('img-lightbox');
+  const img = document.getElementById('img-lightbox-img');
+  if (!lb || !img) return;
+  img.src = src; img.alt = alt;
+  lb.style.display = 'flex';
+  requestAnimationFrame(() => requestAnimationFrame(() => lb.classList.add('open')));
+  const close = () => {
+    lb.classList.remove('open');
+    setTimeout(() => { lb.style.display = 'none'; img.src = ''; }, 400);
+  };
+  lb.querySelector('.img-lightbox-close').onclick = close;
+  lb.querySelector('.img-lightbox-backdrop').onclick = close;
+}
+
 // ── Router ────────────────────────────────────────────────────────────────
 const SCREEN_ORDER = ['screen-login', 'screen-dashboard', 'screen-profile'];
 
@@ -322,12 +338,15 @@ function showStudentProfile(openSection = null) {
   if (idEl) idEl.textContent = child.studentInsID ? `🎓 ${child.studentInsID}` : '';
 
   const avatarEl = document.getElementById('profile-avatar');
-  avatarEl.classList.remove('avatar-zoom-in');
-  void avatarEl.offsetWidth; // reflow to restart animation
+  avatarEl.classList.remove('avatar-zoom-in', 'has-photo');
+  void avatarEl.offsetWidth;
   if (child.photoUrl) {
     avatarEl.innerHTML = `<img src="${child.photoUrl}" alt="${child.fullName}">`;
+    avatarEl.classList.add('has-photo');
+    avatarEl.onclick = () => openLightbox(child.photoUrl, child.fullName);
   } else {
     avatarEl.textContent = child.fullName.slice(0, 1);
+    avatarEl.onclick = null;
   }
   avatarEl.classList.add('avatar-zoom-in');
 
