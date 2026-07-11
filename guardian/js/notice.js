@@ -14,7 +14,7 @@ export async function loadNotices(container, child) {
       .notice-card-content.rte-content i { font-style: italic; }
       .notice-card-content.rte-content u { text-decoration: underline; }
     </style>
-    <div class="p-16">
+    <div style="padding:16px 0;">
       <div id="notice-list" class="stagger-in"></div>
     </div>
   `;
