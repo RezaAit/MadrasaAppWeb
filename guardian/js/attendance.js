@@ -50,8 +50,8 @@ export async function loadAttendance(container, child) {
         </div>
         <div class="stat-card" style="text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;">
           <div class="stat-label">উপস্থিতির হার</div>
-          <div class="stat-value">${pct}<span style="font-size:1.2rem">%</span></div>
-          <div class="stat-sub">${totalPresent}/${totalSchool} দিন · অনুপস্থিত ${totalAbsent}</div>
+          <div class="stat-value"><span class="count-up" data-target="${pct}" data-suffix="%">0%</span></div>
+          <div class="stat-sub"><span class="count-up" data-target="${totalPresent}">0</span>/${totalSchool} দিন · অনুপস্থিত <span class="count-up" data-target="${totalAbsent}">0</span></div>
         </div>
       </div>
 
@@ -59,10 +59,10 @@ export async function loadAttendance(container, child) {
       <div class="card mb-16" style="padding:14px 16px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
           <span style="font-size:.82rem;color:var(--text-muted);">উপস্থিতি অগ্রগতি</span>
-          <span style="font-size:.82rem;font-weight:700;color:${pct>=75?'#15803D':'#DC2626'}">${pct}%</span>
+          <span style="font-size:.82rem;font-weight:700;color:${pct>=75?'#15803D':'#DC2626'}"><span class="count-up" data-target="${pct}" data-suffix="%">0%</span></span>
         </div>
         <div style="height:8px;border-radius:99px;background:#F3F4F6;overflow:hidden;">
-          <div style="height:100%;width:${pct}%;background:${pct>=75?'#22C55E':'#EF4444'};border-radius:99px;transition:width .4s ease;"></div>
+          <div class="progress-bar-fill" style="height:100%;width:0%;background:${pct>=75?'#22C55E':'#EF4444'};border-radius:99px;" data-target="${pct}"></div>
         </div>
       </div>
 
@@ -78,6 +78,29 @@ export async function loadAttendance(container, child) {
 
     </div>
   `;
+
+  // Count-up animation
+  container.querySelectorAll('.count-up').forEach(el => {
+    const target = parseFloat(el.dataset.target) || 0;
+    const suffix = el.dataset.suffix || '';
+    const duration = 800;
+    const start = performance.now();
+    function tick(now) {
+      const t = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - t, 3);
+      el.textContent = Math.round(target * ease) + suffix;
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+
+  // Progress bar animate
+  requestAnimationFrame(() => {
+    container.querySelectorAll('.progress-bar-fill').forEach(bar => {
+      bar.style.transition = 'width .8s cubic-bezier(.4,0,.2,1)';
+      bar.style.width = bar.dataset.target + '%';
+    });
+  });
 
   // Expand/collapse
   container.querySelectorAll('.year-header').forEach(hdr => {
