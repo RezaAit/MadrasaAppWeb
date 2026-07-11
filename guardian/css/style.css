@@ -232,7 +232,7 @@ html, body {
 
 /* ─── Dashboard Header — blue ─────────────────────────────────────────────── */
 .dashboard-app-header {
-  background: #2563eb !important;
+  background: #1e3a8a !important;
   border-bottom: none !important;
   box-shadow: none !important;
   padding-top: max(env(safe-area-inset-top), 0px) !important;
@@ -292,7 +292,7 @@ html, body {
 
 /* ─── Profile Header — seamless blue continuation ─────────────────────────── */
 .profile-app-header {
-  background: #2563eb !important;
+  background: #1e3a8a !important;
   border-bottom: none !important;
   box-shadow: none !important;
   padding-top: max(env(safe-area-inset-top), 0px) !important;
