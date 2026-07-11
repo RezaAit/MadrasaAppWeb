@@ -152,17 +152,6 @@ async function loadDashboard() {
     if (ph) hdrPhone.textContent = `📱 ${ph}`;
   }
 
-  // Top header name + phone
-  const topName = document.getElementById('hdr-guardian-name-top');
-  if (topName) topName.textContent = state.guardian?.name || 'অভিভাবক';
-  const topPhone = document.getElementById('hdr-guardian-phone-top');
-  if (topPhone) {
-    const ph = state.guardian?.phone || localStorage.getItem('guardian_phone') || '';
-    if (ph) topPhone.textContent = ph;
-  }
-  // Avatar initials
-  const avatarEl = document.getElementById('gh-avatar');
-  if (avatarEl) avatarEl.textContent = (state.guardian?.name || 'অ').slice(0, 1);
 
   // Three-dot toggle
   const ghThreeDot = document.getElementById('gh-three-dot');

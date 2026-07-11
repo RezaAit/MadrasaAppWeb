@@ -241,6 +241,14 @@ html, body {
 
 /* Guardian header layout */
 .gh-header { overflow: hidden; }
+.gh-logo {
+  width: 36px; height: 36px; border-radius: 8px;
+  object-fit: contain; flex-shrink: 0;
+}
+.gh-madrasa-name {
+  font-size: .78rem; font-weight: 700; color: #fff;
+  line-height: 1.3; margin: 0;
+}
 .gh-avatar {
   width: 46px; height: 46px; border-radius: 50%;
   background: rgba(255,255,255,.2);
