@@ -464,17 +464,12 @@ html, body {
   border-radius: 20px;
   border: 1.5px solid #e2e8f0;
   background: var(--hw-bg, #f8fafc);
-  overflow: hidden;
   cursor: pointer;
   display: flex;
   transition: transform 120ms ease, box-shadow 120ms ease;
   box-shadow: 0 2px 8px rgba(0,0,0,.04);
 }
 .hw-card:active { transform: scale(.985); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
-.hw-card-stripe {
-  width: 5px; flex-shrink: 0;
-  background: var(--hw-accent, #94a3b8);
-}
 .hw-card-inner { flex: 1; padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 8px; }
 .hw-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .hw-subject-chip {

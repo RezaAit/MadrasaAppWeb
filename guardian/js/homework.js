@@ -131,7 +131,6 @@ function _renderPending(list) {
 
     return `
       <div class="hw-card hw-card--pending" data-hw-id="${h.id}" style="--hw-accent:${style.accent};--hw-bg:${style.bg}">
-        <div class="hw-card-stripe"></div>
         <div class="hw-card-inner">
           <div class="hw-card-top">
             <div class="hw-subject-chip">
@@ -231,29 +230,20 @@ function _hwCard(h) {
   if (fb) {
     // ── Reviewed card ──────────────────────────────────────────────
     return `
-    <div class="hw-card hw-card--reviewed" data-hw-id="${h.id}" style="--hw-accent:${reactionConfig.color};--hw-bg:${reactionConfig.bg};margin-bottom:8px;">
-      <div class="hw-card-stripe" style="background:${reactionConfig.color};"></div>
+    <div class="hw-card hw-card--reviewed" data-hw-id="${h.id}" style="margin-bottom:8px;border:1.5px solid ${reactionConfig.color}33;background:${reactionConfig.bg};">
       <div class="hw-card-inner">
-        <div class="hw-card-top">
-          <div class="hw-subject-chip"><span class="hw-subject-icon">${style.icon}</span><span>${h.subject}</span></div>
-          <div class="hw-reaction-badge" style="background:${reactionConfig.bg};color:${reactionConfig.color};border:1.5px solid ${reactionConfig.color}22;">
-            ${reactionConfig.emoji} ${reactionConfig.label}
-          </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:.72rem;font-weight:700;color:${style.accent};background:${style.bg};padding:3px 10px;border-radius:999px;">${style.icon} ${h.subject}</span>
+          <span style="font-size:.72rem;font-weight:700;color:${reactionConfig.color};background:white;border:1.5px solid ${reactionConfig.color};padding:2px 10px;border-radius:999px;white-space:nowrap;">${reactionConfig.emoji} ${reactionConfig.label}</span>
         </div>
-        <div class="hw-card-title">${h.title}</div>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:2px;">
-          <div class="hw-teacher" style="font-size:.75rem;">
-            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            ${h.teacherName ?? '—'}
-          </div>
-          <div style="font-size:.72rem;color:#64748b;">
-            <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            ${submittedTime}
-          </div>
+        <div class="hw-card-title" style="margin:6px 0 2px;">${h.title}</div>
+        <div style="font-size:.72rem;color:#64748b;display:flex;align-items:center;gap:4px;">
+          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          ${submittedTime}
+          ${attachBadge ? `· ${attachBadge}` : ''}
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1.5px solid ${reactionConfig.color}22;margin-top:4px;">
-          ${attachBadge || '<span></span>'}
-          <span class="hw-card-cta hw-card-cta--review" style="color:${reactionConfig.color};">
+        <div style="display:flex;align-items:center;justify-content:flex-end;padding-top:8px;border-top:1px solid ${reactionConfig.color}22;margin-top:4px;">
+          <span style="font-size:.75rem;font-weight:700;color:${reactionConfig.color};display:inline-flex;align-items:center;gap:4px;">
             মতামত দেখুন
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </span>
@@ -264,44 +254,26 @@ function _hwCard(h) {
 
   // ── Submitted (pending review) card ────────────────────────────
   return `
-    <div class="hw-card hw-card--submitted" data-hw-id="${h.id}" style="--hw-accent:${style.accent};--hw-bg:${style.bg};margin-bottom:8px;">
-      <div class="hw-card-stripe"></div>
+    <div class="hw-card hw-card--submitted" data-hw-id="${h.id}" style="margin-bottom:8px;border:1.5px solid #bbf7d0;background:#f0fdf4;">
       <div class="hw-card-inner">
-        <div class="hw-card-top">
-          <div class="hw-subject-chip"><span class="hw-subject-icon">${style.icon}</span><span>${h.subject}</span></div>
-          <div style="display:inline-flex;align-items:center;gap:4px;background:#f0fdf4;color:#16a34a;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:999px;border:1.5px solid #bbf7d0;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:.72rem;font-weight:700;color:${style.accent};background:${style.bg};padding:3px 10px;border-radius:999px;">${style.icon} ${h.subject}</span>
+          <span style="font-size:.72rem;font-weight:700;color:#16a34a;background:white;border:1.5px solid #bbf7d0;padding:2px 10px;border-radius:999px;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;">
             <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#16a34a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            জমা
-          </div>
+            জমা হয়েছে
+          </span>
         </div>
-        <div class="hw-card-title">${h.title}</div>
-
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-          <div class="hw-teacher">
-            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            ${h.teacherName ?? '—'}
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
-            <div style="display:flex;align-items:center;gap:3px;font-size:.72rem;color:#475569;">
-              <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              জমা: ${submittedTime}
-            </div>
-            ${h.dueDate ? `<div style="display:flex;align-items:center;gap:3px;font-size:.72rem;color:#dc2626;font-weight:600;">
-              <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#dc2626" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              সীমা: ${_fmtDeadline(h.dueDate, h.dueTime)}
-            </div>` : ''}
-          </div>
+        <div class="hw-card-title" style="margin:6px 0 2px;">${h.title}</div>
+        <div style="font-size:.72rem;color:#64748b;display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          ${submittedTime}
+          ${attachBadge ? `· ${attachBadge}` : ''}
         </div>
-
-        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid rgba(0,0,0,.06);margin-top:2px;">
-          <div style="display:flex;align-items:center;gap:8px;">
-            ${seenLabel}
-            ${attachBadge}
-          </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid rgba(0,0,0,.06);margin-top:4px;">
+          ${seenLabel}
           ${countdownHtml}
         </div>
-
-        <div id="${editRowId}" style="display:flex;align-items:center;justify-content:flex-end;">
+        <div id="${editRowId}" style="display:flex;align-items:center;justify-content:flex-end;margin-top:4px;">
           ${!isLocked
             ? `<span style="font-size:.75rem;color:#2563eb;font-weight:700;display:inline-flex;align-items:center;gap:4px;">
                 <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
