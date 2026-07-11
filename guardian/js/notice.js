@@ -15,7 +15,7 @@ export async function loadNotices(container, child) {
       .notice-card-content.rte-content u { text-decoration: underline; }
     </style>
     <div class="p-16">
-      <div id="notice-list" class="stagger-in"></div>
+      <div id="notice-list" class="stagger-in" style="padding: 0 8px;"></div>
     </div>
   `;
 
