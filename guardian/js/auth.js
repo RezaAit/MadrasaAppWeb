@@ -125,7 +125,7 @@ export function initLogin() {
         _setBtnLoading(sendOtpBtn, false, 'OTP পাঠাও');
         return;
       }
-      if (res.httpStatusCode === 200 || res.success !== false) {
+      if (res.httpStatusCode === 200) {
         _otpSendCount++;
         displayNum.textContent = phone;
         phoneStep.style.display = 'none';
