@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <base href="/guardian/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#1e3a8a">
+  <meta name="theme-color" content="#2563eb">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -105,14 +105,24 @@
 
   <!-- ═══════════════════════════════════════════════════ DASHBOARD SCREEN -->
   <div id="screen-dashboard" class="screen">
-    <div class="app-header dashboard-app-header">
-      <img src="/images/logo_32x32.png" alt="logo" width="28" height="28" style="border-radius:6px;flex-shrink:0;">
-      <h1>মাদরাসাতুল হুদা আল-ইসলামিয়া আস-সালাফিয়া</h1>
-      <button class="header-action" id="clear-cache-btn" title="রিফ্রেশ">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
-      </button>
-      <button class="header-action" id="logout-btn" title="লগআউট">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    <div class="app-header dashboard-app-header gh-header">
+      <div class="gh-avatar" id="gh-avatar">অ</div>
+      <div class="gh-info">
+        <h2 id="hdr-guardian-name-top">অভিভাবক</h2>
+        <p id="hdr-guardian-phone-top"></p>
+      </div>
+      <!-- Slide-in action buttons -->
+      <div class="gh-actions" id="gh-actions">
+        <button class="gh-action-btn" id="clear-cache-btn" title="রিফ্রেশ">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </button>
+        <button class="gh-action-btn gh-action-logout" id="logout-btn" title="লগআউট">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+      <!-- Three-dot toggle -->
+      <button id="gh-three-dot" class="gh-three-dot" title="মেনু">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
       </button>
     </div>
 

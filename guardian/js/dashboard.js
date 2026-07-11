@@ -136,6 +136,30 @@ async function loadDashboard() {
     if (ph) hdrPhone.textContent = `📱 ${ph}`;
   }
 
+  // Top header name + phone
+  const topName = document.getElementById('hdr-guardian-name-top');
+  if (topName) topName.textContent = state.guardian?.name || 'অভিভাবক';
+  const topPhone = document.getElementById('hdr-guardian-phone-top');
+  if (topPhone) {
+    const ph = state.guardian?.phone || localStorage.getItem('guardian_phone') || '';
+    if (ph) topPhone.textContent = ph;
+  }
+  // Avatar initials
+  const avatarEl = document.getElementById('gh-avatar');
+  if (avatarEl) avatarEl.textContent = (state.guardian?.name || 'অ').slice(0, 1);
+
+  // Three-dot toggle
+  const ghThreeDot = document.getElementById('gh-three-dot');
+  const ghActions = document.getElementById('gh-actions');
+  if (ghThreeDot && ghActions && !ghThreeDot.dataset.bound) {
+    ghThreeDot.dataset.bound = '1';
+    ghThreeDot.addEventListener('click', () => ghActions.classList.toggle('open'));
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#gh-three-dot') && !e.target.closest('#gh-actions'))
+        ghActions.classList.remove('open');
+    });
+  }
+
   state.children = state.guardian?.children || [];
 
   if (state.activeChild) {
