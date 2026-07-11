@@ -442,7 +442,7 @@ p, li { color: #334155; font-size: .95rem; line-height: 1.7; }
 .thb-dropdown.open { transform: translateX(0); }
 .thb-drawer-header {
   background: #2563eb;
-  padding: 48px 20px 14px;
+  padding: 14px 20px;
   font-size: .8rem; font-weight: 700;
   color: rgba(255,255,255,.7);
   letter-spacing: .5px;
@@ -513,7 +513,7 @@ p, li { color: #334155; font-size: .95rem; line-height: 1.7; }
   padding: 0 6px;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 50;
 }
 .main-nav::-webkit-scrollbar { display: none; }
 .main-nav-btn {
