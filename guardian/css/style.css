@@ -240,7 +240,6 @@ html, body {
 }
 
 /* Guardian header layout */
-.gh-header { overflow: hidden; }
 .gh-logo {
   width: 36px; height: 36px; border-radius: 8px;
   object-fit: contain; flex-shrink: 0;
@@ -276,13 +275,13 @@ html, body {
 
 .gh-actions {
   display: flex; align-items: center; gap: 8px;
-  transform: translateX(120%);
+  max-width: 0; overflow: hidden;
   opacity: 0;
-  transition: transform .22s cubic-bezier(.4,0,.2,1), opacity .22s;
+  transition: max-width .3s cubic-bezier(.4,0,.2,1), opacity .25s;
   pointer-events: none;
 }
 .gh-actions.open {
-  transform: translateX(0);
+  max-width: 200px;
   opacity: 1;
   pointer-events: auto;
 }
