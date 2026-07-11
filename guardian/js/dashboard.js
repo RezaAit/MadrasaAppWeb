@@ -94,6 +94,11 @@ export function navigateTo(screenId, opts = {}) {
   if (isBack) next.classList.add('slide-back');
   next.classList.add('active');
 
+  // Update status bar theme-color per screen
+  const themeColors = { 'screen-login': '#0b2e4d', 'screen-dashboard': '#1e3a8a', 'screen-profile': '#1e3a8a' };
+  const meta = document.getElementById('theme-color-meta');
+  if (meta && themeColors[screenId]) meta.setAttribute('content', themeColors[screenId]);
+
   // Remove animation class after it plays so it doesn't replay
   next.addEventListener('animationend', () => next.classList.remove('slide-back'), { once: true });
 }
