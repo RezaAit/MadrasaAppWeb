@@ -349,7 +349,7 @@ html, body {
   overflow: hidden; margin-bottom: 14px;
 }
 .exam-result-header {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
   padding: 14px 18px; font-size: .8rem; font-weight: 700;
   color: #fff; background: linear-gradient(135deg,#1e3a8a,#2563eb);
   text-transform: uppercase; letter-spacing: .04em;
