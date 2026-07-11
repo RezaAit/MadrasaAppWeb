@@ -147,7 +147,8 @@ function renderShell() {
 
   document.getElementById('teacher-fullname').textContent = t?.name || 'শিক্ষক';
   document.getElementById('teacher-designation').textContent = t?.designation || '';
-  document.getElementById('teacher-role-badge').textContent = roleLabel;
+  const roleBadgeEl = document.getElementById('teacher-role-badge');
+  if (roleBadgeEl) roleBadgeEl.textContent = roleLabel;
 
   // Build nav based on role
   const navItems = [
