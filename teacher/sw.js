@@ -1,8 +1,11 @@
-﻿const CACHE = 'huda-teacher-v21';
+﻿const CACHE = 'huda-teacher-v22';
 const STATIC = [
   '/teacher/',
   '/teacher/index.html',
   '/teacher/css/style.css',
+  '/teacher/css/dashboard.css',
+  '/teacher/css/login.css',
+  '/teacher/css/login-theme.css',
   '/teacher/js/dashboard.js',
   '/teacher/js/api.js',
   '/teacher/js/auth.js',
@@ -18,6 +21,7 @@ const STATIC = [
   '/shared/js/api-config.js',
   '/shared/js/ripple.js',
   '/shared/js/tab-indicator.js',
+  '/shared/js/motion.js',
   '/images/logo.png',
   '/images/headerlogo.png',
 ];
