@@ -2,7 +2,7 @@
 import { initLogin, checkAuth, logout } from './auth.js';
 import { attachRippleAll, attachRipple } from '../../shared/js/ripple.js';
 import { initTabIndicator } from '../../shared/js/tab-indicator.js';
-import { initMotion, settleContent, crossfadeIn, markScrollReveal, spinLogo, initPullToRefresh } from '../../shared/js/motion.js';
+import { initMotion, settleContent, crossfadeIn, markScrollReveal, spinLogo } from '../../shared/js/motion.js';
 import { loadAttendance, loadExam } from './attendance.js';
 import { loadGuardianLeave } from './leave.js';
 import { loadHomework } from './homework.js';
@@ -542,7 +542,6 @@ function loadSection(section) {
     crossfadeIn(content);
     settleContent(content);
     markScrollReveal(content);
-    initPullToRefresh(content, () => loadSection(section));
   }, 50);
 }
 
