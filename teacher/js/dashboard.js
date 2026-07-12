@@ -210,9 +210,18 @@ function renderShell() {
     e.stopPropagation();
     actions.classList.toggle('open');
   });
-  document.getElementById('teacher-refresh-btn').addEventListener('click', () => {
+  document.getElementById('teacher-refresh-btn').addEventListener('click', async () => {
     closeDrawer();
-    navigateTo(state.activeModule || 'dashboard');
+    try {
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k)));
+      }
+      showToast('ক্যাশ পরিষ্কার হচ্ছে…', 'success');
+      setTimeout(() => location.reload(true), 800);
+    } catch {
+      location.reload(true);
+    }
   });
   document.getElementById('teacher-logout-btn').addEventListener('click', () => {
     closeDrawer();
