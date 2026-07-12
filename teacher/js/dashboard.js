@@ -50,6 +50,7 @@ function showScreen(id) {
 export function navigateTo(moduleKey) {
   if (state.activeModule !== moduleKey) state.previousModule = state.activeModule;
   state.activeModule = moduleKey;
+  sessionStorage.setItem('teacher_active_module', moduleKey);
 
   // Active class + indicator + scroll into view
   const nav = document.getElementById('main-nav');
@@ -237,7 +238,8 @@ function renderShell() {
   document.getElementById('teacher-initials').style.cursor = 'pointer';
   document.getElementById('teacher-initials').addEventListener('click', () => navigateTo('profile'));
 
-  navigateTo('dashboard');
+  const savedModule = sessionStorage.getItem('teacher_active_module') || 'dashboard';
+  navigateTo(savedModule);
 }
 
 async function loadDashboardModule(container) {
