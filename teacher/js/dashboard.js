@@ -71,7 +71,6 @@ export function navigateTo(moduleKey) {
   if (waveSep) waveSep.style.display = moduleKey === 'profile' ? 'none' : '';
   document.getElementById('__ext-fab')?.remove();
   window.__tdFabCleanup?.();
-  window.__ptrDestroy?.();
 
   // Logo spin on tab switch
   const logoEl = document.getElementById('teacher-initials');
@@ -401,11 +400,34 @@ async function loadDashboardModule(container) {
     initCountUp(cardsEl);
   }
 
-  // Pull-to-refresh — store destroy fn so navigateTo can kill it
-  window.__ptrDestroy?.();
-  const scrollArea = document.getElementById('main-content');
-  const ptr = initPullToRefresh(scrollArea, () => navigateTo('dashboard'));
-  window.__ptrDestroy = () => { ptr?.destroy(); window.__ptrDestroy = null; };
+  // Pull-to-refresh — only fires when dashboard is the active module
+  _initDashPTR();
+}
+
+function _initDashPTR() {
+  // Remove any previous PTR listeners via flag
+  const scrollEl = document.getElementById('main-content');
+  if (!scrollEl || scrollEl.__ptrAttached) return;
+  scrollEl.__ptrAttached = true;
+
+  let startY = 0, pulling = false;
+  const THRESHOLD = 72;
+
+  scrollEl.addEventListener('touchstart', e => {
+    if (state.activeModule !== 'dashboard') return;
+    if (scrollEl.scrollTop === 0) { startY = e.touches[0].clientY; pulling = true; }
+  }, { passive: true });
+
+  scrollEl.addEventListener('touchmove', e => {
+    if (!pulling || state.activeModule !== 'dashboard') { pulling = false; return; }
+  }, { passive: true });
+
+  scrollEl.addEventListener('touchend', async e => {
+    if (!pulling || state.activeModule !== 'dashboard') { pulling = false; return; }
+    pulling = false;
+    const dy = e.changedTouches[0].clientY - startY;
+    if (dy >= THRESHOLD) navigateTo('dashboard');
+  }, { passive: true });
 }
 
 function _bn(n) {

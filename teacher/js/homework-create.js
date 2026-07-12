@@ -1,7 +1,7 @@
 import { getHomeworkList, createHomework, updateHomework, publishHomework, deleteHomework, uploadHomeworkAttachments, uploadHomeworkMultiAttachments, deleteHomeworkAttachment, reviewHomework, submitReaction, getMySections } from './api.js';
 import { showConfirm } from '../../shared/js/confirm-dialog.js';
 import { showToast } from './dashboard.js';
-import { settleContent, markScrollReveal, crossfadeIn, initPullToRefresh } from '../../shared/js/motion.js';
+import { settleContent, markScrollReveal, crossfadeIn } from '../../shared/js/motion.js';
 import { initAnnotation, buildToolbar, getAnnotatedBlob, openLightbox } from '../../shared/js/annotation.js';
 import { compressImage } from '../../shared/js/compress-image.js';
 import { initVoiceRecorder, fetchAudioAsBlob } from '../../shared/js/voice-recorder.js';
@@ -34,7 +34,6 @@ export async function loadHomeworkModule(container, teacher) {
   _renderHwList(homeworks, container);
   const hwList = container.querySelector('#hw-list');
   if (hwList) { crossfadeIn(hwList); settleContent(hwList); markScrollReveal(hwList); }
-  initPullToRefresh(container, () => _reloadList(container));
 
   document.getElementById('create-hw-btn').addEventListener('click', () => {
     _openCreateForm(container, teacher);
