@@ -364,9 +364,12 @@
   flex-shrink: 0;
   box-shadow: 0 6px 14px -4px rgba(0,0,0,.25);
 }
-.td-fab-action-btn.att  { background: var(--td-green); }
-.td-fab-action-btn.ntc  { background: var(--td-blue); }
-.td-fab-action-btn.hw   { background: var(--td-amber); }
+.td-fab-action-btn.att  { background: #145c44; }
+.td-fab-action-btn.lv   { background: #d97706; }
+.td-fab-action-btn.hw   { background: #7c3aed; }
+.td-fab-action-btn.fee  { background: #dc2626; }
+.td-fab-action-btn.mrk  { background: #0891b2; }
+.td-fab-action-btn.ntc  { background: #0b3d2e; }
 
 /* FAB backdrop */
 .td-fab-backdrop {

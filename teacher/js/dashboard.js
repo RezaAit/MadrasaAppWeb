@@ -450,20 +450,20 @@ function _mountDashFAB() {
   const menu = document.createElement('div');
   menu.id = '__td-fab-menu';
   menu.className = 'td-fab-menu';
-  menu.innerHTML = `
-    <div class="td-fab-action" data-nav="attendance">
-      <span class="td-fab-action-label">উপস্থিতি নিন</span>
-      <button class="td-fab-action-btn att">${_attIcon(18)}</button>
+  const fabTabs = [
+    { nav: 'attendance', label: 'উপস্থিতি',    cls: 'att', icon: _attIcon(18) },
+    { nav: 'leave',      label: 'ছুটি',         cls: 'lv',  icon: _leaveIcon(18) },
+    { nav: 'homework',   label: 'হোমওয়ার্ক',   cls: 'hw',  icon: _hwIcon(18) },
+    { nav: 'fees',       label: 'ফি',           cls: 'fee', icon: _feesIcon(18) },
+    { nav: 'marks',      label: 'নম্বর এন্ট্রি', cls: 'mrk', icon: _marksIcon(18) },
+    { nav: 'notice',     label: 'নোটিশ',        cls: 'ntc', icon: _noticeIcon(18) },
+  ];
+  menu.innerHTML = fabTabs.map(t => `
+    <div class="td-fab-action" data-nav="${t.nav}">
+      <span class="td-fab-action-label">${t.label}</span>
+      <button class="td-fab-action-btn ${t.cls}">${t.icon}</button>
     </div>
-    <div class="td-fab-action" data-nav="notice">
-      <span class="td-fab-action-label">নোটিশ তৈরি</span>
-      <button class="td-fab-action-btn ntc">${_noticeIcon(18)}</button>
-    </div>
-    <div class="td-fab-action" data-nav="homework">
-      <span class="td-fab-action-label">হোমওয়ার্ক পোস্ট</span>
-      <button class="td-fab-action-btn hw">${_hwIcon(18)}</button>
-    </div>
-  `;
+  `).join('');
   document.body.appendChild(menu);
 
   // FAB button
