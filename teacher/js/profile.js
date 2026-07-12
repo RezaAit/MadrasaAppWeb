@@ -199,7 +199,7 @@ function _confirm(title, message) {
         <div style="font-size:.88rem;color:#475569;line-height:1.6;white-space:pre-line;margin-bottom:20px;">${message}</div>
         <div style="display:flex;gap:10px;">
           <button id="cf-cancel" style="flex:1;padding:12px;border-radius:12px;border:1.5px solid #e2e8f0;background:#f8fafc;font-size:.9rem;font-weight:600;color:#64748b;cursor:pointer;font-family:inherit;">বাতিল</button>
-          <button id="cf-ok" style="flex:1;padding:12px;border-radius:12px;border:none;background:#2563eb;color:#fff;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 3px 10px rgba(37,99,235,.35);">হ্যাঁ, পরিবর্তন করুন</button>
+          <button id="cf-ok" style="flex:1;padding:12px;border-radius:12px;border:none;background:#145c44;color:#fff;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 3px 10px rgba(37,99,235,.35);">হ্যাঁ, পরিবর্তন করুন</button>
         </div>
       </div>`;
     document.body.appendChild(overlay);

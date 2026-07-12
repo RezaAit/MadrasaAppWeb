@@ -143,6 +143,10 @@ export async function loadLeaveModule(container, teacher) {
         Pending: '#f59e0b', Escalated: '#8b5cf6',
         Approved: '#16a34a', Disapproved: '#dc2626'
       }[st] || '#94a3b8';
+      const statusBg = {
+        Pending: '#fffbeb', Escalated: '#f5f3ff',
+        Approved: '#f0fdf4', Disapproved: '#fef2f2'
+      }[st] || '#f8fafc';
 
       const statusLabel = {
         Pending: 'অপেক্ষমান', Escalated: 'অধ্যক্ষে',
@@ -151,8 +155,8 @@ export async function loadLeaveModule(container, teacher) {
 
       const dayCount = leave.Duration ?? leave.duration ?? _dayDiff(leave.FromDate ?? leave.fromDate, leave.ToDate ?? leave.toDate);
 
+      card.style.background = statusBg;
       card.innerHTML = `
-        <div class="lv-card-accent" style="background:${statusColor};"></div>
         <div class="lv-card-body">
           <!-- Header -->
           <div class="lv-card-header">

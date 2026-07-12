@@ -265,7 +265,7 @@ function _showLogoutConfirm() {
       <div style="font-size:.85rem;color:#64748b;line-height:1.6;margin-bottom:20px;">আপনি অ্যাপ থেকে বের হয়ে যাবেন। পুনরায় প্রবেশ করতে OTP লাগবে।</div>
       <div style="display:flex;gap:10px;">
         <button id="lc-cancel" style="flex:1;padding:12px;border-radius:12px;border:1.5px solid #e2e8f0;background:#f8fafc;font-size:.9rem;font-weight:600;color:#64748b;cursor:pointer;font-family:inherit;">থাকুন</button>
-        <button id="lc-ok" style="flex:1;padding:12px;border-radius:12px;border:none;background:#2563eb;color:#fff;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 3px 10px rgba(37,99,235,.35);">লগআউট</button>
+        <button id="lc-ok" style="flex:1;padding:12px;border-radius:12px;border:none;background:#145c44;color:#fff;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 3px 10px rgba(37,99,235,.35);">লগআউট</button>
       </div>
     </div>
   `;

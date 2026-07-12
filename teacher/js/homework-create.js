@@ -403,7 +403,7 @@ async function _openReviewScreen(container, hw) {
   // ── Styled audio card ──
   function _instrAudioCard(url, idx) {
     return `<div style="display:flex;align-items:center;gap:10px;background:#f1f5f9;border-radius:12px;padding:10px 12px;margin-bottom:8px;">
-      <div style="width:36px;height:36px;border-radius:50%;background:#2563eb;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <div style="width:36px;height:36px;border-radius:50%;background:#145c44;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="#fff"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2" fill="none" stroke="#fff" stroke-width="2"/></svg>
       </div>
       <div style="flex:1;min-width:0;">
@@ -461,7 +461,7 @@ async function _openReviewScreen(container, hw) {
     const ext = (fname.split('.').pop() || 'pdf').toLowerCase();
     const extUp = ext.toUpperCase();
     const cfg = ext === 'pdf' ? { bg:'#fff0f0', border:'#fca5a5', tc:'#dc2626', ic:'#dc2626' }
-      : (ext === 'doc' || ext === 'docx') ? { bg:'#eff6ff', border:'#93c5fd', tc:'#2563eb', ic:'#2563eb' }
+      : (ext === 'doc' || ext === 'docx') ? { bg:'#eff6ff', border:'#93c5fd', tc:'#145c44', ic:'#145c44' }
       : (ext === 'xls' || ext === 'xlsx') ? { bg:'#f0fdf4', border:'#86efac', tc:'#16a34a', ic:'#16a34a' }
       : (ext === 'ppt' || ext === 'pptx') ? { bg:'#fff7ed', border:'#fdba74', tc:'#ea580c', ic:'#ea580c' }
       : { bg:'#f8fafc', border:'#cbd5e1', tc:'#475569', ic:'#475569' };
@@ -479,7 +479,7 @@ async function _openReviewScreen(container, hw) {
   const instrHtml = hasInstr ? `
     <div style="background:#fff;border:1px solid #e8edf5;border-radius:14px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 4px rgba(15,23,42,.06);">
       <div style="padding:10px 14px 8px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:8px;">
-        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#1d4ed8);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#145c44,#0b3d2e);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         </div>
         <div>

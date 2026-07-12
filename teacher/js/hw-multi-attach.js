@@ -50,7 +50,7 @@ async function _openAnnotationOverlay(imageUrl, onSave) {
     <div style="flex-shrink:0;background:#1e293b;">
       <div id="${toolbarId}"></div>
       <div style="display:flex;gap:10px;padding:10px 14px;">
-        <button id="ann-fs-save" style="flex:1;background:#2563eb;color:#fff;border:none;border-radius:10px;padding:12px;font-size:.9rem;font-weight:700;cursor:pointer;">✓ সেভ করুন</button>
+        <button id="ann-fs-save" style="flex:1;background:#145c44;color:#fff;border:none;border-radius:10px;padding:12px;font-size:.9rem;font-weight:700;cursor:pointer;">✓ সেভ করুন</button>
         <button id="ann-fs-cancel" style="flex:0 0 auto;background:rgba(255,255,255,.08);color:#94a3b8;border:none;border-radius:10px;padding:12px 18px;font-size:.9rem;cursor:pointer;">বাতিল</button>
       </div>
     </div>
@@ -714,7 +714,7 @@ export function createMultiAttachManager(container, {
   function _docFileIcon(ext) {
     const e = ext.toLowerCase();
     if (e === '.pdf') return `<svg viewBox="0 0 64 64" width="32" height="32" fill="none" style="flex-shrink:0;"><rect x="8" y="4" width="36" height="48" rx="4" fill="#fee2e2" stroke="#fca5a5" stroke-width="1.5"/><polyline points="36,4 36,16 48,16" fill="#fecaca" stroke="#fca5a5" stroke-width="1.5"/><text x="10" y="38" font-family="Arial" font-weight="700" font-size="10" fill="#dc2626">PDF</text></svg>`;
-    if (e === '.doc' || e === '.docx') return `<svg viewBox="0 0 64 64" width="32" height="32" fill="none" style="flex-shrink:0;"><rect x="8" y="4" width="36" height="48" rx="4" fill="#dbeafe" stroke="#93c5fd" stroke-width="1.5"/><polyline points="36,4 36,16 48,16" fill="#bfdbfe" stroke="#93c5fd" stroke-width="1.5"/><text x="9" y="38" font-family="Arial" font-weight="700" font-size="9" fill="#2563eb">DOC</text></svg>`;
+    if (e === '.doc' || e === '.docx') return `<svg viewBox="0 0 64 64" width="32" height="32" fill="none" style="flex-shrink:0;"><rect x="8" y="4" width="36" height="48" rx="4" fill="#dbeafe" stroke="#93c5fd" stroke-width="1.5"/><polyline points="36,4 36,16 48,16" fill="#bfdbfe" stroke="#93c5fd" stroke-width="1.5"/><text x="9" y="38" font-family="Arial" font-weight="700" font-size="9" fill="#145c44">DOC</text></svg>`;
     if (e === '.xls' || e === '.xlsx') return `<svg viewBox="0 0 64 64" width="32" height="32" fill="none" style="flex-shrink:0;"><rect x="8" y="4" width="36" height="48" rx="4" fill="#dcfce7" stroke="#86efac" stroke-width="1.5"/><polyline points="36,4 36,16 48,16" fill="#bbf7d0" stroke="#86efac" stroke-width="1.5"/><text x="10" y="38" font-family="Arial" font-weight="700" font-size="10" fill="#16a34a">XLS</text></svg>`;
     if (e === '.txt') return `<svg viewBox="0 0 64 64" width="32" height="32" fill="none" style="flex-shrink:0;"><rect x="8" y="4" width="36" height="48" rx="4" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/><polyline points="36,4 36,16 48,16" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="1.5"/><text x="10" y="38" font-family="Arial" font-weight="700" font-size="10" fill="#475569">TXT</text></svg>`;
     return `<svg viewBox="0 0 64 64" width="32" height="32" fill="none" style="flex-shrink:0;"><rect x="8" y="4" width="36" height="48" rx="4" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/><polyline points="36,4 36,16 48,16" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="1.5"/><text x="9" y="38" font-family="Arial" font-weight="700" font-size="9" fill="#475569">FILE</text></svg>`;

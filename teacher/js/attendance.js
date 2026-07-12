@@ -237,7 +237,7 @@ async function renderCalendar(sectionId) {
           </div>
           <div class="cal-summary-divider"></div>
           <div class="cal-summary-item">
-            <div class="cal-summary-val" style="color:#2563eb;">${totalStudents}</div>
+            <div class="cal-summary-val" style="color:#145c44;">${totalStudents}</div>
             <div class="cal-summary-lbl">মোট শিক্ষার্থী</div>
           </div>
         </div>

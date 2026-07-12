@@ -53,7 +53,7 @@ async function _renderNoticeList(container) {
     return;
   }
 
-  const catColor = { Notice: '#2563eb', Circular: '#7c3aed', Event: '#d97706' };
+  const catColor = { Notice: '#145c44', Circular: '#7c3aed', Event: '#d97706' };
   const catBg    = { Notice: '#eff6ff', Circular: '#ede9fe', Event: '#fffbeb' };
 
   function _noticeCardHtml(n) {
@@ -63,7 +63,7 @@ async function _renderNoticeList(container) {
     <div class="notice-card fade-in" data-notice-id="${id}">
       <div class="notice-card-body">
         <div class="notice-card-top">
-          <span class="notice-cat-badge" style="background:${catBg[cat]||'#eff6ff'};color:${catColor[cat]||'#2563eb'};">
+          <span class="notice-cat-badge" style="background:${catBg[cat]||'#eff6ff'};color:${catColor[cat]||'#145c44'};">
             ${CATEGORY_LABEL[cat] || cat}
           </span>
           <div style="display:flex;gap:6px;">
