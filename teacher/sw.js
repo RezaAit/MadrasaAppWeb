@@ -1,34 +1,9 @@
-﻿const CACHE = 'huda-teacher-v23';
-const STATIC = [
-  '/teacher/',
-  '/teacher/index.html',
-  '/teacher/css/style.css',
-  '/teacher/css/dashboard.css',
-  '/teacher/css/login.css',
-  '/teacher/css/login-theme.css',
-  '/teacher/js/dashboard.js',
-  '/teacher/js/api.js',
-  '/teacher/js/auth.js',
-  '/teacher/js/attendance.js',
-  '/teacher/js/homework.js',
-  '/teacher/js/homework-create.js',
-  '/teacher/js/leave.js',
-  '/teacher/js/notice.js',
-  '/teacher/js/marks-entry.js',
-  '/teacher/js/fees.js',
-  '/teacher/js/profile.js',
-  '/shared/css/common.css',
-  '/shared/js/api-config.js',
-  '/shared/js/ripple.js',
-  '/shared/js/tab-indicator.js',
-  '/shared/js/motion.js',
-  '/images/logo.png',
-  '/images/headerlogo.png',
-];
+﻿const CACHE = 'huda-teacher-v24';
+const IMAGES = ['/images/logo.png', '/images/headerlogo.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(STATIC)).then(() => self.skipWaiting())
+    caches.open(CACHE).then(c => c.addAll(IMAGES)).then(() => self.skipWaiting())
   );
 });
 
@@ -43,20 +18,41 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
-  // API calls â€” network first, no cache
+  // API — network only, no cache
   if (url.hostname === 'sbookapi.madrasatulhuda.com') {
-    e.respondWith(fetch(e.request).catch(() => new Response('{"HasError":true,"message":"à¦…à¦«à¦²à¦¾à¦‡à¦¨"}', { headers: { 'Content-Type': 'application/json' } })));
+    e.respondWith(
+      fetch(e.request).catch(() => new Response('{“HasError”:true,”message”:”অফলাইন”}', { headers: { 'Content-Type': 'application/json' } }))
+    );
     return;
   }
 
-  // Static assets â€” cache first
+  // JS/CSS — network first, cache fallback (ensures new code always loads)
+  if (url.pathname.match(/\.(js|css)$/)) {
+    e.respondWith(
+      fetch(e.request).then(res => {
+        if (res.ok) {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return res;
+      }).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // Images — cache first
+  if (url.pathname.match(/\.(png|jpg|svg|ico|webp)$/)) {
+    e.respondWith(
+      caches.match(e.request).then(cached => cached || fetch(e.request).then(res => {
+        if (res.ok) caches.open(CACHE).then(c => c.put(e.request, res.clone()));
+        return res;
+      }))
+    );
+    return;
+  }
+
+  // HTML — network first
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request).then(res => {
-      if (res.ok) {
-        const clone = res.clone();
-        caches.open(CACHE).then(c => c.put(e.request, clone));
-      }
-      return res;
-    }))
+    fetch(e.request).catch(() => caches.match(e.request))
   );
 });

@@ -194,26 +194,35 @@ function renderShell() {
   // Position indicator on initial active tab after layout renders
   requestAnimationFrame(() => moveIndicator(nav.querySelector('.main-nav-btn.active')));
 
-  // Three-dot toggle — clone buttons to strip any stale listeners
-  const _fresh = id => { const el = document.getElementById(id); const c = el.cloneNode(true); el.replaceWith(c); return c; };
-  const threeDot   = _fresh('thb-three-dot');
-  const refreshBtn = _fresh('teacher-refresh-btn');
-  const logoutBtn  = _fresh('teacher-logout-btn');
+  // Three-dot menu
+  const threeDot   = document.getElementById('thb-three-dot');
   const actions    = document.getElementById('thb-actions');
+  const refreshBtn = document.getElementById('teacher-refresh-btn');
+  const logoutBtn  = document.getElementById('teacher-logout-btn');
   const closeDrawer = () => actions.classList.remove('open');
 
-  threeDot.addEventListener('click', () => actions.classList.toggle('open'));
-  logoutBtn.addEventListener('click', () => { closeDrawer(); logout(); });
-  refreshBtn.addEventListener('click', () => { closeDrawer(); navigateTo(state.activeModule || 'dashboard'); });
+  // Remove old listeners by replacing with clones, then re-query
+  threeDot.replaceWith(threeDot.cloneNode(true));
+  refreshBtn.replaceWith(refreshBtn.cloneNode(true));
+  logoutBtn.replaceWith(logoutBtn.cloneNode(true));
 
-  // Close on outside tap — use capture once per shell via named fn stored on element
-  if (!document.__thbOutsideHandler) {
-    document.__thbOutsideHandler = (e) => {
-      if (!e.target.closest('#thb-three-dot') && !e.target.closest('#thb-actions'))
-        document.getElementById('thb-actions')?.classList.remove('open');
-    };
-    document.addEventListener('click', document.__thbOutsideHandler);
-  }
+  document.getElementById('thb-three-dot').addEventListener('click', (e) => {
+    e.stopPropagation();
+    actions.classList.toggle('open');
+  });
+  document.getElementById('teacher-refresh-btn').addEventListener('click', () => {
+    closeDrawer();
+    navigateTo(state.activeModule || 'dashboard');
+  });
+  document.getElementById('teacher-logout-btn').addEventListener('click', () => {
+    closeDrawer();
+    logout();
+  });
+
+  // Close on outside tap
+  document.removeEventListener('click', document.__thbOutsideHandler);
+  document.__thbOutsideHandler = () => closeDrawer();
+  document.addEventListener('click', document.__thbOutsideHandler);
 
   // Avatar → profile
   document.getElementById('teacher-initials').style.cursor = 'pointer';
