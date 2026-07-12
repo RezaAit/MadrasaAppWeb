@@ -523,27 +523,39 @@ function initProfileNav(openSection = null) {
 }
 
 function _mountGuardianFAB() {
+  // Bottom padding so FAB doesn't cover content
+  const content = document.getElementById('profile-content');
+  if (content) content.style.paddingBottom = '90px';
+
   const backdrop = document.createElement('div');
   backdrop.id = '__g-fab-backdrop';
   backdrop.style.cssText = 'position:fixed;inset:0;z-index:198;display:none;';
   document.body.appendChild(backdrop);
 
+  const tabs = [
+    { section: 'attendance', label: 'উপস্থিতি',  color: '#145c44', icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg>` },
+    { section: 'leave',      label: 'ছুটির আবেদন', color: '#d97706', icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>` },
+    { section: 'homework',   label: 'হোমওয়ার্ক',  color: '#7c3aed', icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>` },
+    { section: 'fees',       label: 'ফি ও বকেয়া', color: '#dc2626', icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>` },
+    { section: 'exam',       label: 'পরীক্ষা',    color: '#0891b2', icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>` },
+    { section: 'notice',     label: 'নোটিশ',      color: '#0b3d2e', icon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>` },
+  ];
+
   const menu = document.createElement('div');
   menu.id = '__g-fab-menu';
   menu.style.cssText = `
     position:fixed; bottom:92px; left:50%; transform:translateX(-50%) translateY(12px) scale(.94);
-    display:flex; flex-direction:column; gap:10px; z-index:200;
+    display:flex; flex-direction:column; gap:8px; z-index:200;
     opacity:0; pointer-events:none;
     transition:opacity 180ms, transform 200ms cubic-bezier(.34,1.56,.64,1);
+    width:220px;
   `;
-  menu.innerHTML = `
-    <div data-section="leave" style="display:flex;align-items:center;gap:10px;cursor:pointer;justify-content:center;">
-      <span style="background:rgba(15,33,26,.88);color:#fff;font-size:.78rem;font-weight:700;padding:5px 14px;border-radius:99px;white-space:nowrap;">ছুটির আবেদন</span>
-      <button style="width:44px;height:44px;border-radius:13px;border:none;background:#145c44;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px -4px rgba(0,0,0,.25);flex-shrink:0;cursor:pointer;">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
-      </button>
+  menu.innerHTML = tabs.map(t => `
+    <div data-section="${t.section}" style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+      <span style="flex:1;background:rgba(15,33,26,.88);color:#fff;font-size:.78rem;font-weight:700;padding:5px 14px;border-radius:99px;white-space:nowrap;text-align:right;">${t.label}</span>
+      <button style="width:44px;height:44px;border-radius:13px;border:none;background:${t.color};color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px -4px rgba(0,0,0,.25);flex-shrink:0;cursor:pointer;">${t.icon}</button>
     </div>
-  `;
+  `).join('');
   document.body.appendChild(menu);
 
   const fab = document.createElement('button');
@@ -586,6 +598,7 @@ function _mountGuardianFAB() {
 function loadSection(section) {
   const content = document.getElementById('profile-content');
   content.innerHTML = _skeletonCards(3);
+  content.style.paddingBottom = '90px';
   state.activeSection = section;
   sessionStorage.setItem('active_section', section);
 
