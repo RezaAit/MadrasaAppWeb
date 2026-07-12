@@ -492,7 +492,6 @@ p, li { color: #334155; font-size: .95rem; line-height: 1.7; }
 }
 .teacher-info h2 .name-inner {
   display: inline-block;
-  padding-right: 24px;
 }
 .teacher-info h2 .name-inner.scrolling {
   animation: nameMarquee 8s linear infinite;

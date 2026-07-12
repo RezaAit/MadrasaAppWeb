@@ -117,7 +117,7 @@ export async function init() {
 
 function renderShell() {
   const t = state.teacher;
-  const initials = t?.name?.slice(0, 1) || 'শি';
+  const initials = t?.name?.slice(0, 1) || '';
   const roleLabel = t?.isPrincipal ? (t?.designation || 'অধ্যক্ষ') : 'শিক্ষক';
 
   // Avatar: photo if available, else initials
@@ -147,7 +147,7 @@ function renderShell() {
   }
 
   const nameEl = document.getElementById('teacher-fullname');
-  const nameText = t?.name || 'শিক্ষক';
+  const nameText = t?.name || '';
   // Marquee only if name overflows — wrap in inner span, duplicate for seamless loop
   nameEl.innerHTML = `<span class="name-inner">${nameText}</span>`;
   requestAnimationFrame(() => {
