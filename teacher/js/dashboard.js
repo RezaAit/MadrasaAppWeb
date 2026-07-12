@@ -71,6 +71,7 @@ export function navigateTo(moduleKey) {
   if (waveSep) waveSep.style.display = moduleKey === 'profile' ? 'none' : '';
   document.getElementById('__ext-fab')?.remove();
   window.__tdFabCleanup?.();
+  window.__ptrDestroy?.();
 
   // Logo spin on tab switch
   const logoEl = document.getElementById('teacher-initials');
@@ -146,7 +147,18 @@ function renderShell() {
     avatarEl.textContent = initials;
   }
 
-  document.getElementById('teacher-fullname').textContent = t?.name || 'শিক্ষক';
+  const nameEl = document.getElementById('teacher-fullname');
+  const nameText = t?.name || 'শিক্ষক';
+  // Marquee only if name overflows — wrap in inner span, duplicate for seamless loop
+  nameEl.innerHTML = `<span class="name-inner">${nameText}</span>`;
+  requestAnimationFrame(() => {
+    const inner = nameEl.querySelector('.name-inner');
+    if (inner && inner.scrollWidth > nameEl.clientWidth) {
+      // duplicate text for seamless loop
+      inner.textContent = nameText + '      ' + nameText;
+      inner.classList.add('scrolling');
+    }
+  });
   document.getElementById('teacher-designation').textContent = t?.designation || '';
   const roleBadgeEl = document.getElementById('teacher-role-badge');
   if (roleBadgeEl) roleBadgeEl.textContent = roleLabel;
@@ -219,7 +231,7 @@ async function loadDashboardModule(container) {
 
   // Skeleton
   container.innerHTML = `
-    <div class="stagger-in">
+    <div>
       <div class="td-greet-row">
         <div>
           <div class="td-date-line">${dateStr}</div>
@@ -279,7 +291,7 @@ async function loadDashboardModule(container) {
 
   // Fee card content
   const feeContent = totalDue > 0
-    ? `<div class="td-fee-amount">৳${_bnNum(totalDue)}</div>
+    ? `<div class="td-fee-amount" id="td-fee-amount-val">৳০</div>
        <div class="td-fee-sub">${_bn(dueStudents)} জন শিক্ষার্থী</div>`
     : `<div class="td-fee-amount" style="font-size:1rem;color:var(--td-green);">✓ বকেয়া নেই</div>`;
 
@@ -364,18 +376,36 @@ async function loadDashboardModule(container) {
   // FAB
   _mountDashFAB();
 
-  // Animations
+  // Fee amount count-up animation
+  if (totalDue > 0) {
+    const feeAmountEl = document.getElementById('td-fee-amount-val');
+    if (feeAmountEl) {
+      const duration = 1200;
+      const start = performance.now();
+      const tick = (now) => {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(eased * totalDue);
+        feeAmountEl.textContent = '৳' + current.toLocaleString('bn-BD');
+        if (progress < 1) requestAnimationFrame(tick);
+        else feeAmountEl.textContent = '৳' + _bnNum(totalDue);
+      };
+      requestAnimationFrame(tick);
+    }
+  }
+
+  // Animations (no layout-shifting effects)
   const cardsEl = document.getElementById('td-cards');
   if (cardsEl) {
     crossfadeIn(cardsEl);
-    settleContent(cardsEl);
     initCountUp(cardsEl);
-    markScrollReveal(cardsEl);
   }
 
-  // Pull-to-refresh
+  // Pull-to-refresh — store destroy fn so navigateTo can kill it
+  window.__ptrDestroy?.();
   const scrollArea = document.getElementById('main-content');
-  initPullToRefresh(scrollArea, () => navigateTo('dashboard'));
+  const ptr = initPullToRefresh(scrollArea, () => navigateTo('dashboard'));
+  window.__ptrDestroy = () => { ptr?.destroy(); window.__ptrDestroy = null; };
 }
 
 function _bn(n) {

@@ -111,15 +111,14 @@ export function initPullToRefresh(scrollEl, onRefresh) {
     return indicator;
   }
 
-  scrollEl.addEventListener('touchstart', e => {
-    if (scrollEl.scrollTop === 0) {
-      startY = e.touches[0].clientY;
-      pulling = true;
-    }
-  }, { passive: true });
+  let enabled = true;
 
-  scrollEl.addEventListener('touchmove', e => {
-    if (!pulling) return;
+  function onStart(e) {
+    if (!enabled) return;
+    if (scrollEl.scrollTop === 0) { startY = e.touches[0].clientY; pulling = true; }
+  }
+  function onMove(e) {
+    if (!enabled || !pulling) return;
     const dy = e.touches[0].clientY - startY;
     if (dy <= 0) return;
     const progress = Math.min(dy / THRESHOLD, 1);
@@ -127,10 +126,9 @@ export function initPullToRefresh(scrollEl, onRefresh) {
     ind.style.height = `${Math.min(dy * 0.4, 52)}px`;
     ind.style.opacity = String(progress);
     ind.querySelector('.ptr-spinner').style.transform = `rotate(${dy * 2}deg)`;
-  }, { passive: true });
-
-  scrollEl.addEventListener('touchend', async e => {
-    if (!pulling) return;
+  }
+  async function onEnd(e) {
+    if (!enabled || !pulling) return;
     pulling = false;
     const dy = e.changedTouches[0].clientY - startY;
     const ind = indicator;
@@ -141,13 +139,25 @@ export function initPullToRefresh(scrollEl, onRefresh) {
       await onRefresh?.();
     }
     ind.style.transition = 'height 300ms ease, opacity 300ms ease';
-    ind.style.height = '0';
-    ind.style.opacity = '0';
-    setTimeout(() => {
-      ind.classList.remove('ptr-loading');
-      ind.style.transition = '';
-    }, 300);
-  }, { passive: true });
+    ind.style.height = '0'; ind.style.opacity = '0';
+    setTimeout(() => { ind.classList.remove('ptr-loading'); ind.style.transition = ''; }, 300);
+  }
+
+  scrollEl.addEventListener('touchstart', onStart, { passive: true });
+  scrollEl.addEventListener('touchmove',  onMove,  { passive: true });
+  scrollEl.addEventListener('touchend',   onEnd,   { passive: true });
+
+  return {
+    destroy() {
+      enabled = false;
+      pulling = false;
+      scrollEl.removeEventListener('touchstart', onStart);
+      scrollEl.removeEventListener('touchmove',  onMove);
+      scrollEl.removeEventListener('touchend',   onEnd);
+      indicator?.remove();
+      indicator = null;
+    }
+  };
 }
 
 // ─── 5. Number Count-Up ───────────────────────────────────────────────────────
