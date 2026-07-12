@@ -837,7 +837,7 @@ p, li { color: #334155; font-size: .95rem; line-height: 1.7; }
 /* ─── Extended FAB ────────────────────────────────────────────────────────── */
 .ext-fab {
   position: fixed;
-  bottom: 24px; right: 20px;
+  bottom: 24px; left: 50%; transform: translateX(-50%);
   z-index: 9000;
   display: inline-flex; align-items: center; gap: 10px;
   padding: 0 22px 0 18px;
@@ -854,7 +854,7 @@ p, li { color: #334155; font-size: .95rem; line-height: 1.7; }
   -webkit-tap-highlight-color: transparent;
 }
 .ext-fab:hover  { background: #0b3d2e; box-shadow: 0 6px 24px rgba(20,92,68,.55); }
-.ext-fab:active { transform: scale(.96); box-shadow: 0 2px 8px rgba(20,92,68,.35); }
+.ext-fab:active { transform: translateX(-50%) scale(.96); box-shadow: 0 2px 8px rgba(20,92,68,.35); }
 .ext-fab:disabled { background: #93c5fd; box-shadow: none; cursor: not-allowed; }
 .ext-fab svg { flex-shrink: 0; }
 .ext-fab-badge {
