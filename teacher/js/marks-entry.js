@@ -27,7 +27,7 @@ export async function loadMarksModule(container, teacher) {
 
       /* ── App bar ── */
       .me-appbar {
-        background: linear-gradient(135deg, #1d4ed8, #145c44);
+        background: linear-gradient(135deg, #012a09, #145c44);
         margin:10px;
         border-radius:16px;
         color: #fff;
