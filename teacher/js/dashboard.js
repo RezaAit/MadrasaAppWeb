@@ -247,18 +247,19 @@ async function loadDashboardModule(container) {
   // Dynamic greeting based on local time
   const now = new Date();
   const hour = now.getHours();
-  const greeting = hour >= 5 && hour < 12 ? 'শুভ সকাল 👋'
-                 : hour >= 12 && hour < 17 ? 'শুভ দুপুর 👋'
-                 : 'শুভ সন্ধ্যা 👋';
+  const timeGreet = hour >= 5 && hour < 12 ? 'শুভ সকাল 👋'
+                  : hour >= 12 && hour < 17 ? 'শুভ দুপুর 👋'
+                  : 'শুভ সন্ধ্যা 👋';
   const dateStr = now.toLocaleDateString('bn-BD', { weekday: 'long', day: 'numeric', month: 'long' });
+  const greeting = `আস্সালামুআলাইকুম আজ, ${dateStr}`;
 
   // Skeleton
   container.innerHTML = `
     <div>
       <div class="td-greet-row">
         <div>
-          <div class="td-date-line">${dateStr}</div>
-          <div class="td-greet-line">${greeting}</div>
+          <div class="td-date-line">${greeting}</div>
+          <div class="td-greet-line">${timeGreet}</div>
         </div>
         <span class="td-term-pill" id="td-term-label">—</span>
       </div>
