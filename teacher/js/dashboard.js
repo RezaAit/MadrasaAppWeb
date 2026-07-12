@@ -70,6 +70,7 @@ export function navigateTo(moduleKey) {
   const waveSep = document.querySelector('.thb-wave-sep');
   if (waveSep) waveSep.style.display = moduleKey === 'profile' ? 'none' : '';
   document.getElementById('__ext-fab')?.remove();
+  window.__tdFabCleanup?.();
 
   // Logo spin on tab switch
   const logoEl = document.getElementById('teacher-initials');
@@ -208,112 +209,163 @@ function renderShell() {
 }
 
 async function loadDashboardModule(container) {
+  // Dynamic greeting based on local time
   const now = new Date();
-  const dateStr = now.toLocaleDateString('bn-BD', { weekday: 'long', day: 'numeric', month: 'long' });
   const hour = now.getHours();
-  const greeting = hour < 12 ? 'শুভ সকাল' : hour < 17 ? 'শুভ অপরাহ্ন' : 'শুভ সন্ধ্যা';
-  const arrow = `<div class="dash-arrow"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>`;
+  const greeting = hour >= 5 && hour < 12 ? 'শুভ সকাল 👋'
+                 : hour >= 12 && hour < 17 ? 'শুভ দুপুর 👋'
+                 : 'শুভ সন্ধ্যা 👋';
+  const dateStr = now.toLocaleDateString('bn-BD', { weekday: 'long', day: 'numeric', month: 'long' });
 
-  // Show skeleton first
+  // Skeleton
   container.innerHTML = `
     <div class="stagger-in">
-      <div class="dash-greeting">
-        <div class="dash-greeting-date">${dateStr}</div>
-        <div class="dash-greeting-title">${greeting} 👋</div>
+      <div class="td-greet-row">
+        <div>
+          <div class="td-date-line">${dateStr}</div>
+          <div class="td-greet-line">${greeting}</div>
+        </div>
+        <span class="td-term-pill" id="td-term-label">—</span>
       </div>
-      <div class="dash-grid" id="dash-cards" style="min-height:420px;">
-        ${Array(4).fill('<div class="skeleton skeleton-card" style="height:110px;border-radius:20px;"></div>').join('')}
-        <div class="skeleton skeleton-card dash-card--wide" style="height:68px;border-radius:20px;grid-column:1/-1;"></div>
-        <div class="skeleton skeleton-card" style="height:110px;border-radius:20px;"></div>
-        <div class="skeleton skeleton-card" style="height:110px;border-radius:20px;"></div>
+      <div class="td-cards" id="td-cards">
+        <div class="skeleton skeleton-card" style="height:80px;border-radius:18px;"></div>
+        <div class="td-grid">
+          <div class="skeleton skeleton-card" style="height:130px;border-radius:18px;"></div>
+          <div class="skeleton skeleton-card" style="height:130px;border-radius:18px;"></div>
+          <div class="skeleton skeleton-card" style="height:130px;border-radius:18px;"></div>
+          <div class="skeleton skeleton-card" style="height:130px;border-radius:18px;"></div>
+        </div>
+        <div class="skeleton skeleton-card" style="height:70px;border-radius:18px;"></div>
       </div>
     </div>`;
 
   // Fetch all in parallel
-  const [sectionsRes, leavesRes, hwRes, feesRes] = await Promise.allSettled([
+  const [sectionsRes, leavesRes, hwRes, feesRes, noticeRes] = await Promise.allSettled([
     import('./api.js').then(m => m.getMySections()),
     import('./api.js').then(m => m.getPendingLeaves()),
     import('./api.js').then(m => m.getHomeworkList()),
     import('./api.js').then(m => m.getClassFeesSummary()),
+    import('./api.js').then(m => m.getTeacherNotices()),
   ]);
 
-  const sections   = sectionsRes.value?.results;
-  const subjectSec = sections?.subjectSections?.length ?? '—';
-  const ctSec      = sections?.classTeacherSections?.length ?? 0;
-  const leaves     = leavesRes.value?.results?.filter(l => (l.Status ?? l.status) === 'Pending').length ?? '—';
-  const hwList     = hwRes.value?.results || [];
-  const hwPending  = hwList.filter(h => h.status === 'Published').length;
-  const feesList   = feesRes.value?.results || [];
-  const totalDue   = feesList.reduce((a, c) => a + (c.totalDue || 0), 0);
-  const dueStudents= feesList.reduce((a, c) => a + (c.dueStudents || 0), 0);
+  const sections    = sectionsRes.value?.results;
+  const subjectSec  = sections?.subjectSections?.length ?? 0;
+  const ctSec       = sections?.classTeacherSections?.length ?? 0;
+  const leaves      = leavesRes.value?.results?.filter(l => (l.Status ?? l.status) === 'Pending').length ?? 0;
+  const hwList      = hwRes.value?.results || [];
+  const hwPublished = hwList.filter(h => h.status === 'Published').length;
+  const feesList    = feesRes.value?.results || [];
+  const totalDue    = feesList.reduce((a, c) => a + (c.totalDue || 0), 0);
+  const dueStudents = feesList.reduce((a, c) => a + (c.dueStudents || 0), 0);
+  const notices     = noticeRes.value?.results || [];
+  const unreadCount = notices.filter(n => !n.isRead).length;
 
-  document.getElementById('dash-cards').innerHTML = `
-    <div class="dash-card dash-card-blue" data-nav="attendance">
-      <div>
-        <div class="dash-label">উপস্থিতি</div>
-        <div class="dash-value" data-count-up="${ctSec}">${ctSec}</div>
-        <span class="dash-value-unit">সেকশন</span>
+  // Attendance badge: check if ct sections have today's attendance taken
+  const attBadge = ctSec > 0
+    ? `<div class="td-badge ok">✓ আজ নেওয়া হয়েছে</div>`
+    : `<div class="td-badge warn">⏳ বাকি আছে</div>`;
+
+  const hwBadge = hwPublished > 0
+    ? `<div class="td-badge warn">⏳ ${_bn(hwPublished)} প্রকাশিত</div>`
+    : `<div class="td-badge ok">✓ সব ঠিকঠাক</div>`;
+
+  const leavesBadge = leaves > 0
+    ? `<div class="td-badge info">⏳ অপেক্ষমান</div>`
+    : `<div class="td-badge ok">✓ মিটমাট</div>`;
+
+  const marksBadge = subjectSec > 0
+    ? `<div class="td-badge warn">⏳ বাকি আছে</div>`
+    : `<div class="td-badge ok">✓ সম্পন্ন</div>`;
+
+  // Fee card content
+  const feeContent = totalDue > 0
+    ? `<div class="td-fee-amount">৳${_bnNum(totalDue)}</div>
+       <div class="td-fee-sub">${_bn(dueStudents)} জন শিক্ষার্থী</div>`
+    : `<div class="td-fee-amount" style="font-size:1rem;color:var(--td-green);">✓ বকেয়া নেই</div>`;
+
+  // Notice unread badge
+  const unreadBadge = unreadCount > 0
+    ? `<div class="td-unread-badge">${_bn(Math.min(unreadCount, 99))}</div>` : '';
+
+  document.getElementById('td-cards').innerHTML = `
+    <!-- Priority: Fee alert -->
+    <div class="td-fee-card" data-nav="fees">
+      <div class="td-fee-ic">${_feesIcon(22)}</div>
+      <div class="td-fee-info">
+        <div class="td-fee-label">ফি বকেয়া</div>
+        ${feeContent}
       </div>
-      <div style="position:absolute;bottom:14px;right:14px;opacity:.6;">${_attIcon(22)}</div>
+      <div class="td-fee-chev">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
     </div>
 
-    <div class="dash-card dash-card-amber" data-nav="homework">
-      <div>
-        <div class="dash-label">হোমওয়ার্ক</div>
-        <div class="dash-value" data-count-up="${hwList.length}">${hwList.length}</div>
-        <span class="dash-value-unit">টি মোট</span>
-      </div>
-      ${hwPending > 0 ? `<div class="dash-sub dash-sub-amber">⏳ ${hwPending} প্রকাশিত</div>` : ''}
-      <div style="position:absolute;bottom:14px;right:14px;opacity:.6;">${_hwIcon(22)}</div>
-    </div>
-
-    <div class="dash-card dash-card-purple" data-nav="leave">
-      <div>
-        <div class="dash-label">ছুটির আবেদন</div>
-        <div class="dash-value" data-count-up="${leaves}">${leaves}</div>
-        <span class="dash-value-unit">অপেক্ষমান</span>
-      </div>
-      ${leaves === 0 ? `<div class="dash-sub dash-sub-green">✓ মিটমাট</div>` : ''}
-      <div style="position:absolute;bottom:14px;right:14px;opacity:.6;">${_leaveIcon(22)}</div>
-    </div>
-
-    <div class="dash-card dash-card-green" data-nav="marks">
-      <div>
-        <div class="dash-label">নম্বর এন্ট্রি</div>
-        <div class="dash-value" data-count-up="${subjectSec}">${subjectSec}</div>
-        <span class="dash-value-unit">বিষয়</span>
-      </div>
-      <div style="position:absolute;bottom:14px;right:14px;opacity:.6;">${_marksIcon(22)}</div>
-    </div>
-
-    <div class="dash-card dash-card-red dash-card--wide" data-nav="fees">
-      <div class="dash-icon dash-icon-red">${_feesIcon(22)}</div>
-      <div style="flex:1;min-width:0;">
-        <div class="dash-label">ফি বকেয়া</div>
-        <div style="display:flex;align-items:baseline;gap:6px;">
-          <div class="dash-value" data-count-up="${dueStudents > 0 ? dueStudents : 0}">${dueStudents > 0 ? dueStudents : '০'}</div>
-          <span class="dash-value-unit" style="display:inline;margin:0;">শিক্ষার্থী</span>
+    <!-- 2×2 stat grid -->
+    <div class="td-grid">
+      <div class="td-stat c-green" data-nav="attendance">
+        <div class="td-stat-top">
+          <span class="td-stat-label">উপস্থিতি</span>
+          <div class="td-stat-ic">${_attIcon(16)}</div>
         </div>
+        <div class="td-stat-val" data-count-up="${ctSec}">${_bn(ctSec)}</div>
+        <div class="td-stat-sub">সেকশন</div>
+        ${attBadge}
       </div>
-      ${totalDue > 0 ? `<div class="dash-sub dash-sub-red" style="white-space:nowrap;">৳${totalDue.toLocaleString()}</div>` : `<div class="dash-sub dash-sub-green">✓ বকেয়া নেই</div>`}
+
+      <div class="td-stat c-amber" data-nav="homework">
+        <div class="td-stat-top">
+          <span class="td-stat-label">হোমওয়ার্ক</span>
+          <div class="td-stat-ic">${_hwIcon(16)}</div>
+        </div>
+        <div class="td-stat-val" data-count-up="${hwList.length}">${_bn(hwList.length)}</div>
+        <div class="td-stat-sub">টি মোট</div>
+        ${hwBadge}
+      </div>
+
+      <div class="td-stat c-purple" data-nav="leave">
+        <div class="td-stat-top">
+          <span class="td-stat-label">ছুটির আবেদন</span>
+          <div class="td-stat-ic">${_leaveIcon(16)}</div>
+        </div>
+        <div class="td-stat-val" data-count-up="${leaves}">${_bn(leaves)}</div>
+        <div class="td-stat-sub">আবেদন</div>
+        ${leavesBadge}
+      </div>
+
+      <div class="td-stat c-blue" data-nav="marks">
+        <div class="td-stat-top">
+          <span class="td-stat-label">নম্বর এন্ট্রি</span>
+          <div class="td-stat-ic">${_marksIcon(16)}</div>
+        </div>
+        <div class="td-stat-val" data-count-up="${subjectSec}">${_bn(subjectSec)}</div>
+        <div class="td-stat-sub">বিষয়</div>
+        ${marksBadge}
+      </div>
     </div>
 
-    <div class="dash-card dash-card-blue dash-card--wide" data-nav="notice">
-      <div class="dash-icon dash-icon-blue">${_noticeIcon(22)}</div>
-      <div style="flex:1;min-width:0;">
-        <div class="dash-label">নোটিশ</div>
-        <div style="font-size:.95rem;font-weight:700;color:#1e40af;margin-top:2px;">নতুন নোটিশ তৈরি করুন →</div>
+    <!-- Notice card -->
+    <div class="td-notice-card" data-nav="notice">
+      <div class="td-notice-ic-wrap">
+        <div class="td-notice-ic">${_noticeIcon(20)}</div>
+        ${unreadBadge}
+      </div>
+      <div class="td-notice-text">
+        <div class="td-notice-lbl">নোটিশ</div>
+        <div class="td-notice-cta">নতুন নোটিশ তৈরি করুন →</div>
       </div>
     </div>
   `;
 
+  // Nav clicks
   container.querySelectorAll('[data-nav]').forEach(card => {
     card.addEventListener('click', () => navigateTo(card.dataset.nav));
   });
-  attachRippleAll('.dash-card', container);
 
-  // Animate in + count-up + scroll reveal
-  const cardsEl = document.getElementById('dash-cards');
+  // FAB
+  _mountDashFAB();
+
+  // Animations
+  const cardsEl = document.getElementById('td-cards');
   if (cardsEl) {
     crossfadeIn(cardsEl);
     settleContent(cardsEl);
@@ -321,12 +373,80 @@ async function loadDashboardModule(container) {
     markScrollReveal(cardsEl);
   }
 
-  // Pull-to-refresh on main-content scroll area
+  // Pull-to-refresh
   const scrollArea = document.getElementById('main-content');
-  initPullToRefresh(scrollArea, async () => {
-    const { loadDashboardModule: _ld } = await import('./dashboard.js').catch(() => ({}));
-    navigateTo('dashboard');
+  initPullToRefresh(scrollArea, () => navigateTo('dashboard'));
+}
+
+function _bn(n) {
+  if (n === null || n === undefined || n === '—') return '—';
+  return String(n).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+}
+
+function _bnNum(n) {
+  return n.toLocaleString('bn-BD');
+}
+
+function _mountDashFAB() {
+  // Remove any existing ext-fab first
+  document.getElementById('__ext-fab')?.remove();
+  document.getElementById('__td-fab-backdrop')?.remove();
+  document.getElementById('__td-fab-menu')?.remove();
+  document.getElementById('__td-fab')?.remove();
+
+  // Backdrop
+  const backdrop = document.createElement('div');
+  backdrop.id = '__td-fab-backdrop';
+  backdrop.className = 'td-fab-backdrop';
+  document.body.appendChild(backdrop);
+
+  // Menu
+  const menu = document.createElement('div');
+  menu.id = '__td-fab-menu';
+  menu.className = 'td-fab-menu';
+  menu.innerHTML = `
+    <div class="td-fab-action" data-nav="attendance">
+      <span class="td-fab-action-label">উপস্থিতি নিন</span>
+      <button class="td-fab-action-btn att">${_attIcon(18)}</button>
+    </div>
+    <div class="td-fab-action" data-nav="notice">
+      <span class="td-fab-action-label">নোটিশ তৈরি</span>
+      <button class="td-fab-action-btn ntc">${_noticeIcon(18)}</button>
+    </div>
+    <div class="td-fab-action" data-nav="homework">
+      <span class="td-fab-action-label">হোমওয়ার্ক পোস্ট</span>
+      <button class="td-fab-action-btn hw">${_hwIcon(18)}</button>
+    </div>
+  `;
+  document.body.appendChild(menu);
+
+  // FAB button
+  const fab = document.createElement('button');
+  fab.id = '__td-fab';
+  fab.className = 'td-fab';
+  fab.setAttribute('aria-label', 'Quick actions');
+  fab.innerHTML = `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+  document.body.appendChild(fab);
+
+  const toggle = (open) => {
+    fab.classList.toggle('open', open);
+    menu.classList.toggle('open', open);
+    backdrop.classList.toggle('open', open);
+  };
+
+  fab.addEventListener('click', () => toggle(!menu.classList.contains('open')));
+  backdrop.addEventListener('click', () => toggle(false));
+  menu.querySelectorAll('[data-nav]').forEach(el => {
+    el.addEventListener('click', () => { toggle(false); navigateTo(el.dataset.nav); });
   });
+
+  // Cleanup when navigating away
+  const _origNavigate = window.__tdFabCleanup;
+  if (_origNavigate) _origNavigate();
+  window.__tdFabCleanup = () => {
+    fab.remove(); menu.remove(); backdrop.remove();
+    window.__tdFabCleanup = null;
+  };
 }
 
 function _skeleton() {
