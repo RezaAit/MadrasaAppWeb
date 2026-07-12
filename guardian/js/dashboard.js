@@ -515,6 +515,72 @@ function initProfileNav(openSection = null) {
       loadSection(section);
     });
   });
+
+  // Global FAB — mount once
+  if (!document.getElementById('__g-fab')) {
+    _mountGuardianFAB();
+  }
+}
+
+function _mountGuardianFAB() {
+  const backdrop = document.createElement('div');
+  backdrop.id = '__g-fab-backdrop';
+  backdrop.style.cssText = 'position:fixed;inset:0;z-index:198;display:none;';
+  document.body.appendChild(backdrop);
+
+  const menu = document.createElement('div');
+  menu.id = '__g-fab-menu';
+  menu.style.cssText = `
+    position:fixed; bottom:92px; left:50%; transform:translateX(-50%) translateY(12px) scale(.94);
+    display:flex; flex-direction:column; gap:10px; z-index:200;
+    opacity:0; pointer-events:none;
+    transition:opacity 180ms, transform 200ms cubic-bezier(.34,1.56,.64,1);
+  `;
+  menu.innerHTML = `
+    <div data-section="leave" style="display:flex;align-items:center;gap:10px;cursor:pointer;justify-content:center;">
+      <span style="background:rgba(15,33,26,.88);color:#fff;font-size:.78rem;font-weight:700;padding:5px 14px;border-radius:99px;white-space:nowrap;">ছুটির আবেদন</span>
+      <button style="width:44px;height:44px;border-radius:13px;border:none;background:#145c44;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px -4px rgba(0,0,0,.25);flex-shrink:0;cursor:pointer;">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+      </button>
+    </div>
+  `;
+  document.body.appendChild(menu);
+
+  const fab = document.createElement('button');
+  fab.id = '__g-fab';
+  fab.style.cssText = `
+    position:fixed; bottom:28px; left:50%; transform:translateX(-50%);
+    width:56px; height:56px; border-radius:18px; border:none;
+    background:linear-gradient(135deg,#145c44,#0b3d2e);
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 20px rgba(20,92,68,.5); z-index:200;
+    cursor:pointer; transition:transform 200ms cubic-bezier(.34,1.56,.64,1), box-shadow 180ms;
+    -webkit-tap-highlight-color:transparent;
+  `;
+  fab.innerHTML = `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+  document.body.appendChild(fab);
+
+  const toggle = (open) => {
+    fab.style.transform = open ? 'translateX(-50%) rotate(45deg)' : 'translateX(-50%)';
+    menu.style.opacity = open ? '1' : '0';
+    menu.style.pointerEvents = open ? 'auto' : 'none';
+    menu.style.transform = open
+      ? 'translateX(-50%) translateY(0) scale(1)'
+      : 'translateX(-50%) translateY(12px) scale(.94)';
+    backdrop.style.display = open ? 'block' : 'none';
+  };
+
+  fab.addEventListener('click', () => toggle(menu.style.opacity !== '1'));
+  backdrop.addEventListener('click', () => toggle(false));
+
+  menu.querySelectorAll('[data-section]').forEach(el => {
+    el.addEventListener('click', () => {
+      toggle(false);
+      const section = el.dataset.section;
+      const btn = document.querySelector(`.profile-nav-btn[data-section="${section}"]`);
+      if (btn) btn.click();
+    });
+  });
 }
 
 function loadSection(section) {
