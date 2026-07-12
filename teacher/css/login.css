@@ -1,0 +1,412 @@
+/*
+ * Login Screen Styles — Guardian Portal
+ * Depends on: login-theme.css (color tokens)
+ * Fonts: Hind Siliguri + Baloo Da 2 loaded in index.html
+ */
+
+/* ── Page wrapper ─────────────────────────────────────────────────────────── */
+#screen-login {
+  background: var(--lg-cream);
+  justify-content: center;
+  align-items: flex-start;
+  height: 100vh;
+  overflow: hidden;
+  padding: 0;
+}
+#screen-login.active {
+  display: flex;
+}
+
+.lg-root {
+  width: 100%;
+  max-width: 420px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--lg-cream);
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.lg-root::-webkit-scrollbar { display: none; }
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.lg-header {
+  position: relative;
+  background: linear-gradient(160deg, var(--lg-deep) 0%, var(--lg-mid) 55%, var(--lg-light) 100%);
+  padding: 48px 24px 70px;
+  padding-top: max(48px, calc(env(safe-area-inset-top) + 16px));
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.lg-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(201,162,75,0.12) 0, transparent 40%),
+    radial-gradient(circle at 85% 75%, rgba(201,162,75,0.09) 0, transparent 45%);
+  pointer-events: none;
+}
+
+/* geometric lattice */
+.lg-lattice {
+  position: absolute;
+  top: -40px; right: -55px;
+  width: 220px; height: 220px;
+  opacity: 0.14;
+  background-image:
+    repeating-linear-gradient(45deg,  var(--lg-gold) 0 1.5px, transparent 1.5px 24px),
+    repeating-linear-gradient(-45deg, var(--lg-gold) 0 1.5px, transparent 1.5px 24px);
+  pointer-events: none;
+}
+.lg-lattice2 {
+  position: absolute;
+  bottom: -55px; left: -45px;
+  width: 180px; height: 180px;
+  opacity: 0.10;
+  background-image:
+    repeating-linear-gradient(45deg,  var(--lg-gold) 0 1.5px, transparent 1.5px 24px),
+    repeating-linear-gradient(-45deg, var(--lg-gold) 0 1.5px, transparent 1.5px 24px);
+  pointer-events: none;
+}
+
+/* brand block */
+.lg-brand {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* crest / logo */
+.lg-crest {
+  width: 82px; height: 82px;
+  border-radius: 22px;
+  background: radial-gradient(circle at 30% 30%, #fff, #f2ede0);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow:
+    0 12px 30px -8px rgba(0,0,0,0.40),
+    0 0 0 3px rgba(201,162,75,0.38);
+  margin-bottom: 16px;
+  overflow: hidden;
+  animation: lg-floatY 5s ease-in-out infinite;
+}
+.lg-crest img {
+  width: 70%; height: 70%;
+  object-fit: contain;
+  display: block;
+}
+
+@keyframes lg-floatY {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+
+.lg-inst-name {
+  font-family: 'Baloo Da 2', 'Hind Siliguri', sans-serif;
+  font-weight: 700;
+  font-size: 1.13rem;
+  color: #fff;
+  line-height: 1.5;
+  letter-spacing: 0.2px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.25);
+}
+.lg-inst-sub {
+  margin-top: 8px;
+  font-size: .8rem;
+  color: var(--lg-gold-soft);
+  display: flex; align-items: center; gap: 8px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+.lg-inst-sub .lg-dot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--lg-gold-soft);
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+/* ── Card (floats over header) ────────────────────────────────────────────── */
+.lg-card {
+  position: relative;
+  z-index: 3;
+  margin: -46px 20px 0;
+  background: #fff;
+  border-radius: var(--lg-card-radius);
+  padding: 30px 24px 26px;
+  box-shadow:
+    0 20px 48px -18px rgba(11,46,77,0.30),
+    0 0 0 1px rgba(11,46,77,0.04);
+}
+
+.lg-card-head {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.lg-card-head h1 {
+  font-family: 'Baloo Da 2', 'Hind Siliguri', sans-serif;
+  font-size: 1.28rem;
+  color: var(--lg-ink);
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+.lg-card-head p {
+  font-size: .82rem;
+  color: var(--lg-muted);
+}
+
+/* ── Phone field ──────────────────────────────────────────────────────────── */
+.lg-field {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.lg-field-shell {
+  display: flex;
+  align-items: stretch;
+  border: 1.5px solid #e3e0d4;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fcfbf8;
+  transition: border-color .2s, box-shadow .2s;
+}
+.lg-field-shell:focus-within {
+  border-color: var(--lg-light);
+  box-shadow: 0 0 0 4px rgba(28,111,168,0.11);
+  background: #fff;
+}
+
+.lg-prefix {
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 14px;
+  font-weight: 600;
+  font-size: .94rem;
+  color: var(--lg-ink);
+  background: #f0ede4;
+  border-right: 1.5px solid #e3e0d4;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.lg-prefix::before {
+  content: '🇧🇩';
+  font-size: .88rem;
+}
+
+.lg-phone-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 15px 14px;
+  font-size: .97rem;
+  font-family: 'Inter', 'Hind Siliguri', sans-serif;
+  letter-spacing: 0.5px;
+  color: var(--lg-ink);
+  min-width: 0;
+}
+.lg-phone-input::placeholder { color: #b7b2a2; }
+
+/* floating label */
+.lg-float-label {
+  position: absolute;
+  top: -9px; left: 14px;
+  background: #fff;
+  padding: 0 6px;
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--lg-mid);
+  letter-spacing: 0.3px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity .18s, transform .18s;
+  pointer-events: none;
+}
+.lg-field-shell:focus-within + .lg-float-label,
+.lg-field.lg-filled .lg-float-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Button ───────────────────────────────────────────────────────────────── */
+.lg-btn {
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 16px;
+  font-family: 'Hind Siliguri', sans-serif;
+  font-size: .97rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, var(--lg-mid) 0%, var(--lg-deep) 100%);
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  box-shadow: 0 14px 28px -10px rgba(11,46,77,0.52);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform .15s, box-shadow .15s, opacity .15s;
+  letter-spacing: 0.3px;
+}
+.lg-btn:active {
+  transform: translateY(2px) scale(0.99);
+  box-shadow: 0 8px 18px -8px rgba(11,46,77,0.45);
+}
+.lg-btn:disabled {
+  opacity: .48;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none;
+}
+.lg-btn svg { width: 17px; height: 17px; flex-shrink: 0; }
+
+/* ripple */
+.lg-btn .lg-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  transform: scale(0);
+  animation: lg-ripple-anim .5s linear;
+  pointer-events: none;
+}
+@keyframes lg-ripple-anim {
+  to { transform: scale(4); opacity: 0; }
+}
+
+/* spinner inside button */
+.lg-spinner {
+  width: 17px; height: 17px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: lg-spin .7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes lg-spin { to { transform: rotate(360deg); } }
+
+/* ── Helper text ──────────────────────────────────────────────────────────── */
+.lg-helper {
+  text-align: center;
+  margin-top: 14px;
+  font-size: .76rem;
+  color: var(--lg-muted);
+  line-height: 1.55;
+}
+.lg-helper b { color: var(--lg-mid); font-weight: 600; }
+
+/* ── Divider ──────────────────────────────────────────────────────────────── */
+.lg-divider {
+  display: flex; align-items: center; gap: 10px;
+  margin: 22px 0 16px;
+}
+.lg-divider span {
+  flex: 1; height: 1px; background: #ecebe3;
+}
+.lg-divider p { font-size: .72rem; color: #b7b2a2; white-space: nowrap; }
+
+/* ── Trust row ────────────────────────────────────────────────────────────── */
+.lg-trust-row {
+  display: flex; justify-content: center; gap: 22px;
+}
+.lg-trust-item {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.lg-trust-item .lg-ic { font-size: 1rem; }
+.lg-trust-item span { font-size: .68rem; color: var(--lg-muted); }
+
+/* ── Footer ───────────────────────────────────────────────────────────────── */
+.lg-power {
+  text-align: center;
+  margin-top: 22px;
+  font-size: .7rem;
+  color: #b7b2a2;
+  letter-spacing: 0.2px;
+}
+.lg-power b { color: var(--lg-mid); font-weight: 700; }
+
+/* ── OTP step ─────────────────────────────────────────────────────────────── */
+.lg-otp-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 4px; width: 100%;
+}
+
+.lg-otp-num { font-weight: 700; color: var(--lg-mid); }
+
+.lg-change {
+  display: inline-flex; align-items: center; gap: 3px;
+  background: none; border: none;
+  color: var(--lg-mid); font-size: .77rem; font-weight: 600;
+  cursor: pointer; padding: 2px 8px; border-radius: 7px;
+  transition: background .12s;
+  font-family: inherit;
+}
+.lg-change:hover { background: rgba(19,79,124,0.08); }
+
+.lg-otp-step { text-align: center; }
+
+.lg-otp-row {
+  display: flex; gap: 9px; justify-content: center;
+  margin: 18px 0 20px;
+}
+.lg-otp-box {
+  width: 44px; height: 52px;
+  border: 1.5px solid #e0ddd6;
+  border-radius: 12px;
+  background: #fcfbf8;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--lg-ink);
+  outline: none;
+  transition: border-color .15s, box-shadow .15s, background .15s;
+  font-family: 'Inter', monospace;
+  caret-color: var(--lg-mid);
+}
+.lg-otp-box:focus {
+  border-color: var(--lg-light);
+  box-shadow: 0 0 0 3px rgba(28,111,168,0.13);
+  background: #fff;
+}
+.lg-otp-box.filled {
+  border-color: var(--lg-mid);
+  background: #fff;
+}
+
+.lg-hint {
+  font-size: .74rem; color: var(--lg-muted);
+  text-align: center; margin-top: 12px; line-height: 1.5;
+}
+
+/* ── Error banner ─────────────────────────────────────────────────────────── */
+.lg-error {
+  display: none;
+  align-items: center; gap: 8px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+  font-size: .8rem;
+  color: #b91c1c;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.lg-error.show { display: flex; }
+.lg-error svg { flex-shrink: 0; }
+
+/* ── Responsive fine-tuning ───────────────────────────────────────────────── */
+@media (max-width: 360px) {
+  .lg-header { padding: 40px 18px 66px; }
+  .lg-inst-name { font-size: 1rem; }
+  .lg-card { margin-left: 14px; margin-right: 14px; padding: 26px 18px 22px; }
+  .lg-otp-box { width: 38px; height: 48px; font-size: 1.15rem; }
+  .lg-otp-row { gap: 7px; }
+}
+@media (max-width: 320px) {
+  .lg-otp-box { width: 34px; height: 44px; }
+  .lg-otp-row { gap: 5px; }
+}
