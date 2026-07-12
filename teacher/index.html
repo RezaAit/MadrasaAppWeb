@@ -24,6 +24,11 @@
   <link rel="apple-touch-icon" href="/images/logo.png">
 </head>
 <body>
+<script>
+  if (localStorage.getItem('teacher_token')) {
+    document.documentElement.dataset.authed = '1';
+  }
+</script>
 <div class="app-shell">
 
   <!-- ═══════════════════════════════════════════════════════ LOGIN SCREEN -->

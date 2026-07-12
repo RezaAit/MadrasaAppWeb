@@ -70,7 +70,6 @@ export function navigateTo(moduleKey) {
   // Hide wave when profile (has own hero), show for all others
   const waveSep = document.querySelector('.thb-wave-sep');
   if (waveSep) waveSep.style.display = moduleKey === 'profile' ? 'none' : '';
-  document.getElementById('__ext-fab')?.remove();
   window.__tdFabCleanup?.();
 
   // Logo spin on tab switch
@@ -238,6 +237,8 @@ function renderShell() {
   document.getElementById('teacher-initials').style.cursor = 'pointer';
   document.getElementById('teacher-initials').addEventListener('click', () => navigateTo('profile'));
 
+  _mountDashFAB();
+
   const savedModule = sessionStorage.getItem('teacher_active_module') || 'dashboard';
   navigateTo(savedModule);
 }
@@ -395,9 +396,6 @@ async function loadDashboardModule(container) {
     card.addEventListener('click', () => navigateTo(card.dataset.nav));
   });
 
-  // FAB
-  _mountDashFAB();
-
   // Fee amount count-up animation
   if (totalDue > 0) {
     const feeAmountEl = document.getElementById('td-fee-amount-val');
@@ -487,13 +485,6 @@ function _mountDashFAB() {
     el.addEventListener('click', () => { toggle(false); navigateTo(el.dataset.nav); });
   });
 
-  // Cleanup when navigating away
-  const _origNavigate = window.__tdFabCleanup;
-  if (_origNavigate) _origNavigate();
-  window.__tdFabCleanup = () => {
-    fab.remove(); menu.remove(); backdrop.remove();
-    window.__tdFabCleanup = null;
-  };
 }
 
 function _skeleton() {

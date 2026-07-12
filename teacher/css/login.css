@@ -17,6 +17,10 @@
   display: flex;
 }
 
+/* Token exists — hide login, show main immediately before JS runs */
+[data-authed="1"] #screen-login { display: none !important; }
+[data-authed="1"] #screen-main  { display: flex !important; }
+
 .lg-root {
   width: 100%;
   max-width: 420px;
