@@ -1,4 +1,4 @@
-﻿const CACHE = 'huda-teacher-v24';
+﻿const CACHE = 'huda-teacher-v25';
 const IMAGES = ['/images/logo.png', '/images/headerlogo.png'];
 
 self.addEventListener('install', e => {
