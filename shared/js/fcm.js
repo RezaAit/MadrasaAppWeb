@@ -45,6 +45,16 @@ export async function initFcm(authToken, userType) {
 
     if (!fcmToken) return;
 
+    // Foreground message handler
+    const { onMessage } = await import('https://www.gstatic.com/firebasejs/12.16.0/firebase-messaging.js');
+    onMessage(messaging, payload => {
+      const { title, body } = payload.notification ?? {};
+      const data = payload.data ?? {};
+      if (Notification.permission === 'granted') {
+        new Notification(title || 'মাদ্রাসা', { body: body || '', icon: '/images/icon-192.png', data });
+      }
+    });
+
     // Save token to backend
     const { BASE_URL: API_BASE } = await import('/shared/js/api-config.js');
     await fetch(`${API_BASE}/api/Notification/register-token`, {
