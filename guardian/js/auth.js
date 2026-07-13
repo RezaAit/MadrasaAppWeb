@@ -166,6 +166,7 @@ export function initLogin() {
         localStorage.setItem('guardian_token', res.token);
         localStorage.setItem('guardian_data', JSON.stringify(guardianData));
         localStorage.setItem('guardian_phone', guardianPhone);
+        import('/shared/js/fcm.js').then(m => m.initFcm(res.token, 'Guardian'));
         window.dispatchEvent(new CustomEvent('login-success', { detail: guardianData }));
         return; // don't restore button — navigating away
       } else {

@@ -113,6 +113,7 @@ export function initLogin() {
         localStorage.setItem('teacher_token', res.token);
         if (res.refreshToken) localStorage.setItem('teacher_refresh_token', res.refreshToken);
         localStorage.setItem('teacher_data', JSON.stringify(res.teacher));
+        import('/shared/js/fcm.js').then(m => m.initFcm(res.token, 'Teacher'));
         window.dispatchEvent(new CustomEvent('teacher-login-success', { detail: res.teacher }));
         return;
       }
