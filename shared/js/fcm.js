@@ -34,8 +34,7 @@ export async function initFcm(authToken, userType) {
     const app = await _loadFirebase();
     const { getMessaging, getToken } = await import('https://www.gstatic.com/firebasejs/12.16.0/firebase-messaging.js');
 
-    const swReg = await navigator.serviceWorker.getRegistration('/')
-      ?? await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    const swReg = await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
 
     const messaging = getMessaging(app);
     const fcmToken = await getToken(messaging, {
