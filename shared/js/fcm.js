@@ -46,7 +46,7 @@ export async function initFcm(authToken, userType) {
     if (!fcmToken) return;
 
     // Save token to backend
-    const { API_BASE } = await import('/shared/js/api-config.js');
+    const { BASE_URL: API_BASE } = await import('/shared/js/api-config.js');
     await fetch(`${API_BASE}/api/Notification/register-token`, {
       method: 'POST',
       headers: {
