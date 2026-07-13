@@ -31,10 +31,12 @@ messaging.onBackgroundMessage(payload => {
 self.addEventListener('notificationclick', e => {
   e.notification.close();
   const data = e.notification.data ?? {};
-  let url = '/';
-  if (data.type === 'homework_published' || data.type === 'homework_reviewed') url = '/guardian/';
-  else if (data.type === 'homework_submitted') url = '/teacher/';
-  else if (data.type === 'notice_published') url = '/guardian/';
+  let url = data.url || '/';
+  if (!data.url) {
+    if (data.type === 'homework_published' || data.type === 'homework_reviewed') url = '/guardian/';
+    else if (data.type === 'homework_submitted') url = '/teacher/';
+    else if (data.type === 'notice_published') url = '/guardian/';
+  }
 
   e.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
