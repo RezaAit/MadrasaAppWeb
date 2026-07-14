@@ -35,7 +35,14 @@ export async function initFcm(authToken, userType) {
     const { getMessaging, getToken } = await import('https://www.gstatic.com/firebasejs/12.16.0/firebase-messaging.js');
 
     const swReg = await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
-    await navigator.serviceWorker.ready;
+    // Wait for this specific SW to be active, not navigator.serviceWorker.ready
+    // (ready resolves to the first active SW which may be guardian/sw.js)
+    await new Promise(resolve => {
+      if (swReg.active) return resolve();
+      const sw = swReg.installing || swReg.waiting;
+      if (sw) sw.addEventListener('statechange', e => { if (e.target.state === 'activated') resolve(); });
+      else resolve();
+    });
 
     const messaging = getMessaging(app);
     const fcmToken = await getToken(messaging, {
