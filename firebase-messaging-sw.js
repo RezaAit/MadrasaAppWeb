@@ -14,8 +14,9 @@ const messaging = firebase.messaging();
 
 // Background message handler
 messaging.onBackgroundMessage(payload => {
-  const { title, body } = payload.notification ?? {};
   const data = payload.data ?? {};
+  const title = data.title || payload.notification?.title || 'মাদ্রাসা';
+  const body = data.body || payload.notification?.body || '';
 
   self.registration.showNotification(title || 'মাদ্রাসা', {
     body: body || '',
